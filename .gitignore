@@ -1,0 +1,10 @@
+# production files
+dist
+lib
+es
+
+
+
+# other
+node_modules
+*.log

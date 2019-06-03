@@ -1,0 +1,60 @@
+language: node_js
+node_js:
+  - "node"
+
+cache:
+  yarn: true
+  directories:
+    - "node_modules"
+
+before_install:
+  - export PACKAGE_VERSION=$(node -p "require('./package.json').version")
+  - export NPM_REMOTE_VERSION=$(npm view stonex version)
+  - export PACKAGE_NAME=$(node -p "require('./package.json').name")
+  - export BRANCH_IS_TAG=$(node -p "/^([0-9].[0-9].[0-9]+((-(alpha|beta))|))$/.test('${TRAVIS_BRANCH}')")
+  - export GIT_LOG="$(git log --pretty=format:"* %s (%h)")"
+  - export PROJECT_NAME="acacode/stonex"
+  - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/getLatestTag.js') + ')'")
+
+install:
+  - yarn install --frozen-lockfile
+
+jobs:
+  include:
+    - stage: lint
+      script: yarn lint
+    - stage: test
+      script:
+        - yarn test
+        - yarn run exec
+    - stage: publish
+      if: env(BRANCH_IS_TAG) != true AND branch = master AND type = push
+      name: "Create Github Release"
+      before_deploy:
+        - git config --global user.email "builds@travis-ci.com"
+        - git config --global user.name "Travis CI"
+        - git tag $PACKAGE_VERSION -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER from $TRAVIS_BRANCH"
+        - git push -q https://$GITHUB_TOKEN@github.com/$PROJECT_NAME --tags
+        - zip -r release.zip dist lib es src index.d.ts LICENSE README.md package.json
+        - ls -l
+      deploy:
+        provider: releases
+        name: "Release ${PACKAGE_VERSION}"
+        body: "$RELEASE_BODY"
+        overwrite: true
+        skip_cleanup: true
+        api_key:
+          secure: ${GITHUB_TOKEN}
+        file:
+          - release.zip
+        on:
+          all_branches: true
+          repo: $PROJECT_NAME
+      after_deploy:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+        - npm publish
+
+notifications:
+  slack:
+    rooms:
+      secure: Gc/Rlr5eMpqXL1qlton9qb+RpCDJTM8yrC9vZ40olNs3sGVeV7oR1gOCuCSYgdLE81PPnJ392Vw9fvTYK1jkPB6T6zgDrmULWzeyvhl6OvgYxPKaFNq4ttaSEEiPsulTDCvbpsO7Okvev0deY1+6lV2h9hsMoW3O/fi18p9Of5cmpU1dGC0pd6/Ew75iEhx3h4FbcsjecciBqx/6a6Dp11mDt9aRRP9WOzi6lGEGvzKP83ubOCHs3yaVxcjfRbqUG+k5GPjUEQACjISVFSw8ujkEWPgECUjbHgxda736jL8EFB7ynOGI9ZSGMeRi7+tVMovOLYf7vlEVLW6jaRPEJDQkP5H7OXe5IyTlks4fPhr34t/BB8J1Ner+ohAiAF0j/xld4TV2FPobDD+0mVDn9GHRlP8/7Nenfjy5ka60CaZQIuMeXjBzDsstZLp1mYFiMHvw+THJ29JbjKaE0xZEX6nDHNWw9GPMn7aDtZ/ctd+JJgzYDnVE2UndZhM8maad1MLhXkBi1tRIxUVRK1o0O8GZX8z5BlQIjSy/dIg5qoUuIx1keC+yO12F/bQOmW9OR3+5S0S4eHOBmdR/jYuZHZIJrT9PgNdW2+99ReixkY4Pvfn5P3Pt9z55IJSLxRFG+t96+vUggjVNRNiKPJsRctS4GasCsu21EYKY+y82/Ig=
