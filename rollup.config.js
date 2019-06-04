@@ -36,24 +36,24 @@ const productionBuildPlugins = [
 module.exports = [
   // Common JS builds
   {
-    ...inputOutputConfig('lib/stonex.js', 'cjs'),
+    ...inputOutputConfig('lib/mapy.js', 'cjs'),
     external: deps,
     plugins: [typescript()],
   },
   {
-    ...inputOutputConfig('lib/stonex.min.js', 'cjs'),
+    ...inputOutputConfig('lib/mapy.min.js', 'cjs'),
     external: deps,
     plugins: [typescript(), ...productionBuildPlugins],
   },
 
   // EcmaScript builds
   {
-    ...inputOutputConfig('es/stonex.js', 'es'),
+    ...inputOutputConfig('es/mapy.js', 'es'),
     external: deps,
     plugins: [typescript()],
   },
   {
-    ...inputOutputConfig('es/stonex.mjs', 'es'),
+    ...inputOutputConfig('es/mapy.mjs', 'es'),
     external: deps,
     plugins: [
       resolve({
@@ -66,8 +66,8 @@ module.exports = [
 
   // UMD builds
   {
-    ...inputOutputConfig('dist/stonex.js', 'umd', {
-      name: 'Stonex',
+    ...inputOutputConfig('dist/mapy.js', 'umd', {
+      name: 'mapy',
     }),
     external: deps,
     plugins: [
@@ -83,8 +83,8 @@ module.exports = [
     ],
   },
   {
-    ...inputOutputConfig('dist/stonex.min.js', 'umd', {
-      name: 'Stonex',
+    ...inputOutputConfig('dist/mapy.min.js', 'umd', {
+      name: 'mapy',
     }),
     external: deps,
     plugins: [

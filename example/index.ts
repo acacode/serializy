@@ -1,12 +1,17 @@
 import { createMapper } from '../src'
 
-const mapy = createMapper({
-  bar: 'foo',
-  foo: 'bar',
-})
+setTimeout(() => {
 
-console.log(mapy.toClient({
-  bar: '1231233',
-  foo: '1234',
-})
-)
+  const mapy = createMapper({
+    firstName: 'FirstName',
+    lastName: 'LastName',
+  })
+
+  const cc = mapy.toClient({
+    FirstName: 'Sergey',
+    LastName: 'Volkov',
+  }) as any
+
+  console.log('cc.firstName', cc.firstName)
+
+}, 14000)
