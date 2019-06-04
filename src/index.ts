@@ -1,3 +1,5 @@
+import { swapObject } from './helpers/base'
+
 /**
  * Copyright (c) acacode, Inc. and its affiliates.
  *
@@ -5,43 +7,51 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 class ParsedStructure {
-  public mapper: object = {}
+  // tslint:disable-next-line:variable-name
+  protected __mapper__: object
 
-  constructor (mapper: any) {
-    this.mapper = mapper
-  }
+  constructor (structDeclarations: any, mapper: any) {
+    (this as any).__proto__.__mapper__ = mapper
 
-  public mapBack (): any {
-    console.log('ass')
-  }
-}
-
-class ClientStructure extends ParsedStructure {
-  constructor (structure: any, mapper: any) {
-    super(mapper)
     const keys = Object.keys(mapper)
     for (const key of keys) {
-      this[key] = structure[key]
+      this[key] = structDeclarations[this.__mapper__[key]]
     }
+  }
+
+  public swap (): ThisType<ParsedStructure> {
+    const keys = Object.keys(this.__mapper__)
+    for (const key of keys) {
+      this[this.__mapper__[key]] = this[key]
+      delete this[key]
+    }
+
+    (this as any).__proto__.__mapper__ = swapObject(this.__mapper__)
+
+    return this
   }
 }
 
 class Mapy {
+
   public clientMapper: object = {}
   public serverMapper: object = {}
 
   constructor (mapper: object) {
     this.clientMapper = mapper
-    this.serverMapper = Object.keys(mapper).reduce((backMapper, key) => {
-      backMapper[mapper[key]] = key
-      return backMapper
-    }, {})
+    this.serverMapper = swapObject(mapper)
   }
 
-  public toClient (structure: object): ClientStructure {
-    return new ClientStructure(structure, this.serverMapper)
+  public toClient (structDeclarations: object): ParsedStructure {
+    return new ParsedStructure(structDeclarations, this.clientMapper)
   }
+
+  public toServer (structDeclarations: object): ParsedStructure {
+    return new ParsedStructure(structDeclarations, this.serverMapper)
+  }
+
 }
 
 const createMapper = (mapper: object) => new Mapy(mapper)
