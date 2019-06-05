@@ -1,17 +1,19 @@
 import { createMapper } from '../src'
 
-setTimeout(() => {
+const Family = createMapper({
+  Children: ['children', Number],
+})
 
-  const mapy = createMapper({
-    firstName: 'FirstName',
-    lastName: 'LastName',
-  })
+const UserInfo = createMapper({
+  Age: ['age', Number],
+  Family,
+  FirstName: 'firstName',
+  LastName: ['lastName', String],
+})
 
-  const cc = mapy.toClient({
-    FirstName: 'Sergey',
-    LastName: 'Volkov',
-  }) as any
+const cc = UserInfo.toClient({
+  FirstName: 'Sergey',
+  LastName: 'Volkov',
+}) as any
 
-  console.log('cc.firstName', cc.firstName)
-
-}, 14000)
+console.log('cc.firstName', cc.firstName)

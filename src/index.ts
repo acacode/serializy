@@ -40,8 +40,8 @@ class Mapy {
   public serverMapper: object = {}
 
   constructor (mapper: object) {
-    this.clientMapper = mapper
-    this.serverMapper = swapObject(mapper)
+    this.clientMapper = swapObject(mapper)
+    this.serverMapper = mapper
   }
 
   public toClient (structDeclarations: object): ParsedStructure {
