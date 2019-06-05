@@ -11,18 +11,31 @@ import { swapObject } from './helpers/base'
 const castTo = {
   boolean: (value: any) => !!value,
   float: (value: any) => {
-    const str = castTo.string(value)
-    if (str.indexOf(',') > -1) {
-      str.replace(',', '.')
-    }
+    const str = castTo.string(value).replace(',', '.')
     return castTo.number(str)
   },
   integer: (value: any) => {
     const str = castTo.string(value)
     return castTo.number((+str).toFixed(0))
   },
-  number: (value: any): number => +value,
-  string: (value: any): string => value.toString ? value.toString() : `${value}`,
+  number: (value: any): number => {
+    const castedValue = +value
+
+    if (Number.isNaN(castedValue)) {
+      console.warn('Cannot cast value {', value, '} to type number.\r\nCurrent value will be {NaN}')
+    }
+
+    return castedValue
+  },
+  string: (value: any): string => {
+    const castedValue = value.toString ? value.toString() : `${value}`
+
+    if (castedValue === '[object Object]') {
+      console.warn('Cannot cast value {', value, '} to type string.\r\nCurrent value will be {[object Object]}')
+    }
+
+    return castedValue
+  },
 }
 
 interface StructPropTypeCaster {
@@ -33,20 +46,30 @@ interface StructPropTypeCaster {
 export class StructProp {
   public originalName: string
   public usageName: string
-  public typeCaster: StructPropTypeCaster | null
-  public reverseTypeCaster: StructPropTypeCaster | null
+  public usageTypeCaster: StructPropTypeCaster | null
+  public originalTypeCaster: StructPropTypeCaster | null
 
-  constructor (originalName: string, [usageName, castToType = null, reverseCastToType = null]: any[]) {
+  constructor (
+    [usageName, usageType = null]: [string, any?],
+    [originalName, originalType = null]: [string, any?]) {
     this.originalName = originalName
     this.usageName = usageName
 
-    this.aggregateTypeCast(castToType, 'typeCaster')
-    this.aggregateTypeCast(reverseCastToType, 'reverseTypeCaster')
+    this.aggregateTypeCast(usageType, 'usageTypeCaster')
+    this.aggregateTypeCast(originalType, 'originalTypeCaster')
 
   }
 
-  private aggregateTypeCast (castToType: string | Function | null, prop: 'typeCaster' | 'reverseTypeCaster'): void {
-    if (castToType === null) {
+  public castTo (value: any, toUsage: boolean = false): any {
+    const typeCaster: StructPropTypeCaster | null = toUsage ? this.usageTypeCaster : this.originalTypeCaster
+    return typeCaster ? typeCaster.converter(value) : value
+  }
+
+  private aggregateTypeCast (
+    castToType: string | Function | null,
+    prop: 'usageTypeCaster' | 'originalTypeCaster'
+  ): void {
+    if (!castToType) {
       this[prop] = null
     }
     if (typeof castToType === 'string') {
@@ -82,6 +105,8 @@ class ParsedStructure {
     for (const key of keys) {
       this[key] = structDeclarations[this.__mapper__[key]]
     }
+
+    Object.seal(this)
   }
 
   public swap (): ThisType<ParsedStructure> {
@@ -118,7 +143,34 @@ class Mapy {
 
 }
 
-const createMapper = (mapper: object) => new Mapy(mapper)
+const createMapper = (mapper: object | StructProp[]) => {
+  if (mapper instanceof Array) {
+    return new Mapy(mapper.reduce((mapper: object, structProp: StructProp) => {
+      mapper[structProp.usageName] = prop()
+        .from(structProp.originalName, structProp.originalTypeCaster)
+        .to(structProp.usageTypeCaster)
+      return mapper
+    }, {}))
+  }
+  return new Mapy(mapper)
+}
+
+export const prop = () => ({
+  IS_SIMPLE_PROP_DEFINITION: true,
+  value: {
+    original: { name: '' , type: null },
+    usage: { name: '' , type: null },
+  },
+  from (propName: any, propType: any): any {
+    this.value.original.name = propName
+    this.value.original.type = propType || null
+    return this
+  },
+  to (propType: any): any {
+    this.value.usage.type = propType || null
+    return this
+  }
+})
 
 export {
   createMapper
