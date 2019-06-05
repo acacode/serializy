@@ -8,6 +8,69 @@ import { swapObject } from './helpers/base'
  *
  */
 
+const castTo = {
+  boolean: (value: any) => !!value,
+  float: (value: any) => {
+    const str = castTo.string(value)
+    if (str.indexOf(',') > -1) {
+      str.replace(',', '.')
+    }
+    return castTo.number(str)
+  },
+  integer: (value: any) => {
+    const str = castTo.string(value)
+    return castTo.number((+str).toFixed(0))
+  },
+  number: (value: any): number => +value,
+  string: (value: any): string => value.toString ? value.toString() : `${value}`,
+}
+
+interface StructPropTypeCaster {
+  converter: Function,
+  isCustomCaster: boolean,
+}
+
+export class StructProp {
+  public originalName: string
+  public usageName: string
+  public typeCaster: StructPropTypeCaster | null
+  public reverseTypeCaster: StructPropTypeCaster | null
+
+  constructor (originalName: string, [usageName, castToType = null, reverseCastToType = null]: any[]) {
+    this.originalName = originalName
+    this.usageName = usageName
+
+    this.aggregateTypeCast(castToType, 'typeCaster')
+    this.aggregateTypeCast(reverseCastToType, 'reverseTypeCaster')
+
+  }
+
+  private aggregateTypeCast (castToType: string | Function | null, prop: 'typeCaster' | 'reverseTypeCaster'): void {
+    if (castToType === null) {
+      this[prop] = null
+    }
+    if (typeof castToType === 'string') {
+      if (castTo[castToType]) {
+        this[prop] = {
+          converter: castTo[castToType],
+          isCustomCaster: false
+        }
+      } else {
+        throw new Error(
+          `Type ${castToType} is not supporting by Mapster. May be it is mistake?` +
+          'Here is list of supporting types:\r\n' + Object.keys(castTo).join(', ')
+        )
+      }
+    }
+    if (typeof castToType === 'function') {
+      this[prop] = {
+        converter: castToType,
+        isCustomCaster: true
+      }
+    }
+  }
+}
+
 class ParsedStructure {
   // tslint:disable-next-line:variable-name
   protected __mapper__: object
@@ -40,6 +103,7 @@ class Mapy {
   public serverMapper: object = {}
 
   constructor (mapper: object) {
+    // TODO: USE StructProp
     this.clientMapper = swapObject(mapper)
     this.serverMapper = mapper
   }

@@ -1,14 +1,14 @@
 import { createMapper } from '../src'
 
 const Family = createMapper({
-  Children: ['children', Number],
+  Children: ['children', 'number'],
 })
 
 const UserInfo = createMapper({
-  Age: ['age', Number],
+  Age: ['age', 'number'],
   Family,
   FirstName: 'firstName',
-  LastName: ['lastName', String],
+  LastName: ['lastName', 'string'],
 })
 
 const cc = UserInfo.toClient({
