@@ -1,3 +1,4 @@
+import { tsExternalModuleReference } from '@babel/types'
 import { swapObject } from './helpers/base'
 
 /**
@@ -155,22 +156,47 @@ const createMapper = (mapper: object | StructProp[]) => {
   return new Mapy(mapper)
 }
 
-export const prop = () => ({
-  IS_SIMPLE_PROP_DEFINITION: true,
-  value: {
-    original: { name: '' , type: null },
-    usage: { name: '' , type: null },
-  },
-  from (propName: any, propType: any): any {
-    this.value.original.name = propName
-    this.value.original.type = propType || null
-    return this
-  },
-  to (propType: any): any {
-    this.value.usage.type = propType || null
-    return this
+const RESERVED = '@DYNAMIC'
+
+export const prop = (propType?: string): any => {
+  switch (propType) {
+    case 'array':
+    case 'Array': return {
+      IS_ARRAY: true,
+      IS_SIMPLE_PROP_DEFINITION: true,
+      value: {
+        original: { name: '' , type: null },
+        usage: { name: '' , type: null },
+      },
+      of (propType: any): any {
+        this.value.usage.type = propType || null
+        return this
+      }
+    }
+    default: return {
+      IS_SIMPLE_PROP_DEFINITION: true,
+      value: {
+        original: { name: '' , type: null },
+        usage: { name: '' , type: null },
+      },
+      from (propName: any, propType?: any): any {
+        if (typeof propName === 'function') {
+          this.value.original.name = RESERVED
+          this.value.original.type = propName
+        } else {
+          this.value.original.name = propName
+          this.value.original.type = propType || null
+          this.value.usage.type = this.value.original.type
+        }
+        return this
+      },
+      to (propType: any): any {
+        this.value.usage.type = propType || null
+        return this
+      }
+    }
   }
-})
+}
 
 export {
   createMapper

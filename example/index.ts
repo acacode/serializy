@@ -24,3 +24,24 @@ console.log('lol', lol, createMapper)
 console.log('sas', lol[0].castTo('1234,5155', true))
 
 console.log(prop().from('Age', 'float').to('float'))
+
+class Creep {
+
+}
+
+class Monster {
+  public hp = prop().from('HP', 'float')
+  public level = prop().from('Level', 'integer')
+
+  public fullName = prop()
+    .from((model) => `${model.FirstName} ${model.LastName}`)
+    .to((model) => {
+      const [FirstName, LastName] = model.fullName.split(' ')
+      return {
+        FirstName,
+        LastName
+      }
+    })
+
+  public creeps = prop('array').of(Creep)
+}
