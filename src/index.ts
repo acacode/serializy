@@ -45,10 +45,10 @@ interface StructPropTypeCaster {
 }
 
 export class StructProp {
-  public originalName: string
-  public usageName: string
-  public usageTypeCaster: StructPropTypeCaster | null
-  public originalTypeCaster: StructPropTypeCaster | null
+  originalName: string
+  usageName: string
+  usageTypeCaster: StructPropTypeCaster | null
+  originalTypeCaster: StructPropTypeCaster | null
 
   constructor (
     [usageName, usageType = null]: [string, any?],
@@ -61,7 +61,7 @@ export class StructProp {
 
   }
 
-  public castTo (value: any, toUsage: boolean = false): any {
+  castTo (value: any, toUsage: boolean = false): any {
     const typeCaster: StructPropTypeCaster | null = toUsage ? this.usageTypeCaster : this.originalTypeCaster
     return typeCaster ? typeCaster.converter(value) : value
   }
@@ -110,7 +110,7 @@ class ParsedStructure {
     Object.seal(this)
   }
 
-  public swap (): ThisType<ParsedStructure> {
+  swap (): ThisType<ParsedStructure> {
     const keys = Object.keys(this.__mapper__)
     for (const key of keys) {
       this[this.__mapper__[key]] = this[key]
@@ -125,8 +125,8 @@ class ParsedStructure {
 
 class Mapy {
 
-  public clientMapper: object = {}
-  public serverMapper: object = {}
+  clientMapper: object = {}
+  serverMapper: object = {}
 
   constructor (mapper: object) {
     // TODO: USE StructProp
@@ -134,11 +134,11 @@ class Mapy {
     this.serverMapper = mapper
   }
 
-  public toClient (structDeclarations: object): ParsedStructure {
+  toClient (structDeclarations: object): ParsedStructure {
     return new ParsedStructure(structDeclarations, this.clientMapper)
   }
 
-  public toServer (structDeclarations: object): ParsedStructure {
+  toServer (structDeclarations: object): ParsedStructure {
     return new ParsedStructure(structDeclarations, this.serverMapper)
   }
 
