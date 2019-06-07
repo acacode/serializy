@@ -31,13 +31,14 @@ const ClientData = {
   lastName: 'Volkov',
 }
 
-const structProp = (a: any) => {}
+const prop = (...args: any[]) => {}
 
-// class FamilyInfo {
-//   public childCount = structProp()
-// }
+class FamilyInfo {
+  public childCount = prop('ChildrenCount', 'float')
+  public spouse = prop('Spouse', 'boolean')
+}
 
 class Profile {
-  public badHabits = structProp(({ DeepInfo }) => DeepInfo.BadHabits)
-  public family = structProp(({ DeepInfo }) => DeepInfo.BadHabits)
+  public badHabits = prop(({ DeepInfo }) => DeepInfo.BadHabits)
+  public family = prop('Family', FamilyInfo)
 }
