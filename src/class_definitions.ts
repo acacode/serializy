@@ -3,31 +3,44 @@ import {
     FromAnyDeclaration,
     FromArrayDeclaration,
     PropDeclaration,
-    PropDeclarationConfiguration,
-    ValueOf
+    PropDeclarationConfiguration
 } from '.'
+import { AllKeysAre } from './global_declarations'
+import { createDeclaration, createModelWrapper, ModelWrapper } from './models'
 
 const createPropDeclaration = <M extends object = any>(
     config: PropDeclarationConfiguration<M>
   ): PropDeclaration => {
 
-  const propDeclaration: PropDeclaration = {
+  const baseOptions: PropDeclaration = {
     '@@array_property_declaration': !!config['@@array_property_declaration'],
     '@@property_declaration': true,
+    scheme: {
+      from: {
+        customHandler: null,
+        name: '',
+        type: null,
+      },
+      schemeType: null,
+      to: {
+        customHandler: null,
+        name: '',
+        type: null,
+      },
+    }
   }
 
-  const scheme = createSchemeFromOptions(config.options, propDeclaration)
+  const scheme = createSchemeFromOptions(config.options, baseOptions)
 
-  console.log('scheme', scheme)
-
-  return propDeclaration
+  return {
+    ...baseOptions,
+    scheme
+  } as PropDeclaration
 }
 
-export const makeModel = <T = any>(declaration: T): ValueOf<T> => {
-    // @ts-ignore
-  const DeclaredModel = new (declaration as (new () => ValueOf<T>))()
-  console.log('declaration', declaration)
-  return DeclaredModel
+export const mapy = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
+  const declaration = createDeclaration<T>(rawDeclaration)
+  return createModelWrapper(declaration)
 }
 
 export const from = <M extends object = any>(...args: FromAnyDeclaration<M>) =>
