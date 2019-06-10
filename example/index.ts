@@ -50,17 +50,20 @@ import {
 //   lastName: 'Volkov',
 // }
 
-// setTimeout(() => {
+setTimeout(() => {
 
-class FamilyDeclaration {
-  childCount = from('ChildrenCount', 'float')
-  spouse = from('Spouse', 'boolean')
-}
-const FamilyModel = mapy(FamilyDeclaration)
+  class FamilyDeclaration {
+    childCount = from('ChildrenCount', 'float')
+    spouse = from('Spouse', 'boolean')
+  }
+  const FamilyModel = mapy(FamilyDeclaration)
 
-console.log(FamilyModel)
+  console.log(FamilyModel.make({
+    ChildrenCount: 123.44,
+    spouse: false
+  }))
 
-// }, 15000)
+}, 15000)
 // class JobDeclaration {
 //   experience = from('Exp', 'integer')
 //   skills = from('Skills')
