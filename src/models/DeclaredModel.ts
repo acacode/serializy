@@ -9,11 +9,8 @@ export const createDeclaration = <T>(rawDeclaration: T): AllKeysAre<PropDeclarat
   Object.keys(declarationInstance).forEach(propName => {
     const property: PropDeclaration = declarationInstance[propName]
     if (property['@@property_declaration']) {
-      // TODO: useless if condition
-      if (property.scheme) {
-        if (property.scheme.to.name === GET_NAME_TO_FROM_CLASS_PROP) {
-          property.scheme.to.name = propName
-        }
+      if (property.scheme.to.name === GET_NAME_TO_FROM_CLASS_PROP) {
+        property.scheme.to.name = propName
       }
     }
   })
@@ -22,14 +19,20 @@ export const createDeclaration = <T>(rawDeclaration: T): AllKeysAre<PropDeclarat
 }
 
 export declare interface ModelWrapper<T> {
+  ['@@model_wrapper']: true,
   declaration: T
-  make: (originalModel: object) => any,
+  makeFrom: (originalModel: object) => any,
+  makeTo: (usageModel: object) => any,
 }
 
 export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declaration: T): ModelWrapper<T> => ({
+  ['@@model_wrapper']: true,
   declaration,
-  make: (originalModel) => {
+  makeFrom: (originalModel) => {
     const usageModel = convertOriginalToUsageModel<T>(originalModel, declaration)
     return usageModel
-  }
+  },
+  makeTo: (usageModel) => {
+    console.log('usageModel', usageModel)
+  },
 })

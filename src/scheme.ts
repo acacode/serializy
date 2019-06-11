@@ -1,5 +1,6 @@
 import { GET_NAME_TO_FROM_CLASS_PROP, GET_TYPE_FROM_VALUE } from './constants'
 import { FromAnyDeclaration, FromArrayDeclaration, PropDeclaration } from './global_declarations'
+import { ModelWrapper } from './models'
 
 export enum SchemeType {
   ONE_STRING = '@ONE_STRING',
@@ -10,15 +11,15 @@ export enum SchemeType {
   STRING_AND_DECLARE_MODEL_FOR_ARRAY = '@STRING_AND_DECLARE_MODEL_FOR_ARRAY',
 }
 
-export interface SchemeConfig {
+export interface SchemeConfig<T = any> {
   customHandler: null | Function,
   name: typeof GET_NAME_TO_FROM_CLASS_PROP | string,
-  type: typeof GET_TYPE_FROM_VALUE | null | string | object,
+  type: typeof GET_TYPE_FROM_VALUE | null | string | ModelWrapper<T>,
 }
 
-export declare interface Scheme {
-  from: SchemeConfig
-  to: SchemeConfig
+export declare interface Scheme<T = any> {
+  from: SchemeConfig<T>
+  to: SchemeConfig<T>
   schemeType: SchemeType | null
 }
 
@@ -78,9 +79,9 @@ export const createSchemeFromOptions = <M extends object = any>(
         scheme.schemeType = propDeclaration['@@array_property_declaration'] ?
           SchemeType.STRING_AND_DECLARE_MODEL_FOR_ARRAY : SchemeType.STRING_AND_DECLARE_MODEL
         scheme.from.name = option1
-        scheme.from.type = option2
+        scheme.from.type = option2 as ModelWrapper<any>
         scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
-        scheme.to.type = option2
+        scheme.to.type = option2 as ModelWrapper<any>
       }
     }
   }

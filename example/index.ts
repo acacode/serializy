@@ -1,6 +1,7 @@
 import {
   from,
   // fromArray,
+  fromArray,
   mapy
 } from '../src'
 
@@ -50,24 +51,42 @@ import {
 //   lastName: 'Volkov',
 // }
 
-// setTimeout(() => {
+setInterval(() => {
 
-class FamilyDeclaration {
-  childCount = from('ChildrenCount', 'float')
-  spouse = from('Spouse', 'boolean')
-  count = from('Count')
-  superCount = from('SuperCount', 'string', 'number')
-}
-const FamilyModel = mapy(FamilyDeclaration)
+  class FooBarCountDeclaration {
+    foo = from('Foo', 'number', 'number')
+    bar = from('Bar', 'number', 'number')
+  }
+  const FooBarCountModel = mapy(FooBarCountDeclaration)
 
-console.log(FamilyModel.make({
-  ChildrenCount: 123.44,
-  Count: 500,
-  Spouse: false,
-  SuperCount: '1234.500',
-}))
+  class FamilyDeclaration {
+    childCount = from('ChildrenCount', 'float')
+    spouse = from('Spouse', 'boolean')
+    count = from('Count')
+    superCount = from('SuperCount', 'string', 'number')
+    fooBarCount = fromArray('FooBar', FooBarCountModel)
+  }
 
-// }, 15000)
+  const FamilyModel = mapy(FamilyDeclaration)
+
+  console.log(FamilyModel.makeFrom({
+    ChildrenCount: 123.44,
+    Count: 500,
+    FooBar: [
+      {
+        Bar: 600,
+        Foo: 500,
+      },
+      {
+        Bar: 5600,
+        Foo: 400,
+      }
+    ],
+    Spouse: false,
+    SuperCount: '1234.500',
+  }))
+
+}, 5000)
 // class JobDeclaration {
 //   experience = from('Exp', 'integer')
 //   skills = from('Skills')
