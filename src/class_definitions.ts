@@ -27,7 +27,8 @@ const createPropDeclaration = <M extends object = any>(
         name: '',
         type: null,
       },
-    }
+    },
+    to: null as any,
   }
 
   const scheme = createSchemeFromOptions(config.options, baseOptions)
@@ -38,7 +39,7 @@ const createPropDeclaration = <M extends object = any>(
   } as PropDeclaration
 }
 
-export const makeModel = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
+export const createModel = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
   const declaration = createDeclaration<T>(rawDeclaration)
   return createModelWrapper(declaration)
 }

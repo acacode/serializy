@@ -4,7 +4,7 @@ export declare interface PropDeclaration {
   '@@array_property_declaration': boolean
   '@@property_declaration': true,
 
-  to?: (customHandler: (usageModel: any, originalModel: any) => object) => PropDeclaration
+  to: (customHandler: (usageModel: any, originalModel: any) => object) => PropDeclaration
 
   scheme: Scheme
 }

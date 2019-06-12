@@ -1,8 +1,8 @@
 import {
-  field,
+  createModel,
   // fromArray,
-  fieldArray,
-  makeModel
+  field,
+  fieldArray
 } from '../src'
 
 const ServerData = {
@@ -32,79 +32,26 @@ const ServerData = {
   LastName: 'Volkov',
 }
 
-// const ClientData = {
-//   badHabits: ['Coffee', 'Development'],
-//   family: {
-//     childCount: 0,
-//     spouse: false,
-//   },
-//   firstName: 'Sergey',
-//   id: '1CASSD@D#@Dd2d@2dDFC',
-//   job: {
-//     experience: 4,
-//     skills: ['JavaScript', 'ReactJS', 'NodeJS']
-//   },
-//   languages: [
-//     { id: '1', name: 'English' },
-//     { id: '2', name: 'Russian' },
-//   ],
-//   lastName: 'Volkov',
-// }
-
 setInterval(() => {
-
-  // class FooBarCountDeclaration {
-  //   foo = field('Foo', 'number', 'number')
-  //   bar = field('Bar', 'number', 'number')
-  //   baz = field(({ Foo, Bar }: any) => `${Foo} - ${Bar}`)
-  // }
-  // const FooBarCountModel = mapy(FooBarCountDeclaration)
-
-  // class FamilyDeclaration {
-  //   childCount = field('ChildrenCount', 'float')
-  //   spouse = field('Spouse', 'boolean')
-  //   count = field('Count')
-  //   superCount = field('SuperCount', 'string', 'number')
-  //   fooBarCount = fromArray('FooBar', FooBarCountModel)
-  // }
-
-  // const FamilyModel = mapy(FamilyDeclaration)
-
-  // console.log(FamilyModel.makeFrom({
-  //   ChildrenCount: 123.44,
-  //   Count: 500,
-  //   FooBar: [
-  //     {
-  //       Bar: 600,
-  //       Foo: 500,
-  //     },
-  //     {
-  //       Bar: 5600,
-  //       Foo: 400,
-  //     }
-  //   ],
-  //   Spouse: false,
-  //   SuperCount: '1234.500',
-  // }))
 
   class FamilyDeclaration {
     childCount = field('ChildrenCount', 'number')
     spouse = field('Spouse', 'boolean')
   }
-  const FamilyModel = makeModel(FamilyDeclaration)
+  const FamilyModel = createModel(FamilyDeclaration)
 
   class JobDeclaration {
     experience = field('Exp', 'integer')
-    skills = field(({ Skills }: any) => Skills)
+    skills = field(({ Skills }: any) => Skills).to(({ skills }) => skills)
   }
-  const JobModel = makeModel(JobDeclaration)
+  const JobModel = createModel(JobDeclaration)
 
   class LanguageDeclaration {
     id = field('ID', 'string')
     name = field('Name', 'string')
   }
 
-  const LanguageModel = makeModel(LanguageDeclaration)
+  const LanguageModel = createModel(LanguageDeclaration)
 
   class ProfileDeclaration {
     badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
@@ -119,8 +66,23 @@ setInterval(() => {
     }))
   }
 
-  const ProfileModel = makeModel(ProfileDeclaration)
+  const ProfileModel = createModel(ProfileDeclaration)
 
-  console.log(ProfileModel.makeFrom(ServerData))
+  const profile = new ProfileModel(ServerData)
+
+  profile.id = `${profile.id}_CHANGED`
+
+  const family = new FamilyModel({
+    ChildrenCount: 40,
+    Spouse: false,
+  })
+
+  --family.childrenCount
+
+  console.log('family', family.convertToOriginal())
+
+  // console.log('profile.id', profile.id)
+
+  // profile.convertToOriginal()
 
 }, 5000)

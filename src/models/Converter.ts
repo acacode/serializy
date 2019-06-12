@@ -25,7 +25,8 @@ const checkOnExistingProperty = (value: object, property: any): boolean => {
 }
 
 const checkObjectOnDeclarationType = (declaredModel: any, property: any) => {
-  if (!((declaredModel as object)['@@model_wrapper'])) {
+  // TODO: REMOVE MODEL_WRAPPER CHECK, BECAUSE DECLARED_MODEL NOW IS FUNCTION MODEL_WRAPPER
+  if ((declaredModel as Function).name !== 'ModelWrapper') {
     throw new Error(
       `Declared object for ${property} is not module wrapper.` +
       `Please use "mapy()" function`
@@ -95,10 +96,10 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
           checkOnExistingProperty(originalModel, scheme.from.name)
           convertSimplePrimitive()
           break
-        case SchemeType.STRING_AND_DECLARE_MODEL:
+        case SchemeType.STRING_AND_CLASS:
           checkOnExistingProperty(originalModel, scheme.from.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
-          model[key] = (scheme.from.type as ModelWrapper<any>).makeFrom(originalValue)
+          model[key] = new (scheme.from.type as ModelWrapper<any>)(originalValue)
           break
         case SchemeType.CONFIGURATORS:
           if (typeof scheme.from.customHandler !== 'function') {
@@ -106,7 +107,7 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
           }
           model[key] = scheme.from.customHandler(originalModel)
           break
-        case SchemeType.STRING_AND_DECLARE_MODEL_FOR_ARRAY:
+        case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
           checkOnExistingProperty(originalModel, scheme.from.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
           if (!(originalValue instanceof Array)) {
@@ -115,7 +116,64 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
               `because of this property ${scheme.from.name} should have type array`
             )
           }
-          model[key] = (originalValue as object[]).map(part => (scheme.from.type as ModelWrapper<any>).makeFrom(part))
+          model[key] = (originalValue as object[]).map(part => new (scheme.from.type as ModelWrapper<any>)(part))
+          break
+        default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
+      }
+    }
+  })
+  return model
+}
+
+export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration>>(
+  usageModel: object,
+  declaration: D
+) => {
+  const model = {}
+// TODO: aggregate all properties
+  Object.keys(declaration).forEach(key => {
+    if (declaration[key]['@@property_declaration']) {
+      const { scheme } = declaration[key]
+
+      model[scheme.from.name] = null
+
+      const originalValue = usageModel[scheme.to.name]
+
+      const convertSimplePrimitive = () => {
+        checkOnExistingCastType(scheme.from.type, scheme.to.name)
+        model[scheme.from.name] = castTo[scheme.from.type as string](originalValue)
+      }
+
+      switch (scheme.schemeType) {
+        case SchemeType.ONE_STRING:
+        case SchemeType.TWO_STRINGS:
+        case SchemeType.THREE_STRINGS:
+          checkOnExistingProperty(usageModel, scheme.to.name)
+          convertSimplePrimitive()
+          break
+        case SchemeType.STRING_AND_CLASS:
+          checkOnExistingProperty(usageModel, scheme.to.name)
+          checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
+          model[scheme.from.name] = new (scheme.from.type as ModelWrapper<any>)(originalValue)
+          break
+        case SchemeType.CONFIGURATORS:
+          if (typeof scheme.to.customHandler === 'function') {
+            model[scheme.from.name] = scheme.to.customHandler(usageModel)
+          } else {
+            delete model[scheme.from.name]
+          }
+          break
+        case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
+          checkOnExistingProperty(usageModel, scheme.to.name)
+          checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
+          if (!(originalValue instanceof Array)) {
+            throw new Error(
+            `For ${scheme.to.name} property you are use 'fromArray' and ` +
+            `because of this property ${scheme.to.name} should have type array`
+          )
+          }
+          model[scheme.from.name] =
+            (originalValue as object[]).map(part => new (scheme.from.type as ModelWrapper<any>)(part))
           break
         default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }

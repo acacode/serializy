@@ -1,6 +1,6 @@
 import { GET_NAME_TO_FROM_CLASS_PROP } from '../constants'
 import { AllKeysAre, PropDeclaration, ValueOf } from '../global_declarations'
-import { convertOriginalToUsageModel } from './Converter'
+import { convertOriginalToUsageModel, convertUsageToOriginalModel } from './Converter'
 
 export const createDeclaration = <T>(rawDeclaration: T): AllKeysAre<PropDeclaration | any> => {
     // @ts-ignore
@@ -18,21 +18,21 @@ export const createDeclaration = <T>(rawDeclaration: T): AllKeysAre<PropDeclarat
   return declarationInstance
 }
 
-export declare interface ModelWrapper<T> {
-  ['@@model_wrapper']: true,
-  declaration: T
-  makeFrom: (originalModel: object) => any,
-  makeTo: (usageModel: object) => any,
+export declare type ModelWrapper<T> = new (originalModel: object | object[]) => {
+  [field: string]: any
+  convertToOriginal: () => object
 }
 
-export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declaration: T): ModelWrapper<T> => ({
-  ['@@model_wrapper']: true,
-  declaration,
-  makeFrom: (originalModel) => {
-    const usageModel = convertOriginalToUsageModel<T>(originalModel, declaration)
-    return usageModel
-  },
-  makeTo: (usageModel) => {
-    console.log('usageModel', usageModel)
-  },
-})
+export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declaration: T): ModelWrapper<T> =>
+  class ModelWrapper {
+
+    constructor (originalModel: object | object[]) {
+      const usageModel = convertOriginalToUsageModel<T>(originalModel, declaration)
+      // @ts-ignore
+      usageModel.__proto__['@@mapy_data'] = { declaration }
+      // @ts-ignore
+      usageModel.__proto__.convertToOriginal = convertUsageToOriginalModel.bind(null, usageModel, declaration)
+      return usageModel
+    }
+
+  } as ModelWrapper<T>

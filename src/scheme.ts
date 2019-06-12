@@ -6,9 +6,9 @@ export enum SchemeType {
   ONE_STRING = '@ONE_STRING',
   TWO_STRINGS = '@TWO_STRINGS',
   THREE_STRINGS = '@THREE_STRINGS',
-  STRING_AND_DECLARE_MODEL = '@STRING_AND_DECLARE_MODEL',
+  STRING_AND_CLASS = '@STRING_AND_CLASS',
   CONFIGURATORS = '@CONFIGURATORS',
-  STRING_AND_DECLARE_MODEL_FOR_ARRAY = '@STRING_AND_DECLARE_MODEL_FOR_ARRAY',
+  STRING_AND_CLASS_FOR_ARRAY = '@STRING_AND_CLASS_FOR_ARRAY',
 }
 
 export interface SchemeConfig<T = any> {
@@ -75,9 +75,9 @@ export const createSchemeFromOptions = <M extends object = any>(
         scheme.to.type = option2
       }
 
-      if (typeof option2 === 'object') {
+      if (typeof option2 === 'function') {
         scheme.schemeType = propDeclaration['@@array_property_declaration'] ?
-          SchemeType.STRING_AND_DECLARE_MODEL_FOR_ARRAY : SchemeType.STRING_AND_DECLARE_MODEL
+          SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2 as ModelWrapper<any>
         scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
