@@ -17,7 +17,7 @@ export declare interface PropDeclarationConfiguration<M extends object = any> {
 export declare type FromAnyDeclaration<M extends object> =
   [string, string?, string?]
   | [string, object] // :TODO replace object to TYPE
-  | [(originalModel: M) => object] // :TODO replace object to TYPE
+  | [(originalModel: M) => any] // :TODO replace object to TYPE
 
 export declare type FromArrayDeclaration =
   [string, object]

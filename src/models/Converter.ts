@@ -76,8 +76,6 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
 
       model[key] = null
 
-      checkOnExistingProperty(originalModel, scheme.from.name)
-
       const originalValue = originalModel[scheme.from.name]
 
       const convertSimplePrimitive = () => {
@@ -94,20 +92,22 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
         case SchemeType.ONE_STRING:
         case SchemeType.TWO_STRINGS:
         case SchemeType.THREE_STRINGS:
+          checkOnExistingProperty(originalModel, scheme.from.name)
           convertSimplePrimitive()
           break
         case SchemeType.STRING_AND_DECLARE_MODEL:
+          checkOnExistingProperty(originalModel, scheme.from.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
           model[key] = (scheme.from.type as ModelWrapper<any>).makeFrom(originalValue)
           break
         case SchemeType.CONFIGURATORS:
-          if (typeof scheme.from.customHandler !== 'function' || typeof scheme.to.customHandler !== 'function') {
-            throw new Error('Custom handlers should be exist and have type functions')
+          if (typeof scheme.from.customHandler !== 'function') {
+            throw new Error('Custom handler should be exist and have type functions')
           }
-          // TODO: complete this case
-          console.log('to', declaration[key].to)
+          model[key] = scheme.from.customHandler(originalModel)
           break
         case SchemeType.STRING_AND_DECLARE_MODEL_FOR_ARRAY:
+          checkOnExistingProperty(originalModel, scheme.from.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
           if (!(originalValue instanceof Array)) {
             throw new Error(
