@@ -38,17 +38,17 @@ const createPropDeclaration = <M extends object = any>(
   } as PropDeclaration
 }
 
-export const mapy = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
+export const makeModel = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
   const declaration = createDeclaration<T>(rawDeclaration)
   return createModelWrapper(declaration)
 }
 
-export const from = <M extends object = any>(...args: FromAnyDeclaration<M>) =>
+export const field = <M extends object = any>(...args: FromAnyDeclaration<M>) =>
     createPropDeclaration<M>({
       options: args,
     })
 
-export const fromArray = (...args: FromArrayDeclaration) =>
+export const fieldArray = (...args: FromArrayDeclaration) =>
     createPropDeclaration({
       '@@array_property_declaration': true,
       options: args,

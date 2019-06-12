@@ -1,8 +1,8 @@
 import {
-  from,
+  field,
   // fromArray,
-  fromArray,
-  mapy
+  fieldArray,
+  makeModel
 } from '../src'
 
 const ServerData = {
@@ -54,17 +54,17 @@ const ServerData = {
 setInterval(() => {
 
   // class FooBarCountDeclaration {
-  //   foo = from('Foo', 'number', 'number')
-  //   bar = from('Bar', 'number', 'number')
-  //   baz = from(({ Foo, Bar }: any) => `${Foo} - ${Bar}`)
+  //   foo = field('Foo', 'number', 'number')
+  //   bar = field('Bar', 'number', 'number')
+  //   baz = field(({ Foo, Bar }: any) => `${Foo} - ${Bar}`)
   // }
   // const FooBarCountModel = mapy(FooBarCountDeclaration)
 
   // class FamilyDeclaration {
-  //   childCount = from('ChildrenCount', 'float')
-  //   spouse = from('Spouse', 'boolean')
-  //   count = from('Count')
-  //   superCount = from('SuperCount', 'string', 'number')
+  //   childCount = field('ChildrenCount', 'float')
+  //   spouse = field('Spouse', 'boolean')
+  //   count = field('Count')
+  //   superCount = field('SuperCount', 'string', 'number')
   //   fooBarCount = fromArray('FooBar', FooBarCountModel)
   // }
 
@@ -88,38 +88,38 @@ setInterval(() => {
   // }))
 
   class FamilyDeclaration {
-    childCount = from('ChildrenCount', 'number')
-    spouse = from('Spouse', 'boolean')
+    childCount = field('ChildrenCount', 'number')
+    spouse = field('Spouse', 'boolean')
   }
-  const FamilyModel = mapy(FamilyDeclaration)
+  const FamilyModel = makeModel(FamilyDeclaration)
 
   class JobDeclaration {
-    experience = from('Exp', 'integer')
-    skills = from(({ Skills }: any) => Skills)
+    experience = field('Exp', 'integer')
+    skills = field(({ Skills }: any) => Skills)
   }
-  const JobModel = mapy(JobDeclaration)
+  const JobModel = makeModel(JobDeclaration)
 
   class LanguageDeclaration {
-    id = from('ID', 'string')
-    name = from('Name', 'string')
+    id = field('ID', 'string')
+    name = field('Name', 'string')
   }
 
-  const LanguageModel = mapy(LanguageDeclaration)
+  const LanguageModel = makeModel(LanguageDeclaration)
 
   class ProfileDeclaration {
-    badHabits = from(({ DeepInfo }: any) => DeepInfo.BadHabits)
-    family = from('Family', FamilyModel)
-    id = from('ID')
-    job = from('Job', JobModel)
-    languages = fromArray('Languages', LanguageModel)
-    personalInfo = from((originalModel: any) => ({
+    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
+    family = field('Family', FamilyModel)
+    id = field('ID')
+    job = field('Job', JobModel)
+    languages = fieldArray('Languages', LanguageModel)
+    personalInfo = field((originalModel: any) => ({
       firstName: originalModel.FirstName,
       fullName: `${originalModel.FirstName} ${originalModel.LastName}`,
       lastName: originalModel.LastName,
     }))
   }
 
-  const ProfileModel = mapy(ProfileDeclaration)
+  const ProfileModel = makeModel(ProfileDeclaration)
 
   console.log(ProfileModel.makeFrom(ServerData))
 
