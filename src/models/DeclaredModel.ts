@@ -29,7 +29,7 @@ export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declar
     constructor (originalModel: object | object[]) {
       Object.assign(this, convertOriginalToUsageModel<T>(originalModel, declaration))
       // @ts-ignore
-      this.__proto__['@@mapy_data'] = { declaration }
+      this.__proto__['@@serializy_data'] = { declaration }
       // @ts-ignore
       this.__proto__.convertToOriginal = () => convertUsageToOriginalModel.call(null, this, declaration)
     }

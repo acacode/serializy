@@ -25,11 +25,10 @@ const checkOnExistingProperty = (value: object, property: any): boolean => {
 }
 
 const checkObjectOnDeclarationType = (declaredModel: any, property: any) => {
-  // TODO: REMOVE MODEL_WRAPPER CHECK, BECAUSE DECLARED_MODEL NOW IS FUNCTION MODEL_WRAPPER
   if ((declaredModel as Function).name !== 'ModelWrapper') {
     throw new Error(
-      `Declared object for ${property} is not module wrapper.` +
-      `Please use "mapy()" function`
+      `Declared model for ${property} is not created via serializy() function.` +
+      `Please wrap this model into "serializy()" function`
     )
   }
   return true

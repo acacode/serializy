@@ -3,7 +3,7 @@
 <!-- TEMPLATE OF NEW VERSION -->
 
 <!-- 
-## [VERSION](https://github.com/acacode/mapy/releases/tag/VERSION)
+## [VERSION](https://github.com/acacode/serializy/releases/tag/VERSION)
 
 ### Changed
 ### Fixed
