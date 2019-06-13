@@ -27,6 +27,12 @@ export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declar
   class ModelWrapper {
 
     constructor (originalModel: object | object[]) {
+
+      // TODO: think about it
+      // if (originalModel instanceof Array) {
+      //   return (originalModel as object[]).map(model => new ModelWrapper(model))
+      // }
+
       Object.assign(this, convertOriginalToUsageModel<T>(originalModel, declaration))
       // @ts-ignore
       this.__proto__['@@serializy_data'] = { declaration }
