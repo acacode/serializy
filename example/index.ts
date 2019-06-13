@@ -54,9 +54,8 @@ setInterval(() => {
   const LanguageModel = createModel(LanguageDeclaration)
 
   class ProfileDeclaration {
-    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits).to(({ badHabits }) => ({
-      DeepInfo: { BadHabits: badHabits }
-    }))
+    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
+      .to(({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } }))
     family = field('Family', FamilyModel)
     id = field('ID')
     job = field('Job', JobModel)
@@ -78,18 +77,5 @@ setInterval(() => {
   profile.id = `${profile.id}_CHANGED`
 
   console.log(profile.convertToOriginal())
-
-  // const family = new FamilyModel({
-  //   ChildrenCount: 40,
-  //   Spouse: false,
-  // })
-
-  // --family.childrenCount
-
-  // console.log('family', family.convertToOriginal())
-
-  // console.log('profile.id', profile.id)
-
-  // profile.convertToOriginal()
 
 }, 5000)

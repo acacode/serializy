@@ -1,6 +1,6 @@
 import { GET_TYPE_FROM_VALUE } from '../constants'
 import { AllKeysAre, PropDeclaration } from '../global_declarations'
-import { SchemeType } from '../scheme'
+import { Scheme, SchemeType } from '../scheme'
 import { ModelWrapper } from './DeclaredModel'
 
 const castWarning = (value: any, currentValue: any) =>
@@ -125,44 +125,21 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
   declaration: D
 ) => {
   const model = {}
-// TODO: aggregate all properties
+
+  // Separated custom converters from classic aggregating declaration
+  // is needed for using latest model data
+  const customConverters: Scheme[] = []
+
   Object.keys(declaration).forEach(key => {
     if (declaration[key]['@@property_declaration']) {
 
-      // class FamilyDeclaration {
-      //   childCount = field('ChildrenCount', 'number', 'string')
-      //   spouse = field('Spouse', 'boolean')
-      // }
-      // const family = new FamilyModel({
-      //   ChildrenCount: 40,
-      //   Spouse: false,
-      // })
-      // {
-      //   '@@array_property_declaration': false,
-      //   '@@property_declaration': true,
-      //   'scheme': {
-      //     'from': {
-      //       'converter': null,
-      //       'name': 'ChildrenCount',
-      //       'type': 'number'
-      //     },
-      //     'schemeType':
-      //     '@TWO_STRINGS',
-      //     'to': {
-      //       'converter': null,
-      //       'name': 'childCount',
-      //       'type': 'string'
-      //     }
-      //   },
-      //   'to': null
-      // }
       const { scheme } = declaration[key]
 
       if (scheme.from.name) {
         model[scheme.from.name] = null
       }
 
-      const originalValue = usageModel[scheme.to.name]
+      const usageValue = usageModel[scheme.to.name]
 
       switch (scheme.schemeType) {
         case SchemeType.ONE_STRING:
@@ -170,44 +147,46 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
         case SchemeType.THREE_STRINGS:
           checkOnExistingProperty(usageModel, scheme.to.name)
           checkOnExistingCastType(scheme.from.type, scheme.to.name)
-          model[scheme.from.name] = castTo[scheme.from.type as string](originalValue)
+          model[scheme.from.name] = castTo[scheme.from.type as string](usageValue)
           break
         case SchemeType.STRING_AND_CLASS:
           checkOnExistingProperty(usageModel, scheme.to.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
-          // TODO: here is needed to use reverse convertation
-          model[scheme.from.name] = (originalValue as InstanceType<ModelWrapper<any>>).convertToOriginal()
+          model[scheme.from.name] = (usageValue as InstanceType<ModelWrapper<any>>).convertToOriginal()
           break
         case SchemeType.CUSTOM_CONVERTERS:
           if (typeof scheme.to.converter === 'function') {
-            // TODO: also needed to send originalModel as second argument to converter
-            const partialModel = scheme.to.converter(usageModel)
-            if (partialModel instanceof Array || typeof partialModel !== 'object') {
-              throw new Error(
-                'Return value of callback function of property .to() should have type object\r\n' +
-                'Because return value will be merged into result object model'
-              )
-            }
-            Object.assign(model, partialModel)
-          } else {
-            delete model[scheme.from.name]
-          }
+            customConverters.push(scheme)
+          } else delete model[scheme.from.name]
           break
         case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
           checkOnExistingProperty(usageModel, scheme.to.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
-          if (!(originalValue instanceof Array)) {
+          if (!(usageValue instanceof Array)) {
             throw new Error(
               `For ${scheme.to.name} property you are use 'fromArray' and ` +
               `because of this property ${scheme.to.name} should have type array`
             )
           }
           model[scheme.from.name] =
-            (originalValue as object[]).map(part => (part as InstanceType<ModelWrapper<any>>).convertToOriginal())
+            (usageValue as object[]).map(part => (part as InstanceType<ModelWrapper<any>>).convertToOriginal())
           break
         default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }
     }
   })
+
+  customConverters.forEach((scheme) => {
+    // TODO: also needed to send originalModel as second argument to converter
+    const partialModel = (scheme.to.converter as Function)(usageModel, model)
+    if (partialModel instanceof Array || typeof partialModel !== 'object') {
+      throw new Error(
+        'Return value of callback function of property .to() should have type object\r\n' +
+        'Because return value will be merged into result object model'
+      )
+    }
+    Object.assign(model, partialModel)
+  })
+
   return model
 }

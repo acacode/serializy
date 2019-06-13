@@ -1,12 +1,12 @@
 import {
-    createSchemeFromOptions,
-    FromAnyDeclaration,
-    FromArrayDeclaration,
-    PropDeclaration,
-    PropDeclarationConfiguration
-} from '.'
-import { AllKeysAre } from './global_declarations'
+  AllKeysAre,
+  FromAnyDeclaration,
+  FromArrayDeclaration,
+  PropDeclaration,
+  PropDeclarationConfiguration
+} from './global_declarations'
 import { createDeclaration, createModelWrapper, ModelWrapper } from './models'
+import { createSchemeFromOptions } from './scheme'
 
 const createPropDeclaration = <M extends object = any>(
     config: PropDeclarationConfiguration<M>
@@ -44,13 +44,8 @@ export const createModel = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre
   return createModelWrapper(declaration)
 }
 
-export const field = <M extends object = any>(...args: FromAnyDeclaration<M>) =>
-    createPropDeclaration<M>({
-      options: args,
-    })
+export const field = <M extends object = any>(...options: FromAnyDeclaration<M>) =>
+    createPropDeclaration<M>({ options })
 
-export const fieldArray = (...args: FromArrayDeclaration) =>
-    createPropDeclaration({
-      '@@array_property_declaration': true,
-      options: args,
-    })
+export const fieldArray = (...options: FromArrayDeclaration) =>
+    createPropDeclaration({ '@@array_property_declaration': true, options })
