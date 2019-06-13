@@ -35,14 +35,14 @@ const ServerData = {
 setInterval(() => {
 
   class FamilyDeclaration {
-    childCount = field('ChildrenCount', 'number')
+    childCount = field('ChildrenCount', 'number', 'string')
     spouse = field('Spouse', 'boolean')
   }
   const FamilyModel = createModel(FamilyDeclaration)
 
   class JobDeclaration {
     experience = field('Exp', 'integer')
-    skills = field(({ Skills }: any) => Skills).to(({ skills }) => skills)
+    skills = field(({ Skills }: any) => Skills).to(({ skills }) => ({ Skills: skills }))
   }
   const JobModel = createModel(JobDeclaration)
 
@@ -54,7 +54,9 @@ setInterval(() => {
   const LanguageModel = createModel(LanguageDeclaration)
 
   class ProfileDeclaration {
-    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
+    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits).to(({ badHabits }) => ({
+      DeepInfo: { BadHabits: badHabits }
+    }))
     family = field('Family', FamilyModel)
     id = field('ID')
     job = field('Job', JobModel)
@@ -63,6 +65,9 @@ setInterval(() => {
       firstName: originalModel.FirstName,
       fullName: `${originalModel.FirstName} ${originalModel.LastName}`,
       lastName: originalModel.LastName,
+    })).to(({ personalInfo }) => ({
+      FirstName: personalInfo.firstName,
+      LastName: personalInfo.lastName,
     }))
   }
 
@@ -72,14 +77,16 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  const family = new FamilyModel({
-    ChildrenCount: 40,
-    Spouse: false,
-  })
+  console.log(profile.convertToOriginal())
 
-  --family.childrenCount
+  // const family = new FamilyModel({
+  //   ChildrenCount: 40,
+  //   Spouse: false,
+  // })
 
-  console.log('family', family.convertToOriginal())
+  // --family.childrenCount
+
+  // console.log('family', family.convertToOriginal())
 
   // console.log('profile.id', profile.id)
 

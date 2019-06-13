@@ -27,12 +27,11 @@ export const createModelWrapper = <T extends AllKeysAre<PropDeclaration>>(declar
   class ModelWrapper {
 
     constructor (originalModel: object | object[]) {
-      const usageModel = convertOriginalToUsageModel<T>(originalModel, declaration)
+      Object.assign(this, convertOriginalToUsageModel<T>(originalModel, declaration))
       // @ts-ignore
-      usageModel.__proto__['@@mapy_data'] = { declaration }
+      this.__proto__['@@mapy_data'] = { declaration }
       // @ts-ignore
-      usageModel.__proto__.convertToOriginal = convertUsageToOriginalModel.bind(null, usageModel, declaration)
-      return usageModel
+      this.__proto__.convertToOriginal = () => convertUsageToOriginalModel.call(null, this, declaration)
     }
 
   } as ModelWrapper<T>

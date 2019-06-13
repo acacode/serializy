@@ -17,13 +17,13 @@ const createPropDeclaration = <M extends object = any>(
     '@@property_declaration': true,
     scheme: {
       from: {
-        customHandler: null,
+        converter: null,
         name: '',
         type: null,
       },
       schemeType: null,
       to: {
-        customHandler: null,
+        converter: null,
         name: '',
         type: null,
       },

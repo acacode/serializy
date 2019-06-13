@@ -7,12 +7,12 @@ export enum SchemeType {
   TWO_STRINGS = '@TWO_STRINGS',
   THREE_STRINGS = '@THREE_STRINGS',
   STRING_AND_CLASS = '@STRING_AND_CLASS',
-  CONFIGURATORS = '@CONFIGURATORS',
+  CUSTOM_CONVERTERS = '@CUSTOM_CONVERTERS',
   STRING_AND_CLASS_FOR_ARRAY = '@STRING_AND_CLASS_FOR_ARRAY',
 }
 
 export interface SchemeConfig<T = any> {
-  customHandler: null | Function,
+  converter: null | Function,
   name: typeof GET_NAME_TO_FROM_CLASS_PROP | string,
   type: typeof GET_TYPE_FROM_VALUE | null | string | ModelWrapper<T>,
 }
@@ -49,11 +49,11 @@ export const createSchemeFromOptions = <M extends object = any>(
       // specified for complex declarations using function
     if (typeof option1 === 'function') {
         // TODO: 5-6 case
-      scheme.schemeType = SchemeType.CONFIGURATORS
-      scheme.from.customHandler = option1
-      propDeclaration.to = (customHandler: (usageModel: any, originalModel: any) => object) => {
+      scheme.schemeType = SchemeType.CUSTOM_CONVERTERS
+      scheme.from.converter = option1
+      propDeclaration.to = (converter: (usageModel: any, originalModel: any) => object) => {
           // TODO: process modify handler
-        scheme.to.customHandler = customHandler
+        scheme.to.converter = converter
         return propDeclaration
       }
     }

@@ -78,34 +78,29 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
       model[key] = null
 
       const originalValue = originalModel[scheme.from.name]
-
-      const convertSimplePrimitive = () => {
-        if (scheme.to.type === GET_TYPE_FROM_VALUE) {
-          const originalType = typeof originalValue
-          scheme.to.type = originalType
-          scheme.from.type = originalType
-        }
-        checkOnExistingCastType(scheme.to.type, scheme.from.name)
-        model[key] = castTo[scheme.to.type as string](originalValue)
-      }
-
       switch (scheme.schemeType) {
         case SchemeType.ONE_STRING:
         case SchemeType.TWO_STRINGS:
         case SchemeType.THREE_STRINGS:
+          if (scheme.to.type === GET_TYPE_FROM_VALUE) {
+            const originalType = typeof originalValue
+            scheme.to.type = originalType
+            scheme.from.type = originalType
+          }
           checkOnExistingProperty(originalModel, scheme.from.name)
-          convertSimplePrimitive()
+          checkOnExistingCastType(scheme.to.type, scheme.from.name)
+          model[key] = castTo[scheme.to.type as string](originalValue)
           break
         case SchemeType.STRING_AND_CLASS:
           checkOnExistingProperty(originalModel, scheme.from.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
           model[key] = new (scheme.from.type as ModelWrapper<any>)(originalValue)
           break
-        case SchemeType.CONFIGURATORS:
-          if (typeof scheme.from.customHandler !== 'function') {
+        case SchemeType.CUSTOM_CONVERTERS:
+          if (typeof scheme.from.converter !== 'function') {
             throw new Error('Custom handler should be exist and have type functions')
           }
-          model[key] = scheme.from.customHandler(originalModel)
+          model[key] = scheme.from.converter(originalModel)
           break
         case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
           checkOnExistingProperty(originalModel, scheme.from.name)
@@ -133,32 +128,67 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
 // TODO: aggregate all properties
   Object.keys(declaration).forEach(key => {
     if (declaration[key]['@@property_declaration']) {
+
+      // class FamilyDeclaration {
+      //   childCount = field('ChildrenCount', 'number', 'string')
+      //   spouse = field('Spouse', 'boolean')
+      // }
+      // const family = new FamilyModel({
+      //   ChildrenCount: 40,
+      //   Spouse: false,
+      // })
+      // {
+      //   '@@array_property_declaration': false,
+      //   '@@property_declaration': true,
+      //   'scheme': {
+      //     'from': {
+      //       'converter': null,
+      //       'name': 'ChildrenCount',
+      //       'type': 'number'
+      //     },
+      //     'schemeType':
+      //     '@TWO_STRINGS',
+      //     'to': {
+      //       'converter': null,
+      //       'name': 'childCount',
+      //       'type': 'string'
+      //     }
+      //   },
+      //   'to': null
+      // }
       const { scheme } = declaration[key]
 
-      model[scheme.from.name] = null
+      if (scheme.from.name) {
+        model[scheme.from.name] = null
+      }
 
       const originalValue = usageModel[scheme.to.name]
-
-      const convertSimplePrimitive = () => {
-        checkOnExistingCastType(scheme.from.type, scheme.to.name)
-        model[scheme.from.name] = castTo[scheme.from.type as string](originalValue)
-      }
 
       switch (scheme.schemeType) {
         case SchemeType.ONE_STRING:
         case SchemeType.TWO_STRINGS:
         case SchemeType.THREE_STRINGS:
           checkOnExistingProperty(usageModel, scheme.to.name)
-          convertSimplePrimitive()
+          checkOnExistingCastType(scheme.from.type, scheme.to.name)
+          model[scheme.from.name] = castTo[scheme.from.type as string](originalValue)
           break
         case SchemeType.STRING_AND_CLASS:
           checkOnExistingProperty(usageModel, scheme.to.name)
           checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
-          model[scheme.from.name] = new (scheme.from.type as ModelWrapper<any>)(originalValue)
+          // TODO: here is needed to use reverse convertation
+          model[scheme.from.name] = (originalValue as InstanceType<ModelWrapper<any>>).convertToOriginal()
           break
-        case SchemeType.CONFIGURATORS:
-          if (typeof scheme.to.customHandler === 'function') {
-            model[scheme.from.name] = scheme.to.customHandler(usageModel)
+        case SchemeType.CUSTOM_CONVERTERS:
+          if (typeof scheme.to.converter === 'function') {
+            // TODO: also needed to send originalModel as second argument to converter
+            const partialModel = scheme.to.converter(usageModel)
+            if (partialModel instanceof Array || typeof partialModel !== 'object') {
+              throw new Error(
+                'Return value of callback function of property .to() should have type object\r\n' +
+                'Because return value will be merged into result object model'
+              )
+            }
+            Object.assign(model, partialModel)
           } else {
             delete model[scheme.from.name]
           }
@@ -168,12 +198,12 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
           checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
           if (!(originalValue instanceof Array)) {
             throw new Error(
-            `For ${scheme.to.name} property you are use 'fromArray' and ` +
-            `because of this property ${scheme.to.name} should have type array`
-          )
+              `For ${scheme.to.name} property you are use 'fromArray' and ` +
+              `because of this property ${scheme.to.name} should have type array`
+            )
           }
           model[scheme.from.name] =
-            (originalValue as object[]).map(part => new (scheme.from.type as ModelWrapper<any>)(part))
+            (originalValue as object[]).map(part => (part as InstanceType<ModelWrapper<any>>).convertToOriginal())
           break
         default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }
