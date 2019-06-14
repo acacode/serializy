@@ -32,13 +32,9 @@ export const createSchemeFromOptions = <M extends object = any>(
 
   const [option1,option2,option3] = options
 
-    // 1, 2, 4, 3, 5-6, 7
-
   if (options.length === 1) {
 
-      // here we have one string - name of original property
     if (typeof option1 === 'string') {
-        // TODO: 1 case
       scheme.schemeType = SchemeType.ONE_STRING
       scheme.from.name = option1
       scheme.from.type = GET_TYPE_FROM_VALUE
@@ -48,7 +44,6 @@ export const createSchemeFromOptions = <M extends object = any>(
 
       // specified for complex declarations using function
     if (typeof option1 === 'function') {
-        // TODO: 5-6 case
       scheme.schemeType = SchemeType.CUSTOM_CONVERTERS
       scheme.from.converter = option1
       propDeclaration.to = (converter: (usageModel: any, originalModel: any) => object) => {
@@ -63,11 +58,7 @@ export const createSchemeFromOptions = <M extends object = any>(
 
     if (typeof option1 === 'string') {
 
-        // here we have a couple strings where
-        // first string - name of original property
-        // second string - type which we want to cast
       if (typeof option2 === 'string') {
-          // TODO: 2 case
         scheme.schemeType = SchemeType.TWO_STRINGS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -77,7 +68,8 @@ export const createSchemeFromOptions = <M extends object = any>(
 
       if (typeof option2 === 'function') {
         scheme.schemeType = propDeclaration['@@array_property_declaration'] ?
-          SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
+          SchemeType.STRING_AND_CLASS_FOR_ARRAY :
+          SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2 as ModelWrapper<any>
         scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
@@ -88,12 +80,7 @@ export const createSchemeFromOptions = <M extends object = any>(
 
   if (options.length === 3) {
 
-      // here we have a three strings where
-      // first string - name of original property
-      // second string - type which we want to cast
-      // third string - type which we want to convert where we will prepare model to server
     if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
-        // TODO: 3 case
       scheme.schemeType = SchemeType.THREE_STRINGS
       scheme.from.name = option1
       scheme.from.type = option2

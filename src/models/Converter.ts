@@ -34,7 +34,17 @@ const checkObjectOnDeclarationType = (declaredModel: any, property: any) => {
   return true
 }
 
-const castTo = {
+export declare type TypeCaster = (value: any) => any
+
+export declare interface CastTo {
+  boolean: TypeCaster,
+  float: TypeCaster,
+  integer: TypeCaster,
+  number: TypeCaster,
+  string: TypeCaster,
+}
+
+export const castTo: CastTo = {
   boolean: (value: any) => !!value,
   float: (value: any) => {
     const str = castTo.string(value).replace(',', '.')
@@ -61,7 +71,7 @@ const castTo = {
     }
 
     return castedValue
-  },
+  }
 }
 
 export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration>>(

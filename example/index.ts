@@ -44,14 +44,13 @@ setInterval(() => {
     experience = field('Exp', 'integer')
     skills = field(({ Skills }: any) => Skills).to(({ skills }) => ({ Skills: skills }))
   }
+
   const JobModel = createModel(JobDeclaration)
 
-  class LanguageDeclaration {
-    id = field('ID', 'string')
-    name = field('Name', 'string')
-  }
-
-  const LanguageModel = createModel(LanguageDeclaration)
+  const LanguageModel = createModel({
+    id: field('ID', 'string'),
+    name: field('Name', 'string'),
+  })
 
   class ProfileDeclaration {
     badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)

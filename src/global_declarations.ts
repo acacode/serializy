@@ -1,3 +1,4 @@
+import { CastTo } from './models/Converter'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
@@ -15,7 +16,7 @@ export declare interface PropDeclarationConfiguration<M extends object = any> {
 }
 
 export declare type FromAnyDeclaration<M extends object> =
-  [string, string?, string?]
+  [string, (keyof CastTo)?, (keyof CastTo)?]
   | [string, object] // :TODO replace object to TYPE
   | [(originalModel: M) => any] // :TODO replace object to TYPE
 
@@ -27,3 +28,7 @@ export type ValueOf<T> = T[keyof T]
 export interface AllKeysAre<T> {
   [key: string]: T
 }
+
+// export type KeysOf<T> = {
+//   [K in keyof T]: K
+// }
