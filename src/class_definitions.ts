@@ -1,11 +1,12 @@
+import { createDeclaration } from './declaration'
 import {
-  AllKeysAre,
   FromAnyDeclaration,
   FromArrayDeclaration,
   PropDeclaration,
-  PropDeclarationConfiguration
-} from './global_declarations'
-import { createModelWrapper, ModelWrapper } from './models'
+  PropDeclarationConfiguration,
+  ValueOf
+} from './global_types'
+import { convertOriginalToUsageModel, convertUsageToOriginalModel } from './models/Converter'
 import { createSchemeFromOptions } from './scheme'
 
 const createPropDeclaration = <M extends object = any>(
@@ -49,15 +50,43 @@ const DEFAULT_MODEL_CONFIGURATION: ModelConfiguration = {
   warnings: true,
 }
 
-export const createModel = <T = any>(
-  rawDeclaration: T,
-  modelConfiguration?: Partial<ModelConfiguration>
-): ModelWrapper<AllKeysAre<PropDeclaration>> => {
-  return createModelWrapper<T>(rawDeclaration, {
-    ...DEFAULT_MODEL_CONFIGURATION,
-    ...(modelConfiguration || {})
-  })
+export declare type ModelWrapper<T> = new (originalModel: object) => {
+  [field: string]: any
+  convertToOriginal: () => object
 }
+
+export const createModel = <T extends new () => ValueOf<T>>(
+  ModelDeclaration: T,
+  partialModelConfiguration?: Partial<ModelConfiguration>
+): ModelWrapper<T> => class ModelWrapper {
+
+  constructor (originalModel: object) {
+
+    const instance = new ModelDeclaration()
+
+    const modelConfiguration = {
+      ...DEFAULT_MODEL_CONFIGURATION,
+      ...(partialModelConfiguration || {})
+    }
+
+    console.log('TODO: modelConfiguration', modelConfiguration)
+
+    const declaration = createDeclaration<T>(instance, originalModel)
+
+    // TODO: think about it
+    // if (originalModel instanceof Array) {
+    //   return (originalModel as object[]).map(model => new ModelWrapper(model))
+    // }
+
+    Object.assign(instance, convertOriginalToUsageModel(originalModel, declaration))
+
+    // @ts-ignore
+    instance.__proto__.convertToOriginal = () => convertUsageToOriginalModel(instance, declaration)
+
+    return instance
+  }
+
+} as ModelWrapper<T>
 
 export const field = <M extends object = any>(...options: FromAnyDeclaration<M>) =>
     createPropDeclaration<M>({ options })

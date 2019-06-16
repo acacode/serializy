@@ -1,11 +1,11 @@
-import { GET_NAME_TO_FROM_CLASS_PROP, GET_TYPE_FROM_VALUE } from './constants'
-import { FromAnyDeclaration, FromArrayDeclaration, PropDeclaration } from './global_declarations'
-import { ModelWrapper } from './models'
+import { ModelWrapper } from './class_definitions'
+import { NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { FromAnyDeclaration, FromArrayDeclaration, PropDeclaration } from './global_types'
 
 export enum SchemeType {
-  ONE_STRING = '@ONE_STRING',
-  TWO_STRINGS = '@TWO_STRINGS',
-  THREE_STRINGS = '@THREE_STRINGS',
+  ONE_STRING = '@ONLY_STRINGS',
+  TWO_STRINGS = '@ONLY_STRINGS',
+  THREE_STRINGS = '@ONLY_STRINGS',
   STRING_AND_CLASS = '@STRING_AND_CLASS',
   CUSTOM_CONVERTERS = '@CUSTOM_CONVERTERS',
   STRING_AND_CLASS_FOR_ARRAY = '@STRING_AND_CLASS_FOR_ARRAY',
@@ -13,8 +13,8 @@ export enum SchemeType {
 
 export interface SchemeConfig<T = any> {
   converter: null | Function,
-  name: typeof GET_NAME_TO_FROM_CLASS_PROP | string,
-  type: typeof GET_TYPE_FROM_VALUE | null | string | ModelWrapper<T>,
+  name: typeof NAME_OF_CLASS_PROP | string,
+  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | ModelWrapper<T>,
 }
 
 export declare interface Scheme<T = any> {
@@ -41,15 +41,16 @@ export const createSchemeFromOptions = <M extends object = any>(
         // TODO: 1 case
       scheme.schemeType = SchemeType.ONE_STRING
       scheme.from.name = option1
-      scheme.from.type = GET_TYPE_FROM_VALUE
-      scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
-      scheme.to.type = GET_TYPE_FROM_VALUE
+      scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
+      scheme.to.name = NAME_OF_CLASS_PROP
+      scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
     }
 
       // specified for complex declarations using function
     if (typeof option1 === 'function') {
         // TODO: 5-6 case
       scheme.schemeType = SchemeType.CUSTOM_CONVERTERS
+      scheme.to.name = NAME_OF_CLASS_PROP
       scheme.from.converter = option1
       propDeclaration.to = (converter: (usageModel: any, originalModel: any) => object) => {
           // TODO: process modify handler
@@ -71,7 +72,7 @@ export const createSchemeFromOptions = <M extends object = any>(
         scheme.schemeType = SchemeType.TWO_STRINGS
         scheme.from.name = option1
         scheme.from.type = option2
-        scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
+        scheme.to.name = NAME_OF_CLASS_PROP
         scheme.to.type = option2
       }
 
@@ -80,7 +81,7 @@ export const createSchemeFromOptions = <M extends object = any>(
           SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2 as ModelWrapper<any>
-        scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
+        scheme.to.name = NAME_OF_CLASS_PROP
         scheme.to.type = option2 as ModelWrapper<any>
       }
     }
@@ -97,7 +98,7 @@ export const createSchemeFromOptions = <M extends object = any>(
       scheme.schemeType = SchemeType.THREE_STRINGS
       scheme.from.name = option1
       scheme.from.type = option2
-      scheme.to.name = GET_NAME_TO_FROM_CLASS_PROP
+      scheme.to.name = NAME_OF_CLASS_PROP
       scheme.to.type = option3
     }
   }

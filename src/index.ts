@@ -8,5 +8,5 @@
 
 export * from './scheme'
 export * from './constants'
-export * from './global_declarations'
+export * from './global_types'
 export * from './class_definitions'
