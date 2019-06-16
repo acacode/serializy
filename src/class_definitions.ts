@@ -5,7 +5,7 @@ import {
   PropDeclaration,
   PropDeclarationConfiguration
 } from './global_declarations'
-import { createDeclaration, createModelWrapper, ModelWrapper } from './models'
+import { createModelWrapper, ModelWrapper } from './models'
 import { createSchemeFromOptions } from './scheme'
 
 const createPropDeclaration = <M extends object = any>(
@@ -39,9 +39,24 @@ const createPropDeclaration = <M extends object = any>(
   } as PropDeclaration
 }
 
-export const createModel = <T = any>(rawDeclaration: T): ModelWrapper<AllKeysAre<PropDeclaration>> => {
-  const declaration = createDeclaration<T>(rawDeclaration)
-  return createModelWrapper(declaration)
+export declare interface ModelConfiguration {
+  defaultValues: boolean
+  warnings: boolean,
+}
+
+const DEFAULT_MODEL_CONFIGURATION: ModelConfiguration = {
+  defaultValues: true,
+  warnings: true,
+}
+
+export const createModel = <T = any>(
+  rawDeclaration: T,
+  modelConfiguration?: Partial<ModelConfiguration>
+): ModelWrapper<AllKeysAre<PropDeclaration>> => {
+  return createModelWrapper<T>(rawDeclaration, {
+    ...DEFAULT_MODEL_CONFIGURATION,
+    ...(modelConfiguration || {})
+  })
 }
 
 export const field = <M extends object = any>(...options: FromAnyDeclaration<M>) =>

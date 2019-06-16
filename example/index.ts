@@ -1,6 +1,5 @@
 import {
   createModel,
-  // fromArray,
   field,
   fieldArray
 } from '../src'

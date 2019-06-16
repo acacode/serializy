@@ -17,18 +17,18 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
   return true
 }
 
-const checkOnExistingProperty = (value: object, property: any): boolean => {
+const propertyIsExist = (value: object, property: any): boolean => {
   if (typeof value[property] === 'undefined') {
     console.warn(`Property "${property}" is not existing in original model :`, value)
   }
   return true
 }
 
-const checkObjectOnDeclarationType = (declaredModel: any, property: any) => {
-  if ((declaredModel as Function).name !== 'ModelWrapper') {
+const objectIsDeclarationModel = (declaredModel: any, property: any) => {
+  if (!declaredModel['@@serializy_data']) {
     throw new Error(
-      `Declared model for ${property} is not created via serializy() function.` +
-      `Please wrap this model into "serializy()" function`
+      `Declared model for ${property} is not created via createModel() function.` +
+      `Please wrap this model into "createModel()" function`
     )
   }
   return true
@@ -86,14 +86,15 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
             scheme.to.type = originalType
             scheme.from.type = originalType
           }
-          checkOnExistingProperty(originalModel, scheme.from.name)
+          propertyIsExist(originalModel, scheme.from.name)
           checkOnExistingCastType(scheme.to.type, scheme.from.name)
           model[key] = castTo[scheme.to.type as string](originalValue)
           break
         case SchemeType.STRING_AND_CLASS:
-          checkOnExistingProperty(originalModel, scheme.from.name)
-          checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
-          model[key] = new (scheme.from.type as ModelWrapper<any>)(originalValue)
+          propertyIsExist(originalModel, scheme.from.name)
+          const instance = new (scheme.from.type as ModelWrapper<any>)(originalValue)
+          objectIsDeclarationModel(instance, scheme.from.name)
+          model[key] = instance
           break
         case SchemeType.CUSTOM_CONVERTERS:
           if (typeof scheme.from.converter !== 'function') {
@@ -102,15 +103,17 @@ export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration
           model[key] = scheme.from.converter(originalModel)
           break
         case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
-          checkOnExistingProperty(originalModel, scheme.from.name)
-          checkObjectOnDeclarationType(scheme.from.type, scheme.from.name)
+          propertyIsExist(originalModel, scheme.from.name)
           if (!(originalValue instanceof Array)) {
             throw new Error(
               `For ${scheme.from.name} property you are use 'fromArray' and ` +
               `because of this property ${scheme.from.name} should have type array`
             )
           }
-          model[key] = (originalValue as object[]).map(part => new (scheme.from.type as ModelWrapper<any>)(part))
+          model[key] = (originalValue as object[]).map(part => {
+            const instance = new (scheme.from.type as ModelWrapper<any>)(part)
+            return objectIsDeclarationModel(instance, scheme.from.name) && instance
+          })
           break
         default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }
@@ -144,13 +147,13 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
         case SchemeType.ONE_STRING:
         case SchemeType.TWO_STRINGS:
         case SchemeType.THREE_STRINGS:
-          checkOnExistingProperty(usageModel, scheme.to.name)
+          propertyIsExist(usageModel, scheme.to.name)
           checkOnExistingCastType(scheme.from.type, scheme.to.name)
           model[scheme.from.name] = castTo[scheme.from.type as string](usageValue)
           break
         case SchemeType.STRING_AND_CLASS:
-          checkOnExistingProperty(usageModel, scheme.to.name)
-          checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
+          propertyIsExist(usageModel, scheme.to.name)
+          objectIsDeclarationModel(usageValue, scheme.to.name)
           model[scheme.from.name] = (usageValue as InstanceType<ModelWrapper<any>>).convertToOriginal()
           break
         case SchemeType.CUSTOM_CONVERTERS:
@@ -159,8 +162,7 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
           } else delete model[scheme.from.name]
           break
         case SchemeType.STRING_AND_CLASS_FOR_ARRAY:
-          checkOnExistingProperty(usageModel, scheme.to.name)
-          checkObjectOnDeclarationType(scheme.from.type, scheme.to.name)
+          propertyIsExist(usageModel, scheme.to.name)
           if (!(usageValue instanceof Array)) {
             throw new Error(
               `For ${scheme.to.name} property you are use 'fromArray' and ` +
@@ -168,7 +170,10 @@ export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration
             )
           }
           model[scheme.from.name] =
-            (usageValue as object[]).map(part => (part as InstanceType<ModelWrapper<any>>).convertToOriginal())
+            (usageValue as object[]).map(usageModel => {
+              objectIsDeclarationModel(usageModel, scheme.to.name)
+              return (usageModel as InstanceType<ModelWrapper<any>>).convertToOriginal()
+            })
           break
         default: throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }
