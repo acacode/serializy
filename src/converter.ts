@@ -1,7 +1,6 @@
-import { ModelWrapper } from '../class_definitions'
-import { reduceDeclaration } from '../declaration'
-import { AllKeysAre, PropDeclaration } from '../global_types'
-import { Scheme, SchemeType } from '../scheme'
+import { ModelWrapper } from './class_definitions'
+import { AllKeysAre, PropDeclaration } from './global_types'
+import { Scheme, SchemeType } from './scheme'
 
 const castWarning = (value: any, currentValue: any) =>
     console.warn('Cannot cast value {', value, '} to type number.\r\nCurrent value will be {' + currentValue + '}')
@@ -9,7 +8,6 @@ const castWarning = (value: any, currentValue: any) =>
 const checkOnExistingCastType = (type: any, property: any): boolean => {
   const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
-    // FIXME: example code fails with this exception
     throw new Error(
         `Type ${type} of value of property ${property} is not possble for type casting\r\n` +
         `Please use one of following types [${possibleCastTypes.join(', ')}]`
@@ -43,7 +41,7 @@ const castTo = {
   },
   integer: (value: any) => {
     const str = castTo.string(value)
-    return castTo.number((+str).toFixed(0))
+    return castTo.number(castTo.number(str).toFixed(0))
   },
   number: (value: any): number => {
     const castedValue = +value
@@ -55,7 +53,7 @@ const castTo = {
     return castedValue
   },
   string: (value: any): string => {
-    const castedValue = value.toString ? value.toString() : `${value}`
+    const castedValue = value && value.toString ? value.toString() : `${value}`
 
     if (castedValue === '[object Object]') {
       castWarning(value, castedValue)
@@ -65,27 +63,27 @@ const castTo = {
   },
 }
 
-export const convertOriginalToUsageModel = <D extends AllKeysAre<PropDeclaration>>(
-    originalModel: object,
-    declaration: D
-) => reduceDeclaration(declaration, (model, scheme) => {
-  const converter = castAction.toUsage[scheme.schemeType as any]
-  if (!converter) {
-    throw new Error('Unknown scheme type: ' + scheme.schemeType)
-  }
-  castAction.toOriginal[SchemeType.THREE_STRINGS](originalModel, model, scheme)
-})
+export const convertModel = <D extends AllKeysAre<PropDeclaration>>(
+  dataModel: object,
+  declaration: D,
+  toOriginal: boolean
+) => {
 
-export const convertUsageToOriginalModel = <D extends AllKeysAre<PropDeclaration>>(
-  usageModel: object,
-  declaration: D
-) => reduceDeclaration(declaration, (model, scheme) => {
-  const converter = castAction.toUsage[scheme.schemeType as any]
-  if (!converter) {
-    throw new Error('Unknown scheme type: ' + scheme.schemeType)
-  }
-  castAction.toOriginal[SchemeType.THREE_STRINGS](usageModel, model, scheme)
-})
+  const model = {}
+
+  Object.keys(declaration).forEach(key => {
+    if (declaration[key]['@@property_declaration']) {
+      const { scheme } = declaration[key]
+      const converter = (toOriginal ? castAction.toOriginal : castAction.toUsage)[scheme.schemeType as any]
+      if (!converter) {
+        throw new Error('Unknown scheme type: ' + scheme.schemeType)
+      }
+      converter(dataModel, model, scheme)
+    }
+  })
+
+  return model
+}
 
 const toOriginalCast = {
   [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: (dataModel: object, model: object, scheme: Scheme) => {

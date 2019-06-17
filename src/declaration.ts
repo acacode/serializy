@@ -1,24 +1,10 @@
-import { NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { PropDeclaration, ValueOf } from './global_types'
-import { Scheme } from './scheme'
-
-export const reduceDeclaration = (declaration: any, callbackFn: (data: object, scheme: Scheme) => any) => {
-  return Object.keys(declaration).reduce((data, key) => {
-    if (declaration[key]['@@property_declaration']) {
-
-      const { scheme } = declaration[key]
-
-      callbackFn(data, scheme)
-    }
-
-    return data
-  }, {})
-}
 
 export const createDeclaration = <T>(objectWithDeclarations: ValueOf<T>, originalModel: object) =>
     Object.keys(objectWithDeclarations).reduce((declaration, propName) => {
       const property: PropDeclaration = objectWithDeclarations[propName]
-      if (property['@@property_declaration']) {
+      if (property[DECLARATION_PROP]) {
         const { scheme } = property
 
         if (scheme.to.name === NAME_OF_CLASS_PROP) {

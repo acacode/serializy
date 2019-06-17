@@ -1,8 +1,9 @@
+import { DECLARATION_PROP } from './constants'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
   '@@array_property_declaration': boolean
-  '@@property_declaration': true,
+  [DECLARATION_PROP]: true,
 
   to: (converter: (usageModel: any, originalModel: any) => object) => PropDeclaration
 

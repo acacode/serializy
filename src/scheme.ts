@@ -32,13 +32,9 @@ export const createSchemeFromOptions = <M extends object = any>(
 
   const [option1,option2,option3] = options
 
-    // 1, 2, 4, 3, 5-6, 7
-
   if (options.length === 1) {
 
-      // here we have one string - name of original property
     if (typeof option1 === 'string') {
-        // TODO: 1 case
       scheme.schemeType = SchemeType.ONE_STRING
       scheme.from.name = option1
       scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
@@ -46,14 +42,11 @@ export const createSchemeFromOptions = <M extends object = any>(
       scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
     }
 
-      // specified for complex declarations using function
     if (typeof option1 === 'function') {
-        // TODO: 5-6 case
       scheme.schemeType = SchemeType.CUSTOM_CONVERTERS
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.from.converter = option1
       propDeclaration.to = (converter: (usageModel: any, originalModel: any) => object) => {
-          // TODO: process modify handler
         scheme.to.converter = converter
         return propDeclaration
       }
@@ -64,11 +57,7 @@ export const createSchemeFromOptions = <M extends object = any>(
 
     if (typeof option1 === 'string') {
 
-        // here we have a couple strings where
-        // first string - name of original property
-        // second string - type which we want to cast
       if (typeof option2 === 'string') {
-          // TODO: 2 case
         scheme.schemeType = SchemeType.TWO_STRINGS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -89,12 +78,7 @@ export const createSchemeFromOptions = <M extends object = any>(
 
   if (options.length === 3) {
 
-      // here we have a three strings where
-      // first string - name of original property
-      // second string - type which we want to cast
-      // third string - type which we want to convert where we will prepare model to server
     if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
-        // TODO: 3 case
       scheme.schemeType = SchemeType.THREE_STRINGS
       scheme.from.name = option1
       scheme.from.type = option2
