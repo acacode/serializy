@@ -1,4 +1,4 @@
-import { ModelWrapper } from './class_definitions'
+import { ModelWrapper, ModelConfiguration } from './class_definitions'
 import { AllKeysAre, PropDeclaration } from './global_types'
 import { Scheme, SchemeType } from './scheme'
 
@@ -63,10 +63,15 @@ const castTo = {
   },
 }
 
+declare interface ConvertationConfig<D> {
+  declaration: D,
+  toOriginal: boolean,
+  modelConfiguration: ModelConfiguration,
+}
+
 export const convertModel = <D extends AllKeysAre<PropDeclaration>>(
   dataModel: object,
-  declaration: D,
-  toOriginal: boolean
+  { declaration, toOriginal, modelConfiguration }: ConvertationConfig<D>
 ) => {
 
   const model = {}
@@ -78,15 +83,23 @@ export const convertModel = <D extends AllKeysAre<PropDeclaration>>(
       if (!converter) {
         throw new Error('Unknown scheme type: ' + scheme.schemeType)
       }
-      converter(dataModel, model, scheme)
+      converter(dataModel, { modelConfiguration, model, scheme })
     }
   })
 
   return model
 }
 
+
+declare interface CastConfig {
+  modelConfiguration: ModelConfiguration
+  model: object
+  scheme: Scheme
+}
+
+
 const toOriginalCast = {
-  [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: (dataModel: object, model: object, scheme: Scheme) => {
+  [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: (dataModel: object, { model, scheme, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, scheme.to.name)
     if (!(dataModel[scheme.to.name] instanceof Array)) {
       throw new Error(
@@ -100,12 +113,12 @@ const toOriginalCast = {
       return (usageModel as InstanceType<ModelWrapper<any>>).convertToOriginal()
     })
   },
-  [SchemeType.STRING_AND_CLASS]: (dataModel: object, model: object, scheme: Scheme) => {
+  [SchemeType.STRING_AND_CLASS]: (dataModel: object, { model, scheme, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, scheme.to.name)
     objectIsDeclarationModel(dataModel[scheme.to.name], scheme.to.name)
     model[scheme.from.name] = (dataModel[scheme.to.name] as InstanceType<ModelWrapper<any>>).convertToOriginal()
   },
-  [SchemeType.CUSTOM_CONVERTERS]: (dataModel: object, model: object, scheme: Scheme) => {
+  [SchemeType.CUSTOM_CONVERTERS]: (dataModel: object, { model, scheme, modelConfiguration }: CastConfig) => {
     if (typeof scheme.to.converter === 'function') {
       const partialModel = (scheme.to.converter as Function)(dataModel, model)
       if (partialModel instanceof Array || typeof partialModel !== 'object') {
@@ -117,7 +130,7 @@ const toOriginalCast = {
       Object.assign(model, partialModel)
     } else delete model[scheme.from.name]
   },
-  [SchemeType.THREE_STRINGS]: (dataModel: object, model: object, { from: to, to: from }: Scheme) => {
+  [SchemeType.THREE_STRINGS]: (dataModel: object, { model, scheme: { from: to, to: from }, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, from.name)
     checkOnExistingCastType(to.type, from.name)
     model[to.name] = castTo[to.type as string](dataModel[from.name])
@@ -125,7 +138,7 @@ const toOriginalCast = {
 }
 
 const toUsageCast = {
-  [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: (dataModel: object, model: object, { from, to }: Scheme) => {
+  [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: (dataModel: object, { model, scheme: { from, to }, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, from.name)
     if (!(dataModel[from.name] instanceof Array)) {
       throw new Error(
@@ -138,19 +151,19 @@ const toUsageCast = {
       return objectIsDeclarationModel(instance, from.name) && instance
     })
   },
-  [SchemeType.STRING_AND_CLASS]: (dataModel: object, model: object, scheme: Scheme) => {
+  [SchemeType.STRING_AND_CLASS]: (dataModel: object, { model, scheme, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, scheme.from.name)
     const instance = new (scheme.from.type as ModelWrapper<any>)(dataModel[scheme.from.name])
     objectIsDeclarationModel(instance, scheme.from.name)
     model[scheme.to.name] = instance
   },
-  [SchemeType.CUSTOM_CONVERTERS]: (dataModel: object, model: object, scheme: Scheme) => {
+  [SchemeType.CUSTOM_CONVERTERS]: (dataModel: object, { model, scheme, modelConfiguration }: CastConfig) => {
     if (typeof scheme.from.converter !== 'function') {
       throw new Error('Custom handler should be exist and have type functions')
     }
     model[scheme.to.name] = scheme.from.converter(dataModel)
   },
-  [SchemeType.THREE_STRINGS]: (dataModel: object, model: object, { from, to }: Scheme) => {
+  [SchemeType.THREE_STRINGS]: (dataModel: object, { model, scheme: { from, to }, modelConfiguration }: CastConfig) => {
     propertyIsExist(dataModel, from.name)
     checkOnExistingCastType(to.type, from.name)
     model[to.name] = castTo[to.type as string](dataModel[from.name])
