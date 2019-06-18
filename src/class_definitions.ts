@@ -1,21 +1,10 @@
 import { convertModel } from './converter'
-import { createDeclaration, createPropDeclaration } from './declaration'
+import { createModelConfig, createPropDeclaration, ModelOptions } from './declaration'
 import {
   FromAnyDeclaration,
   FromArrayDeclaration,
   ValueOf
 } from './global_types'
-
-export declare interface ModelConfiguration {
-  // TODO: add more flexible configuration of defaultValues (as nullable, use empty value of type)
-  defaultValues: boolean
-  warnings: boolean,
-}
-
-const DEFAULT_MODEL_CONFIGURATION: ModelConfiguration = {
-  defaultValues: true,
-  warnings: true,
-}
 
 export declare type ModelWrapper<T> = new (originalModel: object) => {
   [field: string]: any
@@ -24,22 +13,14 @@ export declare type ModelWrapper<T> = new (originalModel: object) => {
 
 export const createModel = <T extends new () => ValueOf<T>>(
   ModelDeclaration: T,
-  partialModelConfiguration?: Partial<ModelConfiguration>
+  partialModelOptions?: Partial<ModelOptions>
 ): ModelWrapper<T> => class ModelWrapper {
 
   constructor (originalModel: object) {
 
     const instance = new ModelDeclaration()
 
-    const modelConfiguration = {
-      ...DEFAULT_MODEL_CONFIGURATION,
-      ...(partialModelConfiguration || {})
-    }
-
-    // TODO: Add handlers for configuration
-    console.log('TODO: modelConfiguration', modelConfiguration)
-
-    const declaration = createDeclaration<T>(instance, originalModel)
+    const modelConfig = createModelConfig<T>(instance, originalModel, partialModelOptions)
 
     // TODO: think about it
     // if (originalModel instanceof Array) {
@@ -47,15 +28,13 @@ export const createModel = <T extends new () => ValueOf<T>>(
     // }
 
     Object.assign(instance, convertModel(originalModel, {
-      declaration,
-      modelConfiguration,
+      modelConfig,
       toOriginal: false,
     }))
 
     // @ts-ignore
     instance.__proto__.convertToOriginal = () => convertModel(instance, {
-      declaration,
-      modelConfiguration,
+      modelConfig,
       toOriginal: true,
     })
 

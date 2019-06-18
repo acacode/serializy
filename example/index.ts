@@ -33,24 +33,20 @@ const ServerData = {
 
 setInterval(() => {
 
-  class FamilyDeclaration {
+  const FamilyModel = createModel(class FamilyModel {
     childCount = field('ChildrenCount', 'number', 'string')
     spouse = field('Spouse', 'boolean')
-  }
-  const FamilyModel = createModel(FamilyDeclaration)
+  })
 
-  class JobDeclaration {
+  const JobModel = createModel(class JobModel {
     experience = field('Exp', 'integer')
     skills = field(({ Skills }: any) => Skills).to(({ skills }) => ({ Skills: skills }))
-  }
-  const JobModel = createModel(JobDeclaration)
+  })
 
-  class LanguageDeclaration {
+  const LanguageModel = createModel(class LanguageModel {
     id = field('ID', 'string')
     name = field('Name', 'string')
-  }
-
-  const LanguageModel = createModel(LanguageDeclaration)
+  })
 
   class ProfileDeclaration {
     badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
@@ -67,14 +63,19 @@ setInterval(() => {
       FirstName: personalInfo.firstName,
       LastName: personalInfo.lastName,
     }))
+
+    getFullName = () => (this.personalInfo as any).firstName
   }
 
   const ProfileModel = createModel(ProfileDeclaration)
 
   const profile = new ProfileModel(ServerData)
 
+  profile.personalInfo.firstName = 'Sergey'
+  profile.personalInfo.lastName = 'Volkov'
+
   profile.id = `${profile.id}_CHANGED`
 
   console.log(profile.convertToOriginal())
 
-}, 5000)
+}, 1000)
