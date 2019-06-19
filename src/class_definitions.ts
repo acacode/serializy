@@ -2,8 +2,8 @@ import { DECLARATION_ARRAY_PROP } from './constants'
 import { CastPrimitiveTo, convertModel } from './converter'
 import { createModelConfig, createPropDeclaration, ModelOptions } from './declaration'
 import {
-  FromAnyDeclaration,
-  FromArrayDeclaration,
+  FieldArrayDeclaration,
+  FieldDeclaration,
   PropDeclaration,
   ValueOf
 } from './global_types'
@@ -54,8 +54,8 @@ declare interface FieldCreatorDeclaration {
 }
 declare type FieldsArrayCreatorDeclaration = (originalProperty: string, DeclaredModel: ModelWrapper) => PropDeclaration
 
-export const field: FieldCreatorDeclaration = <M extends object = any>(...options: FromAnyDeclaration<M>) =>
+export const field: FieldCreatorDeclaration = <M extends object = any>(...options: FieldDeclaration<M>) =>
     createPropDeclaration<M>({ options })
 
-export const fieldArray: FieldsArrayCreatorDeclaration = (...options: FromArrayDeclaration) =>
+export const fieldArray: FieldsArrayCreatorDeclaration = (...options: FieldArrayDeclaration) =>
     createPropDeclaration({ [DECLARATION_ARRAY_PROP]: true, options })

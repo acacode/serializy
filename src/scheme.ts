@@ -1,6 +1,6 @@
 import { ModelWrapper } from './class_definitions'
 import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { FromAnyDeclaration, FromArrayDeclaration, PropDeclaration } from './global_types'
+import { FieldDeclaration, FieldArrayDeclaration, PropDeclaration } from './global_types'
 
 export enum SchemeType {
   ONE_STRING = '@ONLY_STRINGS',
@@ -24,7 +24,7 @@ export declare interface Scheme<T = any> {
 }
 
 export const createSchemeFromOptions = <M extends object = any>(
-    options: FromAnyDeclaration<M> | FromArrayDeclaration,
+    options: FieldDeclaration<M> | FieldArrayDeclaration,
     propDeclaration: PropDeclaration
   ): Scheme => {
 

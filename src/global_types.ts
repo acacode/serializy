@@ -14,15 +14,15 @@ export declare interface PropDeclaration {
 
 export declare interface PropDeclarationConfiguration<M extends object = any> {
   [DECLARATION_ARRAY_PROP]?: boolean
-  options: FromAnyDeclaration<M> | FromArrayDeclaration
+  options: FieldDeclaration<M> | FieldArrayDeclaration
 }
 
-export declare type FromAnyDeclaration<M extends object> =
+export declare type FieldDeclaration<M extends object> =
   [string, (keyof CastPrimitiveTo)?, (keyof CastPrimitiveTo)?]
-  | [string, ModelWrapper] // :TODO replace object to TYPE
-  | [(originalModel: M) => any] // :TODO replace object to TYPE
+  | [string, ModelWrapper]
+  | [(originalModel: M) => any]
 
-export declare type FromArrayDeclaration =
+export declare type FieldArrayDeclaration =
   [string, object]
 
 export type ValueOf<T> = T[keyof T]
