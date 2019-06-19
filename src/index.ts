@@ -9,4 +9,5 @@
 // export * from './scheme'
 // export * from './constants'
 // export * from './global_types'
-export * from './class_definitions'
+export { createField as field, createFieldsArray as fieldArray } from './field_declaration'
+export { createModel as model } from './model_wrapper'

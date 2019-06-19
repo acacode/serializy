@@ -1,7 +1,7 @@
 import {
-  createModel,
   field,
-  fieldArray
+  fieldArray,
+  model
 } from '../src'
 
 const ServerData = {
@@ -33,39 +33,52 @@ const ServerData = {
 
 setInterval(() => {
 
-  const FamilyModel = createModel(class FamilyModel {
-    childCount = field('ChildrenCount', 'number', 'string')
-    spouse = field('Spouse', 'boolean')
+  // const FamilyModel = model(class FamilyModel {
+  //   childCount = field('ChildrenCount', 'number', 'string')
+  //   spouse = field('Spouse', 'boolean')
+  // })
+
+  const FamilyModel = model({
+    childCount: field('ChildrenCount', 'number', 'string'),
+    spouse: field('Spouse', 'boolean')
   })
 
-  const JobModel = createModel(class JobModel {
+  const JobModel = model(class JobModel {
     experience = field('Exp', 'integer')
-    skills = field(({ Skills }: any) => Skills).to(({ skills }) => ({ Skills: skills }))
+    skills = field(
+      ({ Skills }) => Skills,
+      ({ skills }) => ({ Skills: skills })
+    )
   })
 
   class ProfileDeclaration {
-    badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
-      .to(({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } }))
+    badHabits = field(
+      ({ DeepInfo }: any) => DeepInfo.BadHabits,
+      ({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } })
+    )
     family = field('Family', FamilyModel)
     id = field('ID')
     job = field('Job', JobModel)
-    languages = fieldArray('Languages', createModel(class LanguageModel {
-      id = field('ID', 'string')
-      name = field('Name', 'string')
+    languages = fieldArray('Languages', model({
+      id: field('ID', 'string'),
+      name: field('Name', 'string')
     }))
-    personalInfo = field((originalModel: any) => ({
-      firstName: originalModel.FirstName,
-      fullName: `${originalModel.FirstName} ${originalModel.LastName}`,
-      lastName: originalModel.LastName,
-    })).to(({ personalInfo }) => ({
-      FirstName: personalInfo.firstName,
-      LastName: personalInfo.lastName,
-    }))
+    personalInfo = field(
+      ({ FirstName, LastName }) => ({
+        firstName: FirstName,
+        fullName: `${FirstName} ${LastName}`,
+        lastName: LastName,
+      }),
+      ({ personalInfo }) => ({
+        FirstName: personalInfo.firstName,
+        LastName: personalInfo.lastName,
+      })
+    )
 
     getFullName = () => (this.personalInfo as any).firstName
   }
 
-  const ProfileModel = createModel(ProfileDeclaration)
+  const ProfileModel = model(ProfileDeclaration)
 
   const profile = new ProfileModel(ServerData)
 
@@ -74,6 +87,6 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  console.log(profile.convertToOriginal())
+  console.log(profile.deserialize())
 
 }, 1000)

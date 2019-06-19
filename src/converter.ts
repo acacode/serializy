@@ -1,5 +1,4 @@
-import { ModelWrapper } from './class_definitions'
-import { ModelConfiguration, ModelOptions } from './declaration'
+import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme, SchemeType } from './scheme'
 
 const castWarning = (value: any, currentValue: any) =>
@@ -24,10 +23,10 @@ const propertyIsExist = (model: object, property: any): boolean => {
 }
 
 const objectIsDeclarationModel = (declaredModel: any, property: any) => {
-  if (!declaredModel.convertToOriginal) {
+  if (!declaredModel.deserialize) {
     throw new Error(
-      `Declared model for ${property} is not created via createModel() function.` +
-      `Please wrap this model into "createModel()" function`
+      `Declared model for ${property} is not created via model() function.` +
+      `Please wrap this model into "model()" function`
     )
   }
   return true
@@ -83,13 +82,13 @@ export const convertModel = (
   const model = {}
 
   for (const { scheme } of modelConfig.declarations) {
-    const converter = castAction[scheme.schemeType as any]
+    const serializer = castAction[scheme.schemeType as any]
 
-    if (!converter) {
+    if (!serializer) {
       throw new Error('Unknown scheme type: ' + scheme.schemeType)
     }
 
-    converter[toOriginal ? 'toOriginal' : 'toUsage'](dataModel, {
+    serializer[toOriginal ? 'toOriginal' : 'toUsage'](dataModel, {
       model,
       modelOptions: modelConfig.options,
       scheme
@@ -116,7 +115,7 @@ const castClassArrayToOriginal = (dataModel: object, { model, scheme, modelOptio
   model[scheme.from.name] =
   (dataModel[scheme.to.name] as object[]).map(usageModel => {
     objectIsDeclarationModel(usageModel, scheme.to.name)
-    return (usageModel as InstanceType<ModelWrapper<any>>).convertToOriginal()
+    return (usageModel as InstanceType<ModelWrapper<any>>).deserialize()
   })
 }
 
@@ -137,7 +136,7 @@ const castClassArrayToUsage = (dataModel: object, { model, scheme: { from, to },
 const castClassToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
   propertyIsExist(dataModel, scheme.to.name)
   objectIsDeclarationModel(dataModel[scheme.to.name], scheme.to.name)
-  model[scheme.from.name] = (dataModel[scheme.to.name] as InstanceType<ModelWrapper<any>>).convertToOriginal()
+  model[scheme.from.name] = (dataModel[scheme.to.name] as InstanceType<ModelWrapper<any>>).deserialize()
 }
 
 const castClassToUsage = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
@@ -147,9 +146,9 @@ const castClassToUsage = (dataModel: object, { model, scheme, modelOptions }: Ca
   model[scheme.to.name] = instance
 }
 
-const castCustomConvertersToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  if (typeof scheme.to.converter === 'function') {
-    const partialModel = (scheme.to.converter as Function)(dataModel, model)
+const castSerializersToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
+  if (typeof scheme.to.serializer === 'function') {
+    const partialModel = (scheme.to.serializer as Function)(dataModel, model)
     if (partialModel instanceof Array || typeof partialModel !== 'object') {
       throw new Error(
         'Return value of callback function of property .to() should have type object\r\n' +
@@ -160,11 +159,11 @@ const castCustomConvertersToOriginal = (dataModel: object, { model, scheme, mode
   } else delete model[scheme.from.name]
 }
 
-const castCustomConvertersToUsage = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  if (typeof scheme.from.converter !== 'function') {
+const castSerializersToUsage = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
+  if (typeof scheme.from.serializer !== 'function') {
     throw new Error('Custom handler should be exist and have type functions')
   }
-  model[scheme.to.name] = scheme.from.converter(dataModel)
+  model[scheme.to.name] = scheme.from.serializer(dataModel)
 }
 
 const castStringsToOriginal = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => {
@@ -188,9 +187,9 @@ const castAction = {
     toOriginal: castClassToOriginal,
     toUsage: castClassToUsage,
   },
-  [SchemeType.CUSTOM_CONVERTERS]: {
-    toOriginal: castCustomConvertersToOriginal,
-    toUsage: castCustomConvertersToUsage,
+  [SchemeType.SERIALIZERS]: {
+    toOriginal: castSerializersToOriginal,
+    toUsage: castSerializersToUsage,
   },
   [SchemeType.THREE_STRINGS]: {
     toOriginal: castStringsToOriginal,

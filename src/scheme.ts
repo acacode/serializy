@@ -1,18 +1,18 @@
-import { ModelWrapper } from './class_definitions'
 import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { FieldDeclaration, FieldArrayDeclaration, PropDeclaration } from './global_types'
+import { ModelWrapper } from './model_wrapper'
+import { PropDeclarationConfig } from './prop_declaration'
 
 export enum SchemeType {
   ONE_STRING = '@ONLY_STRINGS',
   TWO_STRINGS = '@ONLY_STRINGS',
   THREE_STRINGS = '@ONLY_STRINGS',
   STRING_AND_CLASS = '@STRING_AND_CLASS',
-  CUSTOM_CONVERTERS = '@CUSTOM_CONVERTERS',
+  SERIALIZERS = '@SERIALIZERS',
   STRING_AND_CLASS_FOR_ARRAY = '@STRING_AND_CLASS_FOR_ARRAY',
 }
 
 export interface SchemeConfig<T = any> {
-  converter: null | Function,
+  serializer: null | Function,
   name: typeof NAME_OF_CLASS_PROP | string,
   type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | ModelWrapper<T>,
 }
@@ -23,15 +23,27 @@ export declare interface Scheme<T = any> {
   schemeType: SchemeType | null
 }
 
-export const createSchemeFromOptions = <M extends object = any>(
-    options: FieldDeclaration<M> | FieldArrayDeclaration,
-    propDeclaration: PropDeclaration
-  ): Scheme => {
+export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M>): Scheme => {
 
-  const { scheme } = propDeclaration
+  const { options } = config
+
+  const scheme: Scheme = {
+    from: {
+      name: '',
+      serializer: null,
+      type: null,
+    },
+    schemeType: null,
+    to: {
+      name: '',
+      serializer: null,
+      type: null,
+    },
+  }
 
   const [option1,option2,option3] = options
 
+  // Count of arguments is 1
   if (options.length === 1) {
 
     if (typeof option1 === 'string') {
@@ -41,18 +53,9 @@ export const createSchemeFromOptions = <M extends object = any>(
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
     }
-
-    if (typeof option1 === 'function') {
-      scheme.schemeType = SchemeType.CUSTOM_CONVERTERS
-      scheme.to.name = NAME_OF_CLASS_PROP
-      scheme.from.converter = option1
-      propDeclaration.to = (converter: (usageModel: any, originalModel: any) => object) => {
-        scheme.to.converter = converter
-        return propDeclaration
-      }
-    }
   }
 
+  // Count of arguments is 2
   if (options.length === 2) {
 
     if (typeof option1 === 'string') {
@@ -66,7 +69,7 @@ export const createSchemeFromOptions = <M extends object = any>(
       }
 
       if (typeof option2 === 'function') {
-        scheme.schemeType = propDeclaration[DECLARATION_ARRAY_PROP] ?
+        scheme.schemeType = config[DECLARATION_ARRAY_PROP] ?
           SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2 as ModelWrapper<any>
@@ -74,8 +77,20 @@ export const createSchemeFromOptions = <M extends object = any>(
         scheme.to.type = option2 as ModelWrapper<any>
       }
     }
+
+    if (typeof option1 === 'function') {
+      if (typeof option2 !== 'function') {
+        throw new Error('Second argument should be function which needed to deserialize usage model to original')
+      }
+
+      scheme.schemeType = SchemeType.SERIALIZERS
+      scheme.to.name = NAME_OF_CLASS_PROP
+      scheme.from.serializer = option1
+      scheme.to.serializer = option2
+    }
   }
 
+  // Count of arguments is 3
   if (options.length === 3) {
 
     if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
