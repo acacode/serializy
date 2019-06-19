@@ -33,7 +33,15 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
   return true
 }
 
-const castPrimitiveTo = {
+export declare interface CastPrimitiveTo {
+  boolean: (value: any) => boolean
+  float: (value: any) => number
+  integer: (value: any) => number
+  number: (value: any) => number
+  string: (value: any) => string
+}
+
+export const castPrimitiveTo: CastPrimitiveTo = {
   boolean: (value: any): boolean => !!value,
   float: (value: any): number => {
     const str = castPrimitiveTo.string(value).replace(',', '.')

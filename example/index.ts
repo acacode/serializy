@@ -43,18 +43,16 @@ setInterval(() => {
     skills = field(({ Skills }: any) => Skills).to(({ skills }) => ({ Skills: skills }))
   })
 
-  const LanguageModel = createModel(class LanguageModel {
-    id = field('ID', 'string')
-    name = field('Name', 'string')
-  })
-
   class ProfileDeclaration {
     badHabits = field(({ DeepInfo }: any) => DeepInfo.BadHabits)
       .to(({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } }))
     family = field('Family', FamilyModel)
     id = field('ID')
     job = field('Job', JobModel)
-    languages = fieldArray('Languages', LanguageModel)
+    languages = fieldArray('Languages', createModel(class LanguageModel {
+      id = field('ID', 'string')
+      name = field('Name', 'string')
+    }))
     personalInfo = field((originalModel: any) => ({
       firstName: originalModel.FirstName,
       fullName: `${originalModel.FirstName} ${originalModel.LastName}`,

@@ -1,4 +1,6 @@
+import { ModelWrapper } from './class_definitions'
 import { DECLARATION_PROP } from './constants'
+import { CastPrimitiveTo } from './converter'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
@@ -16,8 +18,8 @@ export declare interface PropDeclarationConfiguration<M extends object = any> {
 }
 
 export declare type FromAnyDeclaration<M extends object> =
-  [string, string?, string?]
-  | [string, object] // :TODO replace object to TYPE
+  [string, (keyof CastPrimitiveTo)?, (keyof CastPrimitiveTo)?]
+  | [string, ModelWrapper] // :TODO replace object to TYPE
   | [(originalModel: M) => any] // :TODO replace object to TYPE
 
 export declare type FromArrayDeclaration =
