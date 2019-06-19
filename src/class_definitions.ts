@@ -1,3 +1,4 @@
+import { DECLARATION_ARRAY_PROP } from './constants'
 import { CastPrimitiveTo, convertModel } from './converter'
 import { createModelConfig, createPropDeclaration, ModelOptions } from './declaration'
 import {
@@ -57,4 +58,4 @@ export const field: FieldCreatorDeclaration = <M extends object = any>(...option
     createPropDeclaration<M>({ options })
 
 export const fieldArray: FieldsArrayCreatorDeclaration = (...options: FromArrayDeclaration) =>
-    createPropDeclaration({ '@@array_property_declaration': true, options })
+    createPropDeclaration({ [DECLARATION_ARRAY_PROP]: true, options })

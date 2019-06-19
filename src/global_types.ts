@@ -1,10 +1,10 @@
 import { ModelWrapper } from './class_definitions'
-import { DECLARATION_PROP } from './constants'
+import { DECLARATION_ARRAY_PROP, DECLARATION_PROP } from './constants'
 import { CastPrimitiveTo } from './converter'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
-  '@@array_property_declaration': boolean
+  [DECLARATION_ARRAY_PROP]: boolean
   [DECLARATION_PROP]: true,
 
   to: (converter: (usageModel: any, originalModel: any) => object) => PropDeclaration
@@ -13,7 +13,7 @@ export declare interface PropDeclaration {
 }
 
 export declare interface PropDeclarationConfiguration<M extends object = any> {
-  '@@array_property_declaration'?: boolean
+  [DECLARATION_ARRAY_PROP]?: boolean
   options: FromAnyDeclaration<M> | FromArrayDeclaration
 }
 

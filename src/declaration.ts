@@ -1,4 +1,4 @@
-import { DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { DECLARATION_ARRAY_PROP, DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { PropDeclaration, PropDeclarationConfiguration, ValueOf } from './global_types'
 
 import { createSchemeFromOptions } from './scheme'
@@ -7,7 +7,7 @@ export const createPropDeclaration = <M extends object = any>(
   config: PropDeclarationConfiguration<M>
 ): PropDeclaration => {
   const baseOptions: PropDeclaration = {
-    '@@array_property_declaration': !!config['@@array_property_declaration'],
+    [DECLARATION_ARRAY_PROP]: !!config[DECLARATION_ARRAY_PROP],
     [DECLARATION_PROP]: true,
     scheme: {
       from: {
@@ -40,7 +40,7 @@ export declare interface ModelOptions {
 }
 
 const DEFAULT_MODEL_OPTIONS: ModelOptions = {
-  defaultValues: true,
+  defaultValues: false,
   warnings: true,
 }
 

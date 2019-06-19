@@ -1,5 +1,5 @@
 import { ModelWrapper } from './class_definitions'
-import { NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { FromAnyDeclaration, FromArrayDeclaration, PropDeclaration } from './global_types'
 
 export enum SchemeType {
@@ -66,7 +66,7 @@ export const createSchemeFromOptions = <M extends object = any>(
       }
 
       if (typeof option2 === 'function') {
-        scheme.schemeType = propDeclaration['@@array_property_declaration'] ?
+        scheme.schemeType = propDeclaration[DECLARATION_ARRAY_PROP] ?
           SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2 as ModelWrapper<any>
