@@ -1,6 +1,23 @@
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme, SchemeType } from './scheme'
 
+declare type CastAction = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => void
+
+declare type CastActionsObject = {
+  [key in SchemeType]: {
+    toOriginal: CastAction,
+    toUsage: CastAction,
+  }
+}
+
+export declare interface CastPrimitiveTo {
+  boolean: (value: any) => boolean
+  float: (value: any) => number
+  integer: (value: any) => number
+  number: (value: any) => number
+  string: (value: any) => string
+}
+
 const castWarning = (value: any, currentValue: any) =>
     console.warn('Cannot cast value {', value, '} to type number.\r\nCurrent value will be {' + currentValue + '}')
 
@@ -30,14 +47,6 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
     )
   }
   return true
-}
-
-export declare interface CastPrimitiveTo {
-  boolean: (value: any) => boolean
-  float: (value: any) => number
-  integer: (value: any) => number
-  number: (value: any) => number
-  string: (value: any) => string
 }
 
 export const castPrimitiveTo: CastPrimitiveTo = {
@@ -108,23 +117,29 @@ declare interface CastConfig {
   scheme: Scheme
 }
 
-const castClassArrayToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, scheme.to.name)
-  if (!(dataModel[scheme.to.name] instanceof Array)) {
+const castClassArrayToOriginal: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, to.name)
+  if (!(dataModel[to.name] instanceof Array)) {
     throw new Error(
-      `For ${scheme.to.name} property you are use 'fromArray' and ` +
-      `because of this property ${scheme.to.name} should have type array`
+      `For ${to.name} property you are use 'fromArray' and ` +
+      `because of this property ${to.name} should have type array`
     )
   }
-  model[scheme.from.name] =
-  (dataModel[scheme.to.name] as object[]).map(usageModel => {
-    objectIsDeclarationModel(usageModel, scheme.to.name)
+  model[from.name] =
+  (dataModel[to.name] as object[]).map(usageModel => {
+    objectIsDeclarationModel(usageModel, to.name)
     return (usageModel as InstanceType<ModelWrapper<any>>).deserialize()
   })
 }
 
-const castClassArrayToUsage = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, from.name)
+const castClassArrayToUsage: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (!(dataModel[from.name] instanceof Array)) {
     throw new Error(
         `For ${from.name} property you are use 'fromArray' and ` +
@@ -137,22 +152,31 @@ const castClassArrayToUsage = (dataModel: object, { model, scheme: { from, to },
   })
 }
 
-const castClassToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, scheme.to.name)
-  objectIsDeclarationModel(dataModel[scheme.to.name], scheme.to.name)
-  model[scheme.from.name] = (dataModel[scheme.to.name] as InstanceType<ModelWrapper<any>>).deserialize()
+const castClassToOriginal: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, to.name)
+  objectIsDeclarationModel(dataModel[to.name], to.name)
+  model[from.name] = (dataModel[to.name] as InstanceType<ModelWrapper<any>>).deserialize()
 }
 
-const castClassToUsage = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, scheme.from.name)
-  const instance = new (scheme.from.type as ModelWrapper<any>)(dataModel[scheme.from.name])
-  objectIsDeclarationModel(instance, scheme.from.name)
-  model[scheme.to.name] = instance
+const castClassToUsage: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, from.name)
+  const instance = new (from.type as ModelWrapper<any>)(dataModel[from.name])
+  objectIsDeclarationModel(instance, from.name)
+  model[to.name] = instance
 }
 
-const castSerializersToOriginal = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  if (typeof scheme.to.serializer === 'function') {
-    const partialModel = (scheme.to.serializer as Function)(dataModel, model)
+const castSerializersToOriginal: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  if (typeof to.serializer === 'function') {
+    const partialModel = (to.serializer as Function)(dataModel, model)
     if (partialModel instanceof Array || typeof partialModel !== 'object') {
       throw new Error(
         'Return value of callback function of property .to() should have type object\r\n' +
@@ -160,29 +184,38 @@ const castSerializersToOriginal = (dataModel: object, { model, scheme, modelOpti
       )
     }
     Object.assign(model, partialModel)
-  } else delete model[scheme.from.name]
+  } else delete model[from.name]
 }
 
-const castSerializersToUsage = (dataModel: object, { model, scheme, modelOptions }: CastConfig) => {
-  if (typeof scheme.from.serializer !== 'function') {
+const castSerializersToUsage: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  if (typeof from.serializer !== 'function') {
     throw new Error('Custom handler should be exist and have type functions')
   }
-  model[scheme.to.name] = scheme.from.serializer(dataModel)
+  model[to.name] = from.serializer(dataModel)
 }
 
-const castStringsToOriginal = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, to.name)
+const castStringsToOriginal: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, to.name)
   checkOnExistingCastType(from.type, to.name)
   model[from.name] = castPrimitiveTo[from.type as string](dataModel[to.name])
 }
 
-const castStringsToUsage = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => {
-  propertyIsExist(dataModel, from.name)
+const castStringsToUsage: CastAction = (
+  dataModel: object,
+  { model, scheme: { from, to }, modelOptions }: CastConfig
+) => {
+  modelOptions.warnings && propertyIsExist(dataModel, from.name)
   checkOnExistingCastType(to.type, from.name)
   model[to.name] = castPrimitiveTo[to.type as string](dataModel[from.name])
 }
 
-const castAction = {
+const castAction: CastActionsObject = {
   [SchemeType.STRING_AND_CLASS_FOR_ARRAY]: {
     toOriginal: castClassArrayToOriginal,
     toUsage: castClassArrayToUsage,
