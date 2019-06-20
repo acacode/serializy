@@ -89,4 +89,4 @@ setInterval(() => {
 
   console.log(profile.deserialize())
 
-}, 1000)
+}, 2000)

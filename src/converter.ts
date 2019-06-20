@@ -95,6 +95,10 @@ export const convertModel = (
     })
   }
 
+  if (!Object.keys(model).length) {
+    throw new Error('Unknown error. Object is empty after serializing/deserializing')
+  }
+
   return model
 }
 
