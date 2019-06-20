@@ -63,6 +63,10 @@ setInterval(() => {
       id: field('ID', 'string'),
       name: field('Name', 'string')
     }))
+    // languages = fieldArray('Languages', model(class Language {
+    //   id = field('ID', 'string')
+    //   name = field('Name', 'string')
+    // }))
     personalInfo = field(
       ({ FirstName, LastName }) => ({
         firstName: FirstName,
@@ -87,6 +91,6 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  console.log(profile.deserialize())
+  console.log(profile)
 
-}, 2000)
+}, 7000)

@@ -84,6 +84,12 @@ export const createModelConfig = <T>(
   }
 }
 
+class UnknownModel {
+  constructor (context: any) {
+    Object.assign(this, context)
+  }
+}
+
 export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   ModelDeclaration: T,
   partialModelOptions?: Partial<ModelOptions>
@@ -91,7 +97,8 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
 
   const serialize: ModelWrapper['serialize'] = (originalModel) => {
 
-    const instance = typeof ModelDeclaration === 'function' ? new (ModelDeclaration as any)() : ModelDeclaration
+    const instance = typeof ModelDeclaration === 'function' ?
+      new (ModelDeclaration as any)() : new UnknownModel(ModelDeclaration)
 
     const modelConfig = createModelConfig<T>(instance, originalModel, partialModelOptions)
 
