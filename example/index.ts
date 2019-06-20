@@ -50,10 +50,7 @@ setInterval(() => {
     id = field('ID')
     job = field('Job', {
       experience: field('Exp', 'integer'),
-      skills: field(
-        ({ Skills }) => Skills,
-        ({ skills }) => ({ Skills: skills })
-      )
+      skills: fieldArray('Skills', 'string')
     })
     languages = fieldArray('Languages', {
       id: field('ID', 'string'),
@@ -83,7 +80,7 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  console.log(profile)
+  console.log(profile.deserialize())
 
   const OddModel = model({
     prop1: field('Prop')
@@ -91,4 +88,4 @@ setInterval(() => {
 
   console.log(new OddModel({ Prop: 'blabla ' }))
 
-}, 7000)
+}, 2000)

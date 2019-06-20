@@ -1,17 +1,15 @@
-import { DECLARATION_ARRAY_PROP, DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { FieldArrayDeclaration, FieldDeclaration } from './field_declaration'
 import { ValueOf } from './global_types'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
-  [DECLARATION_ARRAY_PROP]: boolean
   [DECLARATION_PROP]: boolean,
-
   scheme: Scheme
 }
 
 export declare interface PropDeclarationConfig<M = any> {
-  [DECLARATION_ARRAY_PROP]?: boolean
+  arrayType: boolean
   options: FieldDeclaration<M> | FieldArrayDeclaration
 }
 

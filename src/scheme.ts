@@ -1,4 +1,4 @@
-import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { AllKeysAre } from './global_types'
 import { createModel, ModelWrapper } from './model_wrapper'
 import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
@@ -13,6 +13,7 @@ export declare interface Scheme<T = any> {
   from: SchemeConfig<T>
   to: SchemeConfig<T>
   schemeType: SchemeType | null
+  arrayType: boolean
 }
 
 export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M>): Scheme => {
@@ -20,6 +21,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   const { options } = config
 
   const scheme: Scheme = {
+    arrayType: !!config.arrayType,
     from: {
       name: '',
       serializer: null,
@@ -61,8 +63,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'function') {
-        scheme.schemeType = config[DECLARATION_ARRAY_PROP] ?
-          SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
+        scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2
         scheme.to.name = NAME_OF_CLASS_PROP
@@ -70,8 +71,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'object') {
-        scheme.schemeType = config[DECLARATION_ARRAY_PROP] ?
-          SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
+        scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = createModel(option2)
         scheme.to.name = NAME_OF_CLASS_PROP
