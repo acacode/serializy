@@ -38,35 +38,27 @@ setInterval(() => {
   //   spouse = field('Spouse', 'boolean')
   // })
 
-  const FamilyModel = model({
-    childCount: field('ChildrenCount', 'number', 'string'),
-    spouse: field('Spouse', 'boolean')
-  })
-
-  const JobModel = model(class JobModel {
-    experience = field('Exp', 'integer')
-    skills = field(
-      ({ Skills }) => Skills,
-      ({ skills }) => ({ Skills: skills })
-    )
-  })
-
   class ProfileDeclaration {
     badHabits = field(
       ({ DeepInfo }: any) => DeepInfo.BadHabits,
       ({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } })
     )
-    family = field('Family', FamilyModel)
+    family = field('Family', {
+      childCount: field('ChildrenCount', 'number', 'string'),
+      spouse: field('Spouse', 'boolean')
+    })
     id = field('ID')
-    job = field('Job', JobModel)
+    job = field('Job', {
+      experience: field('Exp', 'integer'),
+      skills: field(
+        ({ Skills }) => Skills,
+        ({ skills }) => ({ Skills: skills })
+      )
+    })
     languages = fieldArray('Languages', {
       id: field('ID', 'string'),
       name: field('Name', 'string')
     })
-    // languages = fieldArray('Languages', model(class Language {
-    //   id = field('ID', 'string')
-    //   name = field('Name', 'string')
-    // }))
     personalInfo = field(
       ({ FirstName, LastName }) => ({
         firstName: FirstName,
@@ -91,6 +83,12 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  console.log(profile.deserialize())
+  console.log(profile)
+
+  const OddModel = model({
+    prop1: field('Prop')
+  })
+
+  console.log(new OddModel({ Prop: 'blabla ' }))
 
 }, 7000)
