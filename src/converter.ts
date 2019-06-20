@@ -1,5 +1,6 @@
+import { SchemeType } from './constants'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
-import { Scheme, SchemeType } from './scheme'
+import { Scheme } from './scheme'
 
 declare type CastAction = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => void
 

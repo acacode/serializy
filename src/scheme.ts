@@ -1,20 +1,12 @@
-import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { ModelWrapper } from './model_wrapper'
-import { PropDeclarationConfig } from './prop_declaration'
-
-export enum SchemeType {
-  ONE_STRING = '@ONLY_STRINGS',
-  TWO_STRINGS = '@ONLY_STRINGS',
-  THREE_STRINGS = '@ONLY_STRINGS',
-  STRING_AND_CLASS = '@STRING_AND_CLASS',
-  SERIALIZERS = '@SERIALIZERS',
-  STRING_AND_CLASS_FOR_ARRAY = '@STRING_AND_CLASS_FOR_ARRAY',
-}
+import { DECLARATION_ARRAY_PROP, NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { AllKeysAre } from './global_types'
+import { createModel, ModelWrapper } from './model_wrapper'
+import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
 
 export interface SchemeConfig<T = any> {
   serializer: null | Function,
   name: typeof NAME_OF_CLASS_PROP | string,
-  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | ModelWrapper<T>,
+  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelWrapper<T> | AllKeysAre<PropDeclaration>,
 }
 
 export declare interface Scheme<T = any> {
@@ -72,9 +64,18 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
         scheme.schemeType = config[DECLARATION_ARRAY_PROP] ?
           SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
-        scheme.from.type = option2 as ModelWrapper<any>
+        scheme.from.type = option2
         scheme.to.name = NAME_OF_CLASS_PROP
-        scheme.to.type = option2 as ModelWrapper<any>
+        scheme.to.type = option2
+      }
+
+      if (typeof option2 === 'object') {
+        scheme.schemeType = config[DECLARATION_ARRAY_PROP] ?
+          SchemeType.STRING_AND_CLASS_FOR_ARRAY : SchemeType.STRING_AND_CLASS
+        scheme.from.name = option1
+        scheme.from.type = createModel(option2)
+        scheme.to.name = NAME_OF_CLASS_PROP
+        scheme.to.type = createModel(option2)
       }
     }
 

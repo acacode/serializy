@@ -59,10 +59,10 @@ setInterval(() => {
     family = field('Family', FamilyModel)
     id = field('ID')
     job = field('Job', JobModel)
-    languages = fieldArray('Languages', model({
+    languages = fieldArray('Languages', {
       id: field('ID', 'string'),
       name: field('Name', 'string')
-    }))
+    })
     // languages = fieldArray('Languages', model(class Language {
     //   id = field('ID', 'string')
     //   name = field('Name', 'string')
@@ -91,6 +91,6 @@ setInterval(() => {
 
   profile.id = `${profile.id}_CHANGED`
 
-  console.log(profile)
+  console.log(profile.deserialize())
 
 }, 7000)
