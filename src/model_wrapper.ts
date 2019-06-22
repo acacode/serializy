@@ -88,8 +88,7 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
     deserialize: any
 
     constructor (originalModel: object) {
-      // TODO: remove JSON parsing/stringifying
-      return serialize(JSON.parse(JSON.stringify(originalModel)))
+      return serialize(originalModel)
     }
 
   }
