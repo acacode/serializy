@@ -57,6 +57,20 @@ const coffee = new YourCoffeModel(ServerModel)
 console.log(coffee.isDrink) // yeah, it will be true :-)
 ```
 
+But what if you need to change your client model and send it to the server ?  
+You can use `.deserialize()` of each created instance of declared model:  
+```js
+
+coffee.isDrink = false // it's just example, it is not truth
+
+coffee.deserialize()
+/*
+{
+  IS_THAT_DRINK: false
+}
+*/
+```
+
 ## 📚 Documentation
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
 
