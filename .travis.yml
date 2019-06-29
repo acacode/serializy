@@ -9,11 +9,11 @@ cache:
 
 before_install:
   - export PACKAGE_VERSION=$(node -p "require('./package.json').version")
-  - export NPM_REMOTE_VERSION=$(npm view mapy version)
+  - export NPM_REMOTE_VERSION=$(npm view serializy version)
   - export PACKAGE_NAME=$(node -p "require('./package.json').name")
   - export BRANCH_IS_TAG=$(node -p "/^([0-9].[0-9].[0-9]+((-(alpha|beta))|))$/.test('${TRAVIS_BRANCH}')")
   - export GIT_LOG="$(git log --pretty=format:"* %s (%h)")"
-  - export PROJECT_NAME="acacode/mapy"
+  - export PROJECT_NAME="acacode/serializy"
   - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/getLatestTag.js') + ')'")
 
 install:
@@ -25,8 +25,9 @@ jobs:
       script: yarn lint
     - stage: test
       script:
-        - yarn test
+        # - yarn test
         - yarn run exec
+        - yarn run build
     # - stage: publish
     #   if: env(BRANCH_IS_TAG) != true AND branch = master AND type = push
     #   name: "Create Github Release"

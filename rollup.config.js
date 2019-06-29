@@ -36,24 +36,24 @@ const productionBuildPlugins = [
 module.exports = [
   // Common JS builds
   {
-    ...inputOutputConfig('lib/mapy.js', 'cjs'),
+    ...inputOutputConfig('lib/serializy.js', 'cjs'),
     external: deps,
     plugins: [typescript()],
   },
   {
-    ...inputOutputConfig('lib/mapy.min.js', 'cjs'),
+    ...inputOutputConfig('lib/serializy.min.js', 'cjs'),
     external: deps,
     plugins: [typescript(), ...productionBuildPlugins],
   },
 
   // EcmaScript builds
   {
-    ...inputOutputConfig('es/mapy.js', 'es'),
+    ...inputOutputConfig('es/serializy.js', 'es'),
     external: deps,
     plugins: [typescript()],
   },
   {
-    ...inputOutputConfig('es/mapy.mjs', 'es'),
+    ...inputOutputConfig('es/serializy.mjs', 'es'),
     external: deps,
     plugins: [
       resolve({
@@ -66,8 +66,8 @@ module.exports = [
 
   // UMD builds
   {
-    ...inputOutputConfig('dist/mapy.js', 'umd', {
-      name: 'mapy',
+    ...inputOutputConfig('dist/serializy.js', 'umd', {
+      name: 'serializy',
     }),
     external: deps,
     plugins: [
@@ -83,8 +83,8 @@ module.exports = [
     ],
   },
   {
-    ...inputOutputConfig('dist/mapy.min.js', 'umd', {
-      name: 'mapy',
+    ...inputOutputConfig('dist/serializy.min.js', 'umd', {
+      name: 'serializy',
     }),
     external: deps,
     plugins: [

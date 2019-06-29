@@ -21,6 +21,7 @@
 		"no-console": false,
 		"max-classes-per-file": false,
 		"ban-types": false,
-		"arrow-parens": false
+		"arrow-parens": false,
+		"member-access": [true, "no-public"]
 	}
 }

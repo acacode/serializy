@@ -1,10 +1,10 @@
 {
-  "name": "mapy",
+  "name": "serializy",
   "version": "0.0.1-alpha",
-  "description": "Data mapper between client-side and server-side applications",
-  "main": "lib/mapy.js",
-  "unpkg": "dist/mapy.js",
-  "module": "es/mapy.js",
+  "description": "Data serializer for client-side applications",
+  "main": "lib/serializy.js",
+  "unpkg": "dist/serializy.js",
+  "module": "es/serializy.js",
   "scripts": {
     "build:live": "nodemon --legacy-watch --watch \".\\**\\*.ts\" --exec ts-node example/index.ts",
     "build": "rollup -c",
@@ -46,14 +46,18 @@
   "typings": "./index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acacode/mapy.git"
+    "url": "git+https://github.com/acacode/serializy.git"
   },
   "keywords": [
+    "parser",
+    "serializer",
+    "serialize",
+    "mapper",
+    "convert",
+    "converter",
     "javascript",
-    "data",
-    "modular",
-    "immutable",
-    "javascript-library"
+    "js",
+    "data"
   ],
   "files": [
     "dist",
