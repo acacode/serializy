@@ -140,6 +140,8 @@ Allows to make model from declaration.
 
 ## Examples  
 
+All examples are located [here](./example/index.ts)  
+
 ![example of usage 1](./assets/serializy_example.png)
 ![example of usage 2](./assets/serializy_example2.png)
 
