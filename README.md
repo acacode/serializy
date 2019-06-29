@@ -30,12 +30,47 @@ Scroll down and take a look at the examples ;-)
 
 ## Examples  
 
-![example of usage](./assets/serializy_example.png)
-
+![example of usage 1](./assets/serializy_example.png)
+![example of usage 2](./assets/serializy_example2.png)
 
 ## 💡 How to use
 
-<!-- ## 📚 Documentation -->
+Nothing to hard, just create class or simple object which will contain all your model declarations (using `field()`, `fieldArray()`).  
+And send this class/object to the `model()` function as argument  
+Like in example:  
+
+```js
+import { field, model } from 'serializy'
+
+class CoffeeDeclaration {
+  isDrink = field('IS_THAT_DRINK', 'boolean')
+}
+
+const YourCoffeModel = model(CoffeeDeclaration)
+```
+
+And when you get server model just create instance of your declared model:  
+
+```js
+
+const ServerModel = {
+  IS_THAT_DRINK: true
+}
+
+const coffee = new YourCoffeModel(ServerModel)
+
+console.log(coffee.isDrink) // yeah, it will be true :-)
+```
+
+## 📚 Documentation
+Serializy have exports: `field()`, `fieldArray()`, `model()`  
+
+... Documentation in progress ... :-(
+
+<!-- Function `field()` needs you to describe some property of your model like  
+```
+class  -->
+
 
 ## 📝 License
 
