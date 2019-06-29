@@ -28,11 +28,6 @@ Sounds interesting, yeah ? :-)
 Scroll down and take a look at the examples ;-)
 
 
-## Examples  
-
-![example of usage 1](./assets/serializy_example.png)
-![example of usage 2](./assets/serializy_example2.png)
-
 ## 💡 How to use
 
 Nothing to hard, just create class or simple object which will contain all your model declarations (using `field()`, `fieldArray()`).  
@@ -71,6 +66,10 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 ```
 class  -->
 
+## Examples  
+
+![example of usage 1](./assets/serializy_example.png)
+![example of usage 2](./assets/serializy_example2.png)
 
 ## 📝 License
 
