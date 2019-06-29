@@ -25,8 +25,9 @@ jobs:
       script: yarn lint
     - stage: test
       script:
-        - yarn test
+        # - yarn test
         - yarn run exec
+        - yarn run build
     # - stage: publish
     #   if: env(BRANCH_IS_TAG) != true AND branch = master AND type = push
     #   name: "Create Github Release"

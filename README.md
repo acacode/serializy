@@ -1,6 +1,6 @@
 <div align="center">
 
-  [![serializy](./logo.png)](https://www.npmjs.com/package/serializy) 
+  [![serializy](./assets/logo.png)](https://www.npmjs.com/package/serializy) 
 
   [![](https://img.shields.io/badge/license-MIT-red.svg)](./LICENSE)
   [![](https://img.shields.io/npm/v/serializy.svg)](https://www.npmjs.com/package/serializy)
@@ -14,13 +14,28 @@
   </p>
 </div>
 
-#### Table of Contents  
-
 ## ❓ What is that ?
+
+This thing allows you to don't have to worry about changing server-side models!  
+  
+Sometimes when server change API models or frontend start using different API  
+These situations can have some problems can make some problems in frontend applications  
+Because mostly use the same model from server when develop the user interfaces  
+  
+But with **serializy** you can describe model which you will use and which server wants to see  
+
+Sounds interesting, yeah ? :-)  
+Scroll down and take a look at the examples ;-)
+
+
+## Examples  
+
+![example of usage](./assets/serializy_example.png)
+
 
 ## 💡 How to use
 
-## 📚 Documentation
+<!-- ## 📚 Documentation -->
 
 ## 📝 License
 

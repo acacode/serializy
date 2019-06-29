@@ -88,4 +88,30 @@ setInterval(() => {
 
   console.log(new OddModel({ Prop: 'blabla ' }))
 
+  class AnimalD {
+    age = field('Age', 'number')
+    name = field('Name', 'string')
+  }
+
+  class DogD extends AnimalD {
+    breed = field('Breed', 'string')
+  }
+
+  const DogModel = model(DogD)
+
+  const dog = new DogModel({
+    Age: 4,
+    Breed: 'scottish terrier',
+    Name: 'Fluffy'
+  })
+
+  console.log(dog)
+  /*
+  {
+    age: 4,
+    breed: 'scottish terrier',
+    name: 'Fluffy'
+  }
+  */
+
 }, 2000)

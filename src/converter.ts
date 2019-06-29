@@ -52,7 +52,7 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
   return true
 }
 
-export const castPrimitiveTo: CastPrimitiveTo = {
+const castPrimitiveTo: CastPrimitiveTo = {
   boolean: (value: any): boolean => !!value,
   float: (value: any): number => {
     const str = castPrimitiveTo.string(value).replace(',', '.')
