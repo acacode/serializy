@@ -19,7 +19,7 @@
 This thing allows you to don't have to worry about changing server-side models!  
   
 Sometimes when server change API models or frontend start using different API  
-These situations can have some problems can make some problems in frontend applications  
+These situations can make some problems in frontend applications  
 Because mostly use the same model from server when develop the user interfaces  
   
 But with **serializy** you can describe model which you will use and which server wants to see  
