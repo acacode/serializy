@@ -109,6 +109,9 @@ You can attach custom serializer/deserializer for specific cases.
 ```
 class  -->
 
+<hr>
+
+
 ### `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
 
 This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
@@ -127,6 +130,11 @@ Argument variations:
 And keys/properties should have values created via `field()`, `fieldArray()` function  
 
 <hr>
+
+
+### `model()`[[Source]](./src/model_wrapper.ts#L46)  
+Allows to make model from declaration.  
+![image](https://user-images.githubusercontent.com/16340911/60385059-d5d3bb00-9a8d-11e9-89f5-258d2364ab52.png)  
 
 
 

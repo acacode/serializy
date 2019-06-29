@@ -83,11 +83,11 @@ profile.id = `${profile.id}_CHANGED`
 
 console.log(profile.deserialize())
 
-const OddModel = model({
+const SomeModel = model({
   prop1: field('Prop')
 })
 
-console.log(new OddModel({ Prop: 'blabla ' }))
+console.log(new SomeModel({ Prop: 'blabla ' }))
 
 class AnimalD {
   age = field('Age', 'number')
