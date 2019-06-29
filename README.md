@@ -79,7 +79,7 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 
 ### `field()`[[Source]](./src/field_declaration.ts#L33)  
 This function is needed for describing property of server-side structure.  
-![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)
+![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
 
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
@@ -88,14 +88,14 @@ Argument variations:
 
   
 - `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
-`modelDeclaration` should be `object`/`model(Class)` with keys which have value created via `field()`, `fieldArray()` function
-![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)
-![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)
+`modelDeclaration` should be `object`/`model(Class)` with keys which have value created via `field()`, `fieldArray()` function  
+![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
+![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
 
 
 - `field(customSerializer: function, customDeserializer: function)`  
 You can attach custom serializer/deserializer for specific cases.  
-![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)
+![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
