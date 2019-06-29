@@ -32,21 +32,12 @@ const ServerData = {
 }
 
 class YourModelDeclaration {
-  clientProperty = field(
-    function toUsageModel (originalModel): any {
-      return {
-        foo: originalModel.Foo
-      }
-    },
-    function toOriginalModel (usageModel, partialOriginalModel): any {
-      return {
-        ...partialOriginalModel,
-        Foo: usageModel.foo
-      }
-    })
+  clientProperty = fieldArray('Original_Property', 'string')
 }
 
 const YourModel = model(YourModelDeclaration)
+
+console.log('YourModel', YourModel)
 
 class ProfileDeclaration {
   badHabits = field(

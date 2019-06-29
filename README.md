@@ -77,28 +77,58 @@ Also your created model declaration (like `YourCoffeeModel`) have methods:
 ## 📚 Documentation
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
 
+<hr>
+
 ### `field()`[[Source]](./src/field_declaration.ts#L33)  
+
 This function is needed for describing property of server-side structure.  
 ![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
 
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
+
 `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14)('boolean', 'float', 'integer', 'number', 'string'):  
 ![image](https://user-images.githubusercontent.com/16340911/60382003-6ba72000-9a65-11e9-9a06-22e14f287ce7.png)  
 
+
   
 - `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
-`modelDeclaration` should be `object`/`model(Class)` with keys which have value created via `field()`, `fieldArray()` function  
+
+[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+And keys/properties should have values created via `field()`, `fieldArray()` function  
 ![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
 ![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
 
 
+
 - `field(customSerializer: function, customDeserializer: function)`  
+
 You can attach custom serializer/deserializer for specific cases.  
 ![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
+
+### `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
+
+This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
+![image](https://user-images.githubusercontent.com/16340911/60383955-019c7400-9a81-11e9-8c49-270617f0f8be.png)
+
+Argument variations:  
+
+- `fieldArray(originalPropertyName: string, originalType: string)`  
+`originalPropertyName` - name of property which should be exist in original structure  
+`originalType` should be one of the [following strings](./src/converter.ts#L14)('boolean', 'float', 'integer', 'number', 'string')  
+
+
+- `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+`originalPropertyName` - name of property which should be exist in original structure  
+[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+And keys/properties should have values created via `field()`, `fieldArray()` function  
+
+<hr>
+
+
 
 ## Examples  
 
