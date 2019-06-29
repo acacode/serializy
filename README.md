@@ -16,13 +16,13 @@
 
 ## ❓ What is that ?
 
-This thing allows you to don't have to worry about changing server-side models!  
+This thing allows you to don't have to worry about changing server-side structures!  
   
-Sometimes when server change API models or frontend start using different API  
+Sometimes when server change JSON structures or frontend start using different API  
 These situations can make some problems in frontend applications  
-Because mostly use the same model from server when develop the user interfaces  
+Because mostly use the same structure from server when develop the user interfaces  
   
-But with **serializy** you can describe model which you will use and which server wants to see  
+But with **serializy** you can describe structure which you will use and which server wants to see  
 
 Sounds interesting, yeah ? :-)  
 Scroll down and take a look at the examples ;-)
@@ -41,7 +41,7 @@ class CoffeeDeclaration {
   isDrink = field('IS_THAT_DRINK', 'boolean')
 }
 
-const YourCoffeModel = model(CoffeeDeclaration)
+const YourCoffeeModel = model(CoffeeDeclaration)
 ```
 
 And when you get server model just create instance of your declared model:  
@@ -52,7 +52,7 @@ const ServerModel = {
   IS_THAT_DRINK: true
 }
 
-const coffee = new YourCoffeModel(ServerModel)
+const coffee = new YourCoffeeModel(ServerModel)
 
 console.log(coffee.isDrink) // will be true :-)
 ```
@@ -70,12 +70,32 @@ coffee.deserialize()
 }
 */
 ```
-
+Also your created model declaration (like `YourCoffeeModel`) have methods:  
+- `.serialize(serverModel)` - to convert server-side model to client-side  
+- `.deserialize(clientModel)` - to convert client-side model to server-side  
+  
 ## 📚 Documentation
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
 
-... Documentation in progress ... :-(
+### `field()`[[Source]](./src/field_declaration.ts#L33)  
+This function is needed for describing property of server-side structure.  
+![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)
 
+Argument variations:  
+- `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
+`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14)('boolean', 'float', 'integer', 'number', 'string'):  
+![image](https://user-images.githubusercontent.com/16340911/60382003-6ba72000-9a65-11e9-9a06-22e14f287ce7.png)  
+
+  
+- `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+`modelDeclaration` should be `object`/`model(Class)` with keys which have value created via `field()`, `fieldArray()` function
+![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)
+![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)
+
+
+- `field(customSerializer: function, customDeserializer: function)`  
+You can attach custom serializer/deserializer for specific cases.  
+![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->

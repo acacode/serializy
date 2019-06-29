@@ -31,10 +31,22 @@ const ServerData = {
   LastName: 'Volkov',
 }
 
-  // const FamilyModel = model(class FamilyModel {
-  //   childCount = field('ChildrenCount', 'number', 'string')
-  //   spouse = field('Spouse', 'boolean')
-  // })
+class YourModelDeclaration {
+  clientProperty = field(
+    function toUsageModel (originalModel): any {
+      return {
+        foo: originalModel.Foo
+      }
+    },
+    function toOriginalModel (usageModel, partialOriginalModel): any {
+      return {
+        ...partialOriginalModel,
+        Foo: usageModel.foo
+      }
+    })
+}
+
+const YourModel = model(YourModelDeclaration)
 
 class ProfileDeclaration {
   badHabits = field(
