@@ -30,7 +30,7 @@ Scroll down and take a look at the examples ;-)
 
 ## 💡 How to use
 
-Nothing to hard, just create class or simple object which will contain all your model declarations (using `field()`, `fieldArray()`).  
+Nothing to hard, just create class or simple object which will contain all your structure declarations (using `field()`, `fieldArray()`).  
 And send this class/object to the `model()` function as argument  
 Like in example:  
 
@@ -56,7 +56,7 @@ const DeveloperDeclaration = {
 const DeveloperModel = model(DeveloperDeclaration)
 ```
 
-And when you get server model just create instance of your declared model:  
+And when you get server structure just create instance of your declared model:  
 
 ```js
 
@@ -86,9 +86,9 @@ developer.deserialize()
 }
 */
 ```
-Also your created model declaration (like `DeveloperModel`) have methods:  
-- `.serialize(serverModel)` - to convert server-side model to client-side  
-- `.deserialize(clientModel)` - to convert client-side model to server-side  
+Also your created structure declaration (like `DeveloperModel`) have methods:  
+- `.serialize(serverModel)` - to convert server-side structure to client-side  
+- `.deserialize(clientModel)` - to convert client-side structure to server-side  
   
 ## 📚 Documentation
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
@@ -103,7 +103,7 @@ This function is needed for describing property of server-side structure.
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14)('boolean', 'float', 'integer', 'number', 'string', 'object', 'any'):  
+`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'float', 'integer', 'number', 'string', 'object', 'any'):  
 ![image](https://user-images.githubusercontent.com/16340911/60402692-a317e880-9b9b-11e9-87ac-3f33519747a4.png)  
 
 
@@ -137,7 +137,7 @@ Argument variations:
 
 - `fieldArray(originalPropertyName: string, originalType: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L14)('boolean', 'float', 'integer', 'number', 'string')  
+`originalType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'float', 'integer', 'number', 'string', 'object', 'any')  
 
 
 - `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
@@ -149,7 +149,9 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 
 
 ### `model()`[[Source]](./src/model_wrapper.ts#L46)  
-Allows to make model from declaration.  
+
+This function allows to make model from structure declaration.  
+
 ![image](https://user-images.githubusercontent.com/16340911/60385059-d5d3bb00-9a8d-11e9-89f5-258d2364ab52.png)  
 
 
