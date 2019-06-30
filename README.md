@@ -60,12 +60,12 @@ And when you get server structure just create instance of your declared model:
 
 ```js
 
-const ServerModel = {
+const ServerStructure = {
   LIKE_COFFEE: true,
   LaNgUagEs: ['GoLang', 'Python']
 }
 
-const developer = new DeveloperModel(ServerModel)
+const developer = new DeveloperModel(ServerStructure)
 
 console.log(developer.likeCoffee) // will be true :-)
 ```
