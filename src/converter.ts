@@ -12,10 +12,12 @@ declare type CastActionsObject = {
 }
 
 export declare interface CastPrimitiveTo {
+  any: (value: any) => any
   boolean: (value: any) => boolean
   float: (value: any) => number
   integer: (value: any) => number
   number: (value: any) => number
+  object: (value: any) => object
   string: (value: any) => string
 }
 
@@ -53,6 +55,7 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
 }
 
 const castPrimitiveTo: CastPrimitiveTo = {
+  any: (value: any): any => value,
   boolean: (value: any): boolean => !!value,
   float: (value: any): number => {
     const str = castPrimitiveTo.string(value).replace(',', '.')
@@ -71,6 +74,12 @@ const castPrimitiveTo: CastPrimitiveTo = {
 
     return castedValue
   },
+  object: (value: any): object => {
+    if (typeof value !== 'object' || value instanceof Array) {
+      castWarning(value, typeof value)
+    }
+    return Object.assign({}, value)
+  },
   string: (value: any): string => {
     const castedValue = value && value.toString ? value.toString() : `${value}`
 
@@ -79,7 +88,7 @@ const castPrimitiveTo: CastPrimitiveTo = {
     }
 
     return castedValue
-  },
+  }
 }
 
 declare interface ConvertationConfig {

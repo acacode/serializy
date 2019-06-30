@@ -11,6 +11,12 @@
 ### Removed
  -->
 
+## [0.0.1-beta](https://github.com/acacode/serializy/releases/tag/0.0.1-beta)
+
+### Added
+- Added new types for type declaration: `'any'`, `'object'`
+
+
 ## [0.0.1-alpha](https://github.com/acacode/serializy/releases/tag/0.0.1-alpha)
 
 ### Added
