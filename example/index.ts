@@ -114,3 +114,15 @@ console.log(dog)
     name: 'Fluffy'
   }
   */
+
+const ObjectModel = model({
+  someProp: field('SomeProps', 'any')
+})
+
+const obj = new ObjectModel({
+  SomeProps: {
+    foo: 'bar'
+  }
+})
+
+console.log('obj', obj.deserialize())
