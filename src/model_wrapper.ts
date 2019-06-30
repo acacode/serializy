@@ -51,7 +51,7 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   const serialize: ModelWrapper['serialize'] = (originalModel) => {
 
     const instance = typeof Model === 'function' ?
-      new (Model as any)() : new (class UnknownModel {
+      new (Model as any)() : new (class Model {
         constructor (context: any) {
           Object.assign(this, { ...context })
         }
