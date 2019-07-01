@@ -20,7 +20,7 @@ This thing allows you to don't have to worry about changing server-side structur
   
 Sometimes when server change JSON structures or frontend start using different API  
 These situations can make some problems in frontend applications  
-Because mostly use the same structure from server when develop the user interfaces  
+Because mostly use the same structure from server when develop user interfaces  
   
 But with **serializy** you can describe structure which you will use and which server wants to see  
 
@@ -30,7 +30,7 @@ Scroll down and take a look at the examples ;-)
 
 ## 💡 How to use
 
-Nothing to hard, just create class or simple object which will contain all your structure declarations (using `field()`, `fieldArray()`).  
+Nothing to hard, just create a class or simple object which will contain all your structure declarations (using `field()`, `fieldArray()`).  
 And send this class/object to the `model()` function as argument  
 Like in example:  
 
@@ -42,7 +42,7 @@ class DeveloperDeclaration {
   languages = fieldArray('LaNgUagEs', 'string')
 }
 ```
-Creating declaration via using class is not required you can create just simple object:  
+Creating declaration using class is not important, you can create just a simple object:  
 ```js
 
 const DeveloperDeclaration = {
@@ -95,7 +95,7 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 
 <hr>
 
-### `field()`[[Source]](./src/field_declaration.ts#L33)  
+### 🔹 `field()`[[Source]](./src/field_declaration.ts#L33)  
 
 This function is needed for describing property of server-side structure.  
 ![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
@@ -128,7 +128,7 @@ class  -->
 <hr>
 
 
-### `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
+### 🔹 `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
 
 This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
 ![image](https://user-images.githubusercontent.com/16340911/60383955-019c7400-9a81-11e9-8c49-270617f0f8be.png)
@@ -148,7 +148,7 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 <hr>
 
 
-### `model()`[[Source]](./src/model_wrapper.ts#L46)  
+### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L46)  
 
 This function allows to make model from structure declaration.  
 
@@ -156,12 +156,19 @@ This function allows to make model from structure declaration.
 
 
 
-## Examples  
+## 📄 Examples  
 
 All examples are located [here](./example/index.ts)  
 
 ![example of usage 1](./assets/serializy_example.png)
 ![example of usage 2](./assets/serializy_example2.png)
+
+
+## 📢 Plans 
+
+Currently is needed to create integration with [`axios`](https://github.com/axios/axios) and [`kinka`](https://github.com/acacode/kinka)  
+And that I think will been a great idea, because you will just needed to say http web-clients what you want to see in the response of http request  
+
 
 ## 📝 License
 
