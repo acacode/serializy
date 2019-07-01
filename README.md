@@ -155,7 +155,9 @@ This function allows to make model from structure declaration.
 ![image](https://user-images.githubusercontent.com/16340911/60385059-d5d3bb00-9a8d-11e9-89f5-258d2364ab52.png)  
 
 
-
+   
+   
+   
 ## 📄 Examples  
 
 All examples are located [here](./example/index.ts)  
