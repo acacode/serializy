@@ -12,7 +12,7 @@ export interface SchemeConfig<T = any> {
 export declare interface Scheme<T = any> {
   from: SchemeConfig<T>
   to: SchemeConfig<T>
-  schemeType: SchemeType | null
+  schemeType: SchemeType
   arrayType: boolean
 }
 
@@ -27,7 +27,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
-    schemeType: null,
+    schemeType: null as any,
     to: {
       name: '',
       serializer: null,

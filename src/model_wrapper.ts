@@ -19,7 +19,7 @@ export declare interface ModelWrapper<T = any> {
 
 export declare interface ModelOptions {
   defaultValues: boolean
-  warnings: boolean,
+  warnings: boolean
 }
 
 const DEFAULT_MODEL_OPTIONS: ModelOptions = {

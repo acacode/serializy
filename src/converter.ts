@@ -104,13 +104,8 @@ export const convertModel = (
   const model = {}
 
   for (const { scheme } of modelConfig.declarations) {
-    const serializer = castAction[scheme.schemeType as any]
-
-    if (!serializer) {
-      throw new Error('Unknown scheme type: ' + scheme.schemeType)
-    }
-
-    serializer[toOriginal ? 'toOriginal' : 'toUsage'](dataModel, {
+    const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
+    serializer(dataModel, {
       model,
       modelOptions: modelConfig.options,
       scheme
