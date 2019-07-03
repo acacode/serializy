@@ -1,4 +1,5 @@
 import { SchemeType } from './constants'
+import { isObject } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme } from './scheme'
 
@@ -23,15 +24,15 @@ export declare interface CastPrimitiveTo {
 
 const castWarning = (value: any, currentValue: any) =>
     console.warn(
-      'Cannot cast value {', value, '} to type number.\r\n' +
-      'Current value will be {', currentValue, '}')
+      'Cannot cast value "', value, '" to type number.\r\n' +
+      'Current value will be "', currentValue, '"')
 
 const checkOnExistingCastType = (type: any, property: any): boolean => {
   const possibleCastTypes = Object.keys(castPrimitiveTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     throw new Error(
         `Type ${type} of value of property ${property} is not possble for type casting\r\n` +
-        `Please use one of following types [${possibleCastTypes.join(', ')}]`
+        `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
   return true
@@ -75,7 +76,7 @@ const castPrimitiveTo: CastPrimitiveTo = {
     return castedValue
   },
   object: (value: any): object => {
-    if (typeof value !== 'object' || value instanceof Array) {
+    if (!isObject(value)) {
       castWarning(value, typeof value)
     }
     return Object.assign({}, value)

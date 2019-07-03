@@ -1,5 +1,6 @@
 import { convertModel } from './converter'
 import { ValueOf } from './global_types'
+import { isObject } from './helpers'
 import { preparePropDeclarations, PropDeclaration } from './prop_declaration'
 
 declare interface SerializedObject {
@@ -50,6 +51,12 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
 
   const serialize: ModelWrapper['serialize'] = (originalModel) => {
 
+    if (!isObject(originalModel)) {
+      console.warn('Original model is not an object. Current value is ', originalModel)
+
+      originalModel = {}
+    }
+
     const instance = typeof Model === 'function' ?
       new (Model as any)() : new (class Model {
         constructor (context: any) {
@@ -73,6 +80,9 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   }
 
   const deserialize: ModelWrapper['deserialize'] = (usageModel) => {
+    if (!isObject(usageModel)) {
+      throw new Error('Usage model is not an object.')
+    }
     if (!usageModel.deserialize) {
       throw new Error('Argument of "deserialize" function is not created via "model()" function')
     }
