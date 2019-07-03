@@ -92,14 +92,14 @@ const castPrimitiveTo: CastPrimitiveTo = {
   }
 }
 
-declare interface ConvertationConfig {
+declare interface ConvertConfig {
   modelConfig: ModelConfiguration,
   toOriginal: boolean
 }
 
 export const convertModel = (
   dataModel: object,
-  { modelConfig, toOriginal }: ConvertationConfig
+  { modelConfig, toOriginal }: ConvertConfig
 ) => {
   const model = {}
 
