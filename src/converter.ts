@@ -17,20 +17,17 @@ declare type PrimitiveCaster<ReturnValue> = (value: any) => ReturnValue
 export declare interface CastPrimitiveTo {
   any: PrimitiveCaster<any>
   boolean: PrimitiveCaster<boolean>
-  float: PrimitiveCaster<number>
-  integer: PrimitiveCaster<number>
   number: PrimitiveCaster<number>
   object: PrimitiveCaster<object>
   string: PrimitiveCaster<string>
 }
 
-const castWarning = (value: any, currentValue: any, toType: string) =>
-    console.warn(
-      'Cannot cast value "', value, `" to type ${toType}.\r\n` +
-      'Current value will be "', currentValue, '"')
+const impossibleCastWarning = (value: any, toType: string) =>
+  // checks on null is required. Because most APIs have nullable fields.
+  value !== null && console.warn('Not possible to cast value "', value, `" to type ${toType}.`)
 
 const checkOnExistingCastType = (type: any, property: any): boolean => {
-  const possibleCastTypes = Object.keys(castPrimitiveTo)
+  const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     throw new Error(
         `Type ${type} of value of property ${property} is not possble for type casting\r\n` +
@@ -57,40 +54,36 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
   return true
 }
 
-const castPrimitiveTo: CastPrimitiveTo = {
+const castTo: CastPrimitiveTo = {
   any: (value: any): any => value,
   boolean: (value: any): boolean => !!value,
-  float: (value: any): number => {
-    const str = castPrimitiveTo.string(value).replace(',', '.')
-    return castPrimitiveTo.number(str)
-  },
-  integer: (value: any): number => {
-    const str = castPrimitiveTo.string(value)
-    return castPrimitiveTo.number(castPrimitiveTo.number(str).toFixed(0))
-  },
   number: (value: any): number => {
     const castedValue = +value
 
-    if (Number.isNaN(castedValue)) {
-      castWarning(value, castedValue, 'number')
+    if (!isPrimitive(value) || Number.isNaN(castedValue)) {
+      impossibleCastWarning(value, 'number')
+      return value
     }
 
     return castedValue
   },
   object: (value: any): object => {
+
     if (!isObject(value)) {
-      castWarning(value, typeof value, 'object')
+      impossibleCastWarning(value, 'object')
+      return value
     }
+
     return Object.assign({}, value)
   },
   string: (value: any): string => {
-    const castedValue = value && value.toString ? value.toString() : `${value}`
 
     if (!isPrimitive(value)) {
-      castWarning(value, castedValue, 'string')
+      impossibleCastWarning(value, 'string')
+      return value
     }
 
-    return castedValue
+    return value && value.toString ? value.toString() : `${value}`
   }
 }
 
@@ -214,11 +207,11 @@ const castStringsToOriginal: CastAction = (
     model[from.name] =
     (dataModel[to.name] as object[]).map(value => {
       checkOnExistingCastType(from.type, to.name)
-      return castPrimitiveTo[from.type as keyof CastPrimitiveTo](value)
+      return castTo[from.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(from.type, to.name)
-    model[from.name] = castPrimitiveTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
+    model[from.name] = castTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
   }
 }
 
@@ -236,11 +229,11 @@ const castStringsToUsage: CastAction = (
     }
     model[to.name] = (dataModel[from.name] as object[]).map(value => {
       checkOnExistingCastType(to.type, from.name)
-      return castPrimitiveTo[to.type as keyof CastPrimitiveTo](value)
+      return castTo[to.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(to.type, from.name)
-    model[to.name] = castPrimitiveTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
+    model[to.name] = castTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
   }
 }
 

@@ -50,7 +50,7 @@ class ProfileDeclaration {
   })
   id = field('ID')
   job = field('Job', {
-    experience: field('Exp', 'integer'),
+    experience: field('Exp', 'number'),
     skills: fieldArray('Skills', 'string')
   })
   languages = fieldArray('Languages', {
@@ -81,32 +81,38 @@ profile.personalInfo.lastName = 'Volkov'
 
 profile.id = `${profile.id}_CHANGED`
 
-console.log(profile.deserialize())
+profile.deserialize()
 
-const SomeModel = model({
-  prop1: field('Prop')
+const NullableModel = model(class NullableModel {
+  foo = field('Field', 'string')
 })
 
-console.log(new SomeModel({ Prop: 'blabla ' }))
+console.log('nm', new NullableModel({ Field: null }).deserialize())
 
-class AnimalD {
-  age = field('Age', 'number')
-  name = field('Name', 'string')
-}
+// const SomeModel = model({
+//   prop1: field('Prop')
+// })
 
-class DogD extends AnimalD {
-  breed = field('Breed', 'string')
-}
+// console.log(new SomeModel({ Prop: 'blabla ' }))
 
-const DogModel = model(DogD)
+// class AnimalD {
+//   age = field('Age', 'number')
+//   name = field('Name', 'string')
+// }
 
-const dog = new DogModel({
-  Age: 4,
-  Breed: 'scottish terrier',
-  Name: 'Fluffy'
-})
+// class DogD extends AnimalD {
+//   breed = field('Breed', 'string')
+// }
 
-console.log(dog)
+// const DogModel = model(DogD)
+
+// const dog = new DogModel({
+//   Age: 4,
+//   Breed: 'scottish terrier',
+//   Name: 'Fluffy'
+// })
+
+// console.log(dog)
   /*
   {
     age: 4,
@@ -115,14 +121,14 @@ console.log(dog)
   }
   */
 
-const ObjectModel = model({
-  someProp: field('SomeProps', 'any')
-})
+// const ObjectModel = model({
+//   someProp: field('SomeProps', 'any')
+// })
 
-const obj = new ObjectModel({
-  SomeProps: {
-    foo: 'bar'
-  }
-})
+// const obj = new ObjectModel({
+//   SomeProps: {
+//     foo: 'bar'
+//   }
+// })
 
-console.log('obj', obj.deserialize())
+// console.log('obj', obj.deserialize())
