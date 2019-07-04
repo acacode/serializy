@@ -114,6 +114,11 @@ export const convertModel = (
   return model
 }
 
+const isNotArrayError = (usageProperty: string, originalProperty: string): never => error(
+  `For `,usageProperty,` property you are use 'fieldArray()' and ` +
+  `because of this the original property `,originalProperty,` should have type array`
+)
+
 declare interface CastConfig {
   modelOptions: ModelOptions
   model: object
@@ -127,10 +132,7 @@ const castClassToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      error(
-        `For `,to.name,` property you are use 'fieldArray()' and ` +
-        `because of this property `,to.name,` should have type array`
-      )
+      isNotArrayError(to.name, to.name)
     }
     model[from.name] =
     (dataModel[to.name] as object[]).map(usageModel => {
@@ -150,10 +152,7 @@ const castClassToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      error(
-          `For `,from.name,` property you are use 'fieldArray()' and ` +
-          `because of this property `,from.name,` should have type array`
-        )
+      isNotArrayError(from.name, from.name)
     }
     model[to.name] = (dataModel[from.name] as object[]).map(part => {
       const instance = new (from.type as ModelWrapper<any>)(part)
@@ -199,10 +198,7 @@ const castStringsToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      error(
-        `For `,to.name,` property you are use 'fieldArray()' and ` +
-        `because of this original property `,to.name,` should have type array`
-      )
+      isNotArrayError(to.name, to.name)
     }
     model[from.name] =
     (dataModel[to.name] as object[]).map(value => {
@@ -222,10 +218,7 @@ const castStringsToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      error(
-        `❗️: For `,from.name,` property you are use 'fieldArray()' and ` +
-        `because of this usage property `,to.name,` should have type array`
-      )
+      isNotArrayError(from.name, to.name)
     }
     model[to.name] = (dataModel[from.name] as object[]).map(value => {
       checkOnExistingCastType(to.type, from.name)
