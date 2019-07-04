@@ -81,7 +81,7 @@ profile.personalInfo.lastName = 'Volkov'
 
 profile.id = `${profile.id}_CHANGED`
 
-profile.deserialize()
+console.log(profile)
 
 const NullableModel = model(class NullableModel {
   foo = field('Field', 'string')
@@ -89,30 +89,30 @@ const NullableModel = model(class NullableModel {
 
 console.log('nm', new NullableModel({ Field: null }).deserialize())
 
-// const SomeModel = model({
-//   prop1: field('Prop')
-// })
+const SomeModel = model({
+  prop1: field('Prop')
+})
 
-// console.log(new SomeModel({ Prop: 'blabla ' }))
+console.log(new SomeModel({ Prop: 'blabla ' }))
 
-// class AnimalD {
-//   age = field('Age', 'number')
-//   name = field('Name', 'string')
-// }
+class AnimalD {
+  age = field('Age', 'number')
+  name = field('Name', 'string')
+}
 
-// class DogD extends AnimalD {
-//   breed = field('Breed', 'string')
-// }
+class DogD extends AnimalD {
+  breed = field('Breed', 'string')
+}
 
-// const DogModel = model(DogD)
+const DogModel = model(DogD)
 
-// const dog = new DogModel({
-//   Age: 4,
-//   Breed: 'scottish terrier',
-//   Name: 'Fluffy'
-// })
+const dog = new DogModel({
+  Age: 4,
+  Breed: 'scottish terrier',
+  Name: 'Fluffy'
+})
 
-// console.log(dog)
+console.log(dog)
   /*
   {
     age: 4,
@@ -121,14 +121,14 @@ console.log('nm', new NullableModel({ Field: null }).deserialize())
   }
   */
 
-// const ObjectModel = model({
-//   someProp: field('SomeProps', 'any')
-// })
+const ObjectModel = model({
+  someProp: field('SomeProps', 'any')
+})
 
-// const obj = new ObjectModel({
-//   SomeProps: {
-//     foo: 'bar'
-//   }
-// })
+const obj = new ObjectModel({
+  SomeProps: {
+    foo: 'bar'
+  }
+})
 
-// console.log('obj', obj.deserialize())
+console.log('obj', obj.deserialize())

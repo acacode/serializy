@@ -52,7 +52,7 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   const serialize: ModelWrapper['serialize'] = (originalModel) => {
 
     if (!isObject(originalModel)) {
-      console.warn('Original model is not an object. Current value is ', originalModel)
+      console.warn('⚠️: Original model is not an object. Current value is ', originalModel)
 
       originalModel = {}
     }
@@ -81,10 +81,10 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
 
   const deserialize: ModelWrapper['deserialize'] = (usageModel) => {
     if (!isObject(usageModel)) {
-      throw new Error('Usage model is not an object.')
+      throw new Error('❗️: Usage model is not an object.')
     }
     if (!usageModel.deserialize) {
-      throw new Error('Argument of "deserialize" function is not created via "model()" function')
+      throw new Error('❗️: Argument of "deserialize" function is not created via "model()" function')
     }
     return usageModel.deserialize()
   }

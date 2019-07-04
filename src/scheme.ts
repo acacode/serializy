@@ -107,7 +107,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       */
 
       if (typeof option2 !== 'function') {
-        throw new Error('Second argument should be function which needed to deserialize usage model to original')
+        throw new Error('❗️: Second argument should be function which needed to deserialize usage model to original')
       }
 
       scheme.schemeType = SchemeType.SERIALIZERS
@@ -134,7 +134,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
 
   if (!scheme.schemeType) {
     throw new Error(
-      `Unknown scheme type: ${scheme.schemeType}\r\n` +
+      `❗️: Unknown scheme type: ${scheme.schemeType}\r\n` +
       `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
   }
