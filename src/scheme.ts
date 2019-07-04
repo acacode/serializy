@@ -41,11 +41,24 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   if (options.length === 1) {
 
     if (typeof option1 === 'string') {
+      /*
+        field('PropertyName')
+      */
       scheme.schemeType = SchemeType.ONE_STRING
       scheme.from.name = option1
       scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
+    }
+
+    if (typeof option1 === 'function') {
+      /*
+        field(function CustomSerializer(){})
+      */
+      scheme.schemeType = SchemeType.SERIALIZERS
+      scheme.to.name = NAME_OF_CLASS_PROP
+      scheme.from.serializer = option1
+      scheme.to.serializer = () => ({})
     }
   }
 
@@ -55,6 +68,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     if (typeof option1 === 'string') {
 
       if (typeof option2 === 'string') {
+        /*
+          field('PropertyName','propertyType')
+        */
         scheme.schemeType = SchemeType.TWO_STRINGS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -63,6 +79,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'function') {
+        /*
+          field('PropertyName', Model)
+        */
         scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -71,6 +90,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'object') {
+        /*
+          field('PropertyName', SimpleObjectModel)
+        */
         scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = createModel(option2)
@@ -80,6 +102,10 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     }
 
     if (typeof option1 === 'function') {
+      /*
+        field(function CustomSerializer(){},function CustomDeserializer(){})
+      */
+
       if (typeof option2 !== 'function') {
         throw new Error('Second argument should be function which needed to deserialize usage model to original')
       }
@@ -95,6 +121,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   if (options.length === 3) {
 
     if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
+      /*
+        field('PropertyName','propertyType','usagePropertyType')
+      */
       scheme.schemeType = SchemeType.THREE_STRINGS
       scheme.from.name = option1
       scheme.from.type = option2
