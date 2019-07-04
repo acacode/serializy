@@ -19,6 +19,10 @@
 ### Removed  
 - Casting to types: `'float'`, `'integer'`. Instead of these use `'number'`  
 
+### Added
+- Non required custom deserializer in `field(customSerializer, customDeserializer)` scheme  
+    Now is possible to use just `field(customSerializer)` if you don't needed to have this field in deserialized structure
+
 
 ## [0.0.1-beta](https://github.com/acacode/serializy/releases/tag/0.0.1-beta)
 
