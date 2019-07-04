@@ -1,5 +1,6 @@
 import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { AllKeysAre } from './global_types'
+import { error } from './helpers'
 import { createModel, ModelWrapper } from './model_wrapper'
 import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
 
@@ -107,13 +108,13 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       */
 
       if (typeof option2 !== 'function') {
-        throw new Error('❗️: Second argument should be function which needed to deserialize usage model to original')
+        error('Second argument should be function which needed to deserialize usage model to original')
       }
 
       scheme.schemeType = SchemeType.SERIALIZERS
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.from.serializer = option1
-      scheme.to.serializer = option2
+      scheme.to.serializer = option2 as Function
     }
   }
 
@@ -133,8 +134,8 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   }
 
   if (!scheme.schemeType) {
-    throw new Error(
-      `❗️: Unknown scheme type: ${scheme.schemeType}\r\n` +
+    error(
+      `Unknown scheme type: `,scheme.schemeType,`\r\n` +
       `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
   }

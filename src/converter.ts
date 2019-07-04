@@ -1,5 +1,5 @@
 import { SchemeType } from './constants'
-import { isObject, isPrimitive } from './helpers'
+import { error, isObject, isPrimitive, warn } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme } from './scheme'
 
@@ -24,13 +24,13 @@ export declare interface CastPrimitiveTo {
 
 const impossibleCastWarning = (value: any, toType: string) =>
   // checks on null is required. Because most APIs have nullable fields.
-  value !== null && console.warn('⚠️: Not possible to cast value "', value, `" to type ${toType}.`)
+  value !== null && warn('Not possible to cast value "', value, `" to type ${toType}.`)
 
 const checkOnExistingCastType = (type: any, property: any): boolean => {
   const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
-    throw new Error(
-        `❗️: Type ${type} of value of property ${property} is not possble for type casting\r\n` +
+    error(
+        `Type `, type, ` of value of property `, property, ` is not possble for type casting\r\n` +
         `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
@@ -39,15 +39,15 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
 
 const propertyIsExist = (model: object, property: any): boolean => {
   if (typeof model[property] === 'undefined') {
-    console.warn(`⚠️: Property "${property}" is not existing in model :`, model)
+    warn(`Property "`,property,`" is not existing in model :`, model)
   }
   return true
 }
 
 const objectIsDeclarationModel = (declaredModel: any, property: any) => {
   if (!declaredModel.deserialize) {
-    throw new Error(
-      `❗️: Declared model for ${property} is not created via model() function.` +
+    error(
+      `Declared model for `,property,` is not created via model() function.` +
       `Please wrap this model into "model()" function`
     )
   }
@@ -108,7 +108,7 @@ export const convertModel = (
   }
 
   if (!Object.keys(model).length) {
-    throw new Error('❗️: Unknown error. Object is empty after serializing/deserializing')
+    error('Unknown error. Object is empty after serializing/deserializing')
   }
 
   return model
@@ -127,9 +127,9 @@ const castClassToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      throw new Error(
-        `❗️: For ${to.name} property you are use 'fieldArray()' and ` +
-        `because of this property ${to.name} should have type array`
+      error(
+        `For `,to.name,` property you are use 'fieldArray()' and ` +
+        `because of this property `,to.name,` should have type array`
       )
     }
     model[from.name] =
@@ -150,9 +150,9 @@ const castClassToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      throw new Error(
-          `❗️: For ${from.name} property you are use 'fieldArray()' and ` +
-          `because of this property ${from.name} should have type array`
+      error(
+          `For `,from.name,` property you are use 'fieldArray()' and ` +
+          `because of this property `,from.name,` should have type array`
         )
     }
     model[to.name] = (dataModel[from.name] as object[]).map(part => {
@@ -173,8 +173,8 @@ const castSerializersToOriginal: CastAction = (
   if (typeof to.serializer === 'function') {
     const partialModel = (to.serializer as Function)(dataModel, model)
     if (!isObject(partialModel)) {
-      throw new Error(
-        '❗️: Return value of callback function of property .to() should have type object\r\n' +
+      error(
+        'Return value of callback function of property .to() should have type object\r\n' +
         'Because return value will be merged into result object model'
       )
     }
@@ -187,9 +187,9 @@ const castSerializersToUsage: CastAction = (
   { model, scheme: { from, to }, modelOptions }: CastConfig
 ) => {
   if (typeof from.serializer !== 'function') {
-    throw new Error('❗️: Custom handler should be exist and have type functions')
+    error('Custom handler should be exist and have type functions')
   }
-  model[to.name] = from.serializer(dataModel)
+  model[to.name] = (from.serializer as Function)(dataModel)
 }
 
 const castStringsToOriginal: CastAction = (
@@ -199,9 +199,9 @@ const castStringsToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      throw new Error(
-        `❗️: For ${to.name} property you are use 'fieldArray()' and ` +
-        `because of this original property ${from.name} should have type array`
+      error(
+        `For `,to.name,` property you are use 'fieldArray()' and ` +
+        `because of this original property `,to.name,` should have type array`
       )
     }
     model[from.name] =
@@ -222,9 +222,9 @@ const castStringsToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      throw new Error(
-        `❗️: For ${from.name} property you are use 'fieldArray()' and ` +
-        `because of this usage property ${to.name} should have type array`
+      error(
+        `❗️: For `,from.name,` property you are use 'fieldArray()' and ` +
+        `because of this usage property `,to.name,` should have type array`
       )
     }
     model[to.name] = (dataModel[from.name] as object[]).map(value => {

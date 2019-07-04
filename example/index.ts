@@ -125,10 +125,6 @@ const ObjectModel = model({
   someProp: field('SomeProps', 'any')
 })
 
-const obj = new ObjectModel({
-  SomeProps: {
-    foo: 'bar'
-  }
-})
+const obj = new ObjectModel(null as any)
 
 console.log('obj', obj.deserialize())
