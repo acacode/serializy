@@ -103,8 +103,8 @@ This function is needed for describing property of server-side structure.
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'float', 'integer', 'number', 'string', 'object', 'any'):  
-![image](https://user-images.githubusercontent.com/16340911/60402692-a317e880-9b9b-11e9-87ac-3f33519747a4.png)  
+`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'number', 'string', 'object', 'any'):  
+![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
 
 
   
@@ -137,7 +137,7 @@ Argument variations:
 
 - `fieldArray(originalPropertyName: string, originalType: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'float', 'integer', 'number', 'string', 'object', 'any')  
+`originalType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'number', 'string', 'object', 'any')  
 
 
 - `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
