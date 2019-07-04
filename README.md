@@ -103,7 +103,7 @@ This function is needed for describing property of server-side structure.
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'number', 'string', 'object', 'any'):  
+`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any'):  
 ![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
 
 
@@ -137,7 +137,7 @@ Argument variations:
 
 - `fieldArray(originalPropertyName: string, originalType: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L14) ('boolean', 'number', 'string', 'object', 'any')  
+`originalType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any')  
 
 
 - `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
@@ -148,7 +148,7 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 <hr>
 
 
-### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L46)  
+### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L47)  
 
 This function allows to make model from structure declaration.  
 
