@@ -11,6 +11,15 @@
 ### Removed
  -->
 
+## [1.0.0-alpha.1](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.1)
+
+### Fixed  
+- Warnings in console if field is `null`
+
+### Removed  
+- Casting to types: `'float'`, `'integer'`. Instead of these use `'number'`  
+
+
 ## [0.0.1-beta](https://github.com/acacode/serializy/releases/tag/0.0.1-beta)
 
 ### Added
