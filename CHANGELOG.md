@@ -27,6 +27,7 @@
 
 ### Changed  
 - Renamed `'UnknownModel'` to `'Model'` if you use `field(simpleObjectStructure)`
+- Update warning/exception messages (fix typo and added emojis)
 
 ### Added  
 - Optional custom deserializer in `field(customSerializer, customDeserializer)` scheme  
