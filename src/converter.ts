@@ -1,4 +1,5 @@
 import { SchemeType } from './constants'
+import { isObject, isPrimitive } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme } from './scheme'
 
@@ -11,27 +12,29 @@ declare type CastActionsObject = {
   }
 }
 
+declare type PrimitiveCaster<ReturnValue> = (value: any) => ReturnValue
+
 export declare interface CastPrimitiveTo {
-  any: (value: any) => any
-  boolean: (value: any) => boolean
-  float: (value: any) => number
-  integer: (value: any) => number
-  number: (value: any) => number
-  object: (value: any) => object
-  string: (value: any) => string
+  any: PrimitiveCaster<any>
+  boolean: PrimitiveCaster<boolean>
+  float: PrimitiveCaster<number>
+  integer: PrimitiveCaster<number>
+  number: PrimitiveCaster<number>
+  object: PrimitiveCaster<object>
+  string: PrimitiveCaster<string>
 }
 
-const castWarning = (value: any, currentValue: any) =>
+const castWarning = (value: any, currentValue: any, toType: string) =>
     console.warn(
-      'Cannot cast value {', value, '} to type number.\r\n' +
-      'Current value will be {', currentValue, '}')
+      'Cannot cast value "', value, `" to type ${toType}.\r\n` +
+      'Current value will be "', currentValue, '"')
 
 const checkOnExistingCastType = (type: any, property: any): boolean => {
   const possibleCastTypes = Object.keys(castPrimitiveTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     throw new Error(
         `Type ${type} of value of property ${property} is not possble for type casting\r\n` +
-        `Please use one of following types [${possibleCastTypes.join(', ')}]`
+        `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
   return true
@@ -69,47 +72,42 @@ const castPrimitiveTo: CastPrimitiveTo = {
     const castedValue = +value
 
     if (Number.isNaN(castedValue)) {
-      castWarning(value, castedValue)
+      castWarning(value, castedValue, 'number')
     }
 
     return castedValue
   },
   object: (value: any): object => {
-    if (typeof value !== 'object' || value instanceof Array) {
-      castWarning(value, typeof value)
+    if (!isObject(value)) {
+      castWarning(value, typeof value, 'object')
     }
     return Object.assign({}, value)
   },
   string: (value: any): string => {
     const castedValue = value && value.toString ? value.toString() : `${value}`
 
-    if (castedValue === '[object Object]') {
-      castWarning(value, castedValue)
+    if (!isPrimitive(value)) {
+      castWarning(value, castedValue, 'string')
     }
 
     return castedValue
   }
 }
 
-declare interface ConvertationConfig {
+declare interface ConvertConfig {
   modelConfig: ModelConfiguration,
   toOriginal: boolean
 }
 
 export const convertModel = (
   dataModel: object,
-  { modelConfig, toOriginal }: ConvertationConfig
+  { modelConfig, toOriginal }: ConvertConfig
 ) => {
   const model = {}
 
   for (const { scheme } of modelConfig.declarations) {
-    const serializer = castAction[scheme.schemeType as any]
-
-    if (!serializer) {
-      throw new Error('Unknown scheme type: ' + scheme.schemeType)
-    }
-
-    serializer[toOriginal ? 'toOriginal' : 'toUsage'](dataModel, {
+    const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
+    serializer(dataModel, {
       model,
       modelOptions: modelConfig.options,
       scheme
@@ -181,7 +179,7 @@ const castSerializersToOriginal: CastAction = (
 ) => {
   if (typeof to.serializer === 'function') {
     const partialModel = (to.serializer as Function)(dataModel, model)
-    if (partialModel instanceof Array || typeof partialModel !== 'object') {
+    if (!isObject(partialModel)) {
       throw new Error(
         'Return value of callback function of property .to() should have type object\r\n' +
         'Because return value will be merged into result object model'
@@ -216,11 +214,11 @@ const castStringsToOriginal: CastAction = (
     model[from.name] =
     (dataModel[to.name] as object[]).map(value => {
       checkOnExistingCastType(from.type, to.name)
-      return castPrimitiveTo[from.type as string](value)
+      return castPrimitiveTo[from.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(from.type, to.name)
-    model[from.name] = castPrimitiveTo[from.type as string](dataModel[to.name])
+    model[from.name] = castPrimitiveTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
   }
 }
 
@@ -238,11 +236,11 @@ const castStringsToUsage: CastAction = (
     }
     model[to.name] = (dataModel[from.name] as object[]).map(value => {
       checkOnExistingCastType(to.type, from.name)
-      return castPrimitiveTo[to.type as string](value)
+      return castPrimitiveTo[to.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(to.type, from.name)
-    model[to.name] = castPrimitiveTo[to.type as string](dataModel[from.name])
+    model[to.name] = castPrimitiveTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
   }
 }
 

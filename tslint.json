@@ -4,9 +4,13 @@
 		"tslint:recommended",
 		"tslint-config-standard"
 	],
-    "linterOptions": {
-        "exclude": []
-    },
+	"linterOptions": {
+			"exclude": [
+				"dist/serializy.*",
+				"es/serializy.*",
+				"lib/serializy.*"
+			]
+	},
 	"rules":{
 		"trailing-comma":true,
 		"typedef": [

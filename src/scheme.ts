@@ -12,7 +12,7 @@ export interface SchemeConfig<T = any> {
 export declare interface Scheme<T = any> {
   from: SchemeConfig<T>
   to: SchemeConfig<T>
-  schemeType: SchemeType | null
+  schemeType: SchemeType
   arrayType: boolean
 }
 
@@ -27,7 +27,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
-    schemeType: null,
+    schemeType: null as any,
     to: {
       name: '',
       serializer: null,
@@ -132,8 +132,11 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     }
   }
 
-  if (scheme.schemeType === null) {
-    throw new Error('Scheme is null!\r\n This case where your parameters is not compatible with current mapster scheme')
+  if (!scheme.schemeType) {
+    throw new Error(
+      `Unknown scheme type: ${scheme.schemeType}\r\n` +
+      `Probably it happened because you send to field()/fieldArray() invalid arguments`
+    )
   }
 
   return scheme
