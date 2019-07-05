@@ -135,7 +135,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
 
   if (!scheme.schemeType) {
     error(
-      `Unknown scheme type: `,scheme.schemeType,`\r\n` +
+      `Unknown scheme type\r\n` +
       `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
   }
