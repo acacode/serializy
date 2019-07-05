@@ -27,3 +27,5 @@ export const testPropertiesOnExist = (requiredProperties: Array<[string, string]
     })
   })
 }
+
+export const simpleObjectCopy = (object: any) => JSON.parse(JSON.stringify(object))
