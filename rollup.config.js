@@ -37,7 +37,11 @@ const productionBuildPlugins = [
     },
     mangle: {
       properties: {
-        reserved: ['field', 'fieldArray', 'model', 'serializy']
+        reserved: [
+          'field', 'fieldArray', 'model', 'serializy',
+          'any','boolean','number','object','string',
+          'deserialize', 'serialize'
+        ]
       },
       module: true,
       toplevel: true

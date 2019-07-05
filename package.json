@@ -14,7 +14,7 @@
     "lint:fix": "yarn lint --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "yarn clean && yarn build",
-    "test": "exit 0"
+    "test": "jest"
   },
   "author": "acacode",
   "license": "MIT",

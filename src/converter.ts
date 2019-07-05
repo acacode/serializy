@@ -30,7 +30,7 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
   const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     error(
-        `Type `, type, ` of value of property `, property, ` is not possble for type casting\r\n` +
+        `Type `, type, ` of value of property `, property, ` is not possible for type casting\r\n` +
         `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
