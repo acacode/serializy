@@ -32,6 +32,10 @@
 ### Added  
 - Optional custom deserializer in `field(customSerializer, customDeserializer)` scheme  
     Now is possible to use just `field(customSerializer)` if you don't needed to have this field in deserialized structure  
+- Unit tests for:  
+    - build files  
+    - constants module  
+    - scheme module  
 
 
 
