@@ -50,7 +50,7 @@ class ProfileDeclaration {
   })
   id = field('ID')
   job = field('Job', {
-    experience: field('Exp', 'integer'),
+    experience: field('Exp', 'number'),
     skills: fieldArray('Skills', 'string')
   })
   languages = fieldArray('Languages', {
@@ -81,7 +81,13 @@ profile.personalInfo.lastName = 'Volkov'
 
 profile.id = `${profile.id}_CHANGED`
 
-console.log(profile.deserialize())
+console.log(profile)
+
+const NullableModel = model(class NullableModel {
+  foo = field('Field', 'string')
+})
+
+console.log('nm', new NullableModel({ Field: null }).deserialize())
 
 const SomeModel = model({
   prop1: field('Prop')
@@ -119,10 +125,6 @@ const ObjectModel = model({
   someProp: field('SomeProps', 'any')
 })
 
-const obj = new ObjectModel({
-  SomeProps: {
-    foo: 'bar'
-  }
-})
+const obj = new ObjectModel(null as any)
 
 console.log('obj', obj.deserialize())

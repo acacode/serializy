@@ -1,6 +1,6 @@
 {
   "name": "serializy",
-  "version": "0.0.1-beta",
+  "version": "1.0.0-alpha.1",
   "description": "Data serializer for client-side applications",
   "main": "lib/serializy.js",
   "unpkg": "dist/serializy.js",
@@ -14,7 +14,7 @@
     "lint:fix": "yarn lint --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "yarn clean && yarn build",
-    "test": "exit 0"
+    "test": "jest"
   },
   "author": "acacode",
   "license": "MIT",
@@ -38,7 +38,7 @@
     "ts-jest": "^24.0.2",
     "ts-node": "^8.0.2",
     "tslint": "5.13.0",
-    "tslint-config-standard": "^8.0.1", 
+    "tslint-config-standard": "^8.0.1",
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "3.3.3333"
   },

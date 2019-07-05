@@ -1,4 +1,5 @@
 import { SchemeType } from './constants'
+import { error, isObject, isPrimitive, warn } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { Scheme } from './scheme'
 
@@ -11,27 +12,26 @@ declare type CastActionsObject = {
   }
 }
 
+declare type PrimitiveCaster<ReturnValue> = (value: any) => ReturnValue
+
 export declare interface CastPrimitiveTo {
-  any: (value: any) => any
-  boolean: (value: any) => boolean
-  float: (value: any) => number
-  integer: (value: any) => number
-  number: (value: any) => number
-  object: (value: any) => object
-  string: (value: any) => string
+  any: PrimitiveCaster<any>
+  boolean: PrimitiveCaster<boolean>
+  number: PrimitiveCaster<number>
+  object: PrimitiveCaster<object>
+  string: PrimitiveCaster<string>
 }
 
-const castWarning = (value: any, currentValue: any) =>
-    console.warn(
-      'Cannot cast value {', value, '} to type number.\r\n' +
-      'Current value will be {', currentValue, '}')
+const impossibleCastWarning = (value: any, toType: string) =>
+  // checks on null is required. Because most APIs have nullable fields.
+  value !== null && warn('Not possible to cast value "', value, `" to type ${toType}.`)
 
 const checkOnExistingCastType = (type: any, property: any): boolean => {
-  const possibleCastTypes = Object.keys(castPrimitiveTo)
+  const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
-    throw new Error(
-        `Type ${type} of value of property ${property} is not possble for type casting\r\n` +
-        `Please use one of following types [${possibleCastTypes.join(', ')}]`
+    error(
+        `Type `, type, ` of value of property `, property, ` is not possible for type casting\r\n` +
+        `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
   return true
@@ -39,77 +39,68 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
 
 const propertyIsExist = (model: object, property: any): boolean => {
   if (typeof model[property] === 'undefined') {
-    console.warn(`Property "${property}" is not existing in model :`, model)
+    warn(`Property "`,property,`" is not existing in model :`, model)
   }
   return true
 }
 
 const objectIsDeclarationModel = (declaredModel: any, property: any) => {
   if (!declaredModel.deserialize) {
-    throw new Error(
-      `Declared model for ${property} is not created via model() function.` +
+    error(
+      `Declared model for `,property,` is not created via model() function.` +
       `Please wrap this model into "model()" function`
     )
   }
   return true
 }
 
-const castPrimitiveTo: CastPrimitiveTo = {
+const castTo: CastPrimitiveTo = {
   any: (value: any): any => value,
   boolean: (value: any): boolean => !!value,
-  float: (value: any): number => {
-    const str = castPrimitiveTo.string(value).replace(',', '.')
-    return castPrimitiveTo.number(str)
-  },
-  integer: (value: any): number => {
-    const str = castPrimitiveTo.string(value)
-    return castPrimitiveTo.number(castPrimitiveTo.number(str).toFixed(0))
-  },
   number: (value: any): number => {
     const castedValue = +value
 
-    if (Number.isNaN(castedValue)) {
-      castWarning(value, castedValue)
+    if (!isPrimitive(value) || Number.isNaN(castedValue)) {
+      impossibleCastWarning(value, 'number')
+      return value
     }
 
     return castedValue
   },
   object: (value: any): object => {
-    if (typeof value !== 'object' || value instanceof Array) {
-      castWarning(value, typeof value)
+
+    if (!isObject(value)) {
+      impossibleCastWarning(value, 'object')
+      return value
     }
+
     return Object.assign({}, value)
   },
   string: (value: any): string => {
-    const castedValue = value && value.toString ? value.toString() : `${value}`
 
-    if (castedValue === '[object Object]') {
-      castWarning(value, castedValue)
+    if (!isPrimitive(value)) {
+      impossibleCastWarning(value, 'string')
+      return value
     }
 
-    return castedValue
+    return value && value.toString ? value.toString() : `${value}`
   }
 }
 
-declare interface ConvertationConfig {
+declare interface ConvertConfig {
   modelConfig: ModelConfiguration,
   toOriginal: boolean
 }
 
 export const convertModel = (
   dataModel: object,
-  { modelConfig, toOriginal }: ConvertationConfig
+  { modelConfig, toOriginal }: ConvertConfig
 ) => {
   const model = {}
 
   for (const { scheme } of modelConfig.declarations) {
-    const serializer = castAction[scheme.schemeType as any]
-
-    if (!serializer) {
-      throw new Error('Unknown scheme type: ' + scheme.schemeType)
-    }
-
-    serializer[toOriginal ? 'toOriginal' : 'toUsage'](dataModel, {
+    const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
+    serializer(dataModel, {
       model,
       modelOptions: modelConfig.options,
       scheme
@@ -117,11 +108,16 @@ export const convertModel = (
   }
 
   if (!Object.keys(model).length) {
-    throw new Error('Unknown error. Object is empty after serializing/deserializing')
+    error('Unknown error. Object is empty after serializing/deserializing')
   }
 
   return model
 }
+
+const isNotArrayError = (usageProperty: string, originalProperty: string): never => error(
+  `For `,usageProperty,` property you are use 'fieldArray()' and ` +
+  `because of this the original property `,originalProperty,` should have type array`
+)
 
 declare interface CastConfig {
   modelOptions: ModelOptions
@@ -136,10 +132,7 @@ const castClassToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      throw new Error(
-        `For ${to.name} property you are use 'fieldArray()' and ` +
-        `because of this property ${to.name} should have type array`
-      )
+      isNotArrayError(to.name, to.name)
     }
     model[from.name] =
     (dataModel[to.name] as object[]).map(usageModel => {
@@ -159,10 +152,7 @@ const castClassToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      throw new Error(
-          `For ${from.name} property you are use 'fieldArray()' and ` +
-          `because of this property ${from.name} should have type array`
-        )
+      isNotArrayError(from.name, from.name)
     }
     model[to.name] = (dataModel[from.name] as object[]).map(part => {
       const instance = new (from.type as ModelWrapper<any>)(part)
@@ -181,8 +171,8 @@ const castSerializersToOriginal: CastAction = (
 ) => {
   if (typeof to.serializer === 'function') {
     const partialModel = (to.serializer as Function)(dataModel, model)
-    if (partialModel instanceof Array || typeof partialModel !== 'object') {
-      throw new Error(
+    if (!isObject(partialModel)) {
+      error(
         'Return value of callback function of property .to() should have type object\r\n' +
         'Because return value will be merged into result object model'
       )
@@ -196,9 +186,9 @@ const castSerializersToUsage: CastAction = (
   { model, scheme: { from, to }, modelOptions }: CastConfig
 ) => {
   if (typeof from.serializer !== 'function') {
-    throw new Error('Custom handler should be exist and have type functions')
+    error('Custom handler should be exist and have type functions')
   }
-  model[to.name] = from.serializer(dataModel)
+  model[to.name] = (from.serializer as Function)(dataModel)
 }
 
 const castStringsToOriginal: CastAction = (
@@ -208,19 +198,16 @@ const castStringsToOriginal: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
-      throw new Error(
-        `For ${to.name} property you are use 'fieldArray()' and ` +
-        `because of this original property ${from.name} should have type array`
-      )
+      isNotArrayError(to.name, to.name)
     }
     model[from.name] =
     (dataModel[to.name] as object[]).map(value => {
       checkOnExistingCastType(from.type, to.name)
-      return castPrimitiveTo[from.type as string](value)
+      return castTo[from.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(from.type, to.name)
-    model[from.name] = castPrimitiveTo[from.type as string](dataModel[to.name])
+    model[from.name] = castTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
   }
 }
 
@@ -231,18 +218,15 @@ const castStringsToUsage: CastAction = (
   modelOptions.warnings && propertyIsExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
-      throw new Error(
-        `For ${from.name} property you are use 'fieldArray()' and ` +
-        `because of this usage property ${to.name} should have type array`
-      )
+      isNotArrayError(from.name, to.name)
     }
     model[to.name] = (dataModel[from.name] as object[]).map(value => {
       checkOnExistingCastType(to.type, from.name)
-      return castPrimitiveTo[to.type as string](value)
+      return castTo[to.type as keyof CastPrimitiveTo](value)
     })
   } else {
     checkOnExistingCastType(to.type, from.name)
-    model[to.name] = castPrimitiveTo[to.type as string](dataModel[from.name])
+    model[to.name] = castTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
   }
 }
 

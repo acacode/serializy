@@ -1,5 +1,6 @@
 import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { AllKeysAre } from './global_types'
+import { error } from './helpers'
 import { createModel, ModelWrapper } from './model_wrapper'
 import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
 
@@ -12,7 +13,7 @@ export interface SchemeConfig<T = any> {
 export declare interface Scheme<T = any> {
   from: SchemeConfig<T>
   to: SchemeConfig<T>
-  schemeType: SchemeType | null
+  schemeType: SchemeType
   arrayType: boolean
 }
 
@@ -27,7 +28,7 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
-    schemeType: null,
+    schemeType: null as any,
     to: {
       name: '',
       serializer: null,
@@ -41,11 +42,24 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   if (options.length === 1) {
 
     if (typeof option1 === 'string') {
+      /*
+        field('PropertyName')
+      */
       scheme.schemeType = SchemeType.ONE_STRING
       scheme.from.name = option1
       scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
+    }
+
+    if (typeof option1 === 'function') {
+      /*
+        field(function CustomSerializer(){})
+      */
+      scheme.schemeType = SchemeType.SERIALIZERS
+      scheme.to.name = NAME_OF_CLASS_PROP
+      scheme.from.serializer = option1
+      scheme.to.serializer = () => ({})
     }
   }
 
@@ -55,6 +69,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     if (typeof option1 === 'string') {
 
       if (typeof option2 === 'string') {
+        /*
+          field('PropertyName','propertyType')
+        */
         scheme.schemeType = SchemeType.TWO_STRINGS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -63,6 +80,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'function') {
+        /*
+          field('PropertyName', Model)
+        */
         scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = option2
@@ -71,6 +91,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       }
 
       if (typeof option2 === 'object') {
+        /*
+          field('PropertyName', SimpleObjectModel)
+        */
         scheme.schemeType = SchemeType.STRING_AND_CLASS
         scheme.from.name = option1
         scheme.from.type = createModel(option2)
@@ -80,14 +103,18 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     }
 
     if (typeof option1 === 'function') {
+      /*
+        field(function CustomSerializer(){},function CustomDeserializer(){})
+      */
+
       if (typeof option2 !== 'function') {
-        throw new Error('Second argument should be function which needed to deserialize usage model to original')
+        error('Second argument should be function which needed to deserialize usage model to original')
       }
 
       scheme.schemeType = SchemeType.SERIALIZERS
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.from.serializer = option1
-      scheme.to.serializer = option2
+      scheme.to.serializer = option2 as Function
     }
   }
 
@@ -95,6 +122,9 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
   if (options.length === 3) {
 
     if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
+      /*
+        field('PropertyName','propertyType','usagePropertyType')
+      */
       scheme.schemeType = SchemeType.THREE_STRINGS
       scheme.from.name = option1
       scheme.from.type = option2
@@ -103,8 +133,11 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
     }
   }
 
-  if (scheme.schemeType === null) {
-    throw new Error('Scheme is null!\r\n This case where your parameters is not compatible with current mapster scheme')
+  if (!scheme.schemeType) {
+    error(
+      `Unknown scheme type\r\n` +
+      `Probably it happened because you send to field()/fieldArray() invalid arguments`
+    )
   }
 
   return scheme

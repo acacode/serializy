@@ -29,7 +29,23 @@ const productionBuildPlugins = [
       unsafe: true,
       unsafe_comps: true,
       warnings: false,
+      arguments: true,
+      toplevel: true,
+      unsafe_Function: true,
+      module: true,
+      unsafe_proto: true
     },
+    mangle: {
+      properties: {
+        reserved: [
+          'field', 'fieldArray', 'model', 'serializy',
+          'any','boolean','number','object','string',
+          'deserialize', 'serialize'
+        ]
+      },
+      module: true,
+      toplevel: true
+    }
   }),
 ]
 
