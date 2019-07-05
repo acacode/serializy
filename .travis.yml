@@ -25,7 +25,7 @@ jobs:
       script: yarn lint
     - stage: test
       script:
-        # - yarn test
+        - yarn test
         - yarn run exec
         - yarn run build
     - stage: publish
