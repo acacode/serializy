@@ -5,27 +5,27 @@ import { ModelWrapper } from './model_wrapper'
 import { PropDeclaration } from './prop_declaration'
 import { createSchemeFromOptions } from './scheme'
 
-declare type ModelDeclaration = ModelWrapper | AllKeysAre<PropDeclaration>
-declare type ModelArrayDeclaration = ModelDeclaration | keyof CastPrimitiveTo
+export declare type ModelDeclaration = ModelWrapper | AllKeysAre<PropDeclaration>
+export declare type ModelArrayDeclaration = ModelDeclaration | keyof CastPrimitiveTo
 
 export declare type FieldDeclaration<M = any> =
   [string, (keyof CastPrimitiveTo)?, (keyof CastPrimitiveTo)?]
   | [string, ModelDeclaration]
-  | [(originalModel: any) => any, ((usageModel: any, partialOriginalModel: object) => any)]
+  | [(originalModel: object) => any, ((usageModel: any, partialOriginalModel: object) => any)?]
 
 export declare type FieldArrayDeclaration =
   [string, ModelArrayDeclaration]
 
-declare interface FieldCreatorDeclaration {
+export declare interface FieldCreatorDeclaration {
   (originalProperty: string, originalType?: keyof CastPrimitiveTo, usageType?: keyof CastPrimitiveTo): PropDeclaration
   (originalProperty: string, DeclaredModel: ModelDeclaration): PropDeclaration
   (
     customSerializer: (originalModel: any) => any,
-    customDeserializer: (usageModel: any, partialOriginalModel: any) => object
+    customDeserializer?: (usageModel: any, partialOriginalModel: any) => any
   ): PropDeclaration
 }
 
-declare type FieldsArrayCreatorDeclaration = (
+export declare type FieldsArrayCreatorDeclaration = (
   originalProperty: string,
   DeclaredModel: ModelArrayDeclaration
 ) => PropDeclaration
