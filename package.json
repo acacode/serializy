@@ -1,6 +1,6 @@
 {
   "name": "serializy",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Data serializer for client-side applications",
   "main": "lib/serializy.js",
   "unpkg": "dist/serializy.js",

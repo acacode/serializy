@@ -11,6 +11,11 @@
 ### Removed
  -->
 
+## [1.0.0-alpha.2](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.2)
+
+### Fixed
+- Problem with `.deserialize()` function
+
 ## [1.0.0-alpha.1](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.1)
 
 
