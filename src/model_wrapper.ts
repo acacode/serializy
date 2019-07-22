@@ -49,6 +49,8 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   partialModelOptions?: Partial<ModelOptions>
 ): ModelWrapper<T> => {
 
+  let modelConfig: ModelConfiguration
+
   const serialize: ModelWrapper['serialize'] = (originalModel) => {
 
     if (!isObject(originalModel)) {
@@ -63,7 +65,7 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
         }
       })(Model)
 
-    const modelConfig = createModelConfig<T>(instance, originalModel, partialModelOptions)
+    modelConfig = createModelConfig<T>(instance, originalModel, partialModelOptions)
 
     Object.assign(instance, convertModel(originalModel, {
       modelConfig,
@@ -82,10 +84,16 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
     if (!isObject(usageModel)) {
       error('Usage model is not an object.')
     }
-    if (!usageModel.deserialize) {
-      error('Argument of "deserialize" function is not created via "model()" function')
+    if (!modelConfig) {
+      error(
+        'This model is never serialized.' +
+        'Before use deserialize() needs to serialize() or create new instance of model'
+      )
     }
-    return usageModel.deserialize()
+    return convertModel(usageModel, {
+      modelConfig,
+      toOriginal: true,
+    })
   }
 
   return class ModelWrapper {

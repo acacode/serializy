@@ -130,6 +130,7 @@ const castClassToOriginal: CastAction = (
   { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
   modelOptions.warnings && propertyIsExist(dataModel, to.name)
+  // TODO:FIXME: Check stable working of .deserialize() function
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
