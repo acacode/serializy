@@ -11,9 +11,9 @@
     "clean": "rimraf lib dist es",
     "debug": "npm run build:live --debug-brk=5858",
     "exec": "ts-node example/index.ts",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "npm run lint --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
-    "prepare": "yarn clean && yarn build",
+    "prepare": "npm run clean && npm run build",
     "test": "jest"
   },
   "author": "acacode",
