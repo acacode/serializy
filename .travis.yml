@@ -20,7 +20,7 @@ install:
 
 jobs:
   include:
-    - stage: lint
+    - stage: pre-test(lint,audit)
       script:
         - npm audit
         - npm run lint
