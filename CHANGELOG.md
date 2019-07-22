@@ -16,6 +16,9 @@
 ### Fixed
 - Problem with `.deserialize()` function
 
+### Changed  
+- Fully removed `yarn` from project because already using npm
+
 ## [1.0.0-alpha.1](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.1)
 
 
