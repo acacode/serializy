@@ -1,7 +1,8 @@
 import { SchemeType } from './constants'
+import { AllKeysAre } from './global_types'
 import { error, isObject, isPrimitive, warn } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
-import { Scheme } from './scheme'
+import { Scheme, SchemeConfig } from './scheme'
 
 declare type CastAction = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => void
 
@@ -125,32 +126,32 @@ declare interface CastConfig {
 
 const castClassToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, writeOnly }, modelOptions }: CastConfig
 ) => {
 
-  modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
-  // TODO:FIXME: Check stable working of .deserialize() function
+  modelOptions.warnings && !writeOnly && propertyIsNotExist(dataModel, to.name)
+
+  const deserializeModel = (model: AllKeysAre<any>) => {
+    objectIsDeclarationModel(model, to.name)
+    return (to.type as ModelWrapper<any>).deserialize(model)
+  }
+
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
     }
-    model[from.name] =
-    (dataModel[to.name] as object[]).map(usageModel => {
-      objectIsDeclarationModel(usageModel, to.name)
-      return (usageModel as InstanceType<ModelWrapper<any>>).deserialize()
-    })
+    model[from.name] = (dataModel[to.name] as object[]).map(deserializeModel)
   } else {
-    objectIsDeclarationModel(dataModel[to.name], to.name)
-    model[from.name] = (dataModel[to.name] as InstanceType<ModelWrapper<any>>).deserialize()
+    model[from.name] = deserializeModel(dataModel[to.name])
   }
 }
 
 const castClassToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
 ) => {
 
-  modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
+  modelOptions.warnings && !readOnly && propertyIsNotExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
       isNotArrayError(from.name, from.name)
@@ -172,7 +173,7 @@ const castSerializersToOriginal: CastAction = (
 ) => {
 
   if (typeof to.serializer === 'function') {
-    const partialModel = (to.serializer as Function)(dataModel, model)
+    const partialModel = to.serializer(dataModel, model)
     if (!isObject(partialModel)) {
       error(
         'Return value of callback function of property .to() should have type object\r\n' +
@@ -194,50 +195,40 @@ const castSerializersToUsage: CastAction = (
   model[to.name] = (from.serializer as Function)(dataModel)
 }
 
-const castStringsToOriginal: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
-) => {
-
-  modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
-
-  const castStringToOriginal = (value: any) => {
-    checkOnExistingCastType(from.type, to.name)
-    return castTo[from.type as keyof CastPrimitiveTo](value)
-  }
-
-  if (arrayType) {
-    if (!(dataModel[to.name] instanceof Array)) {
-      isNotArrayError(to.name, to.name)
-    }
-    model[from.name] = (dataModel[to.name] as any[]).map(castStringToOriginal)
-  } else {
-    model[from.name] = castStringToOriginal(dataModel[to.name])
-  }
+declare interface ShortCastConfig {
+  model: object,
+  arrayType: boolean,
+  warnings: boolean,
+  currentProp: SchemeConfig,
+  usageProp: SchemeConfig,
 }
 
-const castStringsToUsage: CastAction = (
+const castStrings = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  {
+    model,
+    arrayType,
+    warnings,
+    currentProp,
+    usageProp
+  }: ShortCastConfig
 ) => {
 
-  modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
+  warnings && propertyIsNotExist(dataModel, currentProp.name)
 
-  const castStringToUsage = (value: any) => {
-    checkOnExistingCastType(to.type, from.name)
-    return castTo[to.type as keyof CastPrimitiveTo](value)
+  const castString = (value: any) => {
+    checkOnExistingCastType(usageProp.type, currentProp.name)
+    return castTo[usageProp.type as keyof CastPrimitiveTo](value)
   }
 
   if (arrayType) {
-    if (!(dataModel[from.name] instanceof Array)) {
-      isNotArrayError(from.name, to.name)
+    if (!(dataModel[currentProp.name] instanceof Array)) {
+      isNotArrayError(currentProp.name, currentProp.name)
     }
-    model[to.name] = (dataModel[from.name] as any[]).map(castStringToUsage)
+    model[usageProp.name] = (dataModel[currentProp.name] as any[]).map(castString)
   } else {
-    // TODO: prevent returning undefined
-    model[to.name] = castStringToUsage(dataModel[from.name])
+    model[usageProp.name] = castString(dataModel[currentProp.name])
   }
-
 }
 
 const castAction: CastActionsObject = {
@@ -250,7 +241,19 @@ const castAction: CastActionsObject = {
     toUsage: castSerializersToUsage,
   },
   [SchemeType.THREE_STRINGS]: {
-    toOriginal: castStringsToOriginal,
-    toUsage: castStringsToUsage,
+    toOriginal: (dataModel, config) => castStrings(dataModel, {
+      arrayType: config.scheme.arrayType,
+      currentProp: config.scheme.to,
+      model: config.model,
+      usageProp: config.scheme.from,
+      warnings: config.modelOptions.warnings && !config.scheme.writeOnly,
+    }),
+    toUsage:  (dataModel, config) => castStrings(dataModel, {
+      arrayType: config.scheme.arrayType,
+      currentProp: config.scheme.from,
+      model: config.model,
+      usageProp: config.scheme.to,
+      warnings: config.modelOptions.warnings && !config.scheme.readOnly,
+    }),
   }
 }

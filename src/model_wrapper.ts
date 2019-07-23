@@ -51,18 +51,22 @@ export const createModelConfig = <T>(
   },
 })
 
-const serializeObject = (modelConfiguration: ModelConfiguration, structure: AllKeysAre<any>): SerializedObject => {
+const serializeObject = (
+  modelConfiguration: ModelConfiguration,
+  structure: AllKeysAre<any>
+): SerializedObject => {
+
   if (!isObject(structure)) {
-    warn('Original structure is not an object (current value: ', structure, ')')
+    modelConfiguration.options.warnings && warn('Original structure is not an object (current value: ', structure, ')')
     structure = {}
   }
 
   if (!modelConfiguration.declarationsAreFullyInitialized) {
-    for (const { scheme } of modelConfiguration.declarations) {
-      if (scheme.to.type === TYPE_OF_CLASS_PROP_VALUE) {
-        const originalType = typeof structure[scheme.from.name]
-        scheme.to.type = originalType
-        scheme.from.type = originalType
+    for (const { scheme: { to, from } } of modelConfiguration.declarations) {
+      if (to.type === TYPE_OF_CLASS_PROP_VALUE) {
+        const originalType = typeof structure[from.name]
+        to.type = originalType
+        from.type = originalType
       }
     }
 
@@ -82,7 +86,10 @@ const serializeObject = (modelConfiguration: ModelConfiguration, structure: AllK
   return serializedObject
 }
 
-const deserializeObject = (modelConfiguration: ModelConfiguration, structure: AllKeysAre<any>): DeserializedObject => {
+const deserializeObject = (
+  modelConfiguration: ModelConfiguration,
+  structure: AllKeysAre<any>
+): DeserializedObject => {
   if (!isObject(structure)) {
     error('Usage model is not an object.')
   }
@@ -99,8 +106,8 @@ const deserializeObject = (modelConfiguration: ModelConfiguration, structure: Al
   })
 }
 
-const getPropertyNames = (modelConfiguration: ModelConfiguration, getOnlyUsageProperties: boolean) => {
-  return modelConfiguration.declarations.reduce((names: string[], declaration) => {
+const getPropertyNames = ({ declarations }: ModelConfiguration, getOnlyUsageProperties: boolean) => {
+  return declarations.reduce((names: string[], declaration) => {
     if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
       names.push(declaration.scheme[getOnlyUsageProperties ? 'to' : 'from'].name)
     }
@@ -108,8 +115,8 @@ const getPropertyNames = (modelConfiguration: ModelConfiguration, getOnlyUsagePr
   }, [])
 }
 
-const getPropertiesMap = (modelConfiguration: ModelConfiguration, reverseNames?: boolean): AllKeysAre<string> =>
-  modelConfiguration.declarations.reduce((namesMap: AllKeysAre<string>, declaration) => {
+const getPropertiesMap = ({ declarations }: ModelConfiguration, reverseNames?: boolean): AllKeysAre<string> =>
+  declarations.reduce((namesMap: AllKeysAre<string>, declaration) => {
     if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
       const propertiesNames = [declaration.scheme.to.name, declaration.scheme.from.name]
       const [keyName, value] = reverseNames ? propertiesNames.reverse() : propertiesNames

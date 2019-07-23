@@ -30,7 +30,6 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
-    // TODO: add stable working this property
     readOnly: false,
     schemeType: null as any,
     to: {
@@ -38,7 +37,6 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
-    // TODO: add stable working this property
     writeOnly: false,
   }
 

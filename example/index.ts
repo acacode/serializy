@@ -81,7 +81,7 @@ profile.personalInfo.lastName = 'Volkov'
 
 profile.id = `${profile.id}_CHANGED`
 
-console.log(profile)
+console.log(profile.deserialize())
 
 const NullableModel = model(class NullableModel {
   foo = field('Field', 'string')
@@ -125,14 +125,42 @@ console.log(dog)
     name: 'Fluffy'
   }
   */
-setTimeout(() => {
 
-  const ObjectModel = model({
-    someProp: field('SomeProps', 'any')
+const ObjectModel = model({
+  someProp: field({
+    name: 'SomeProps',
+    readOnly: true,
+    type: 'any',
+    usageType: 'string'
   })
+}, {
+  warnings: false
+})
 
-  const obj = new ObjectModel(null as any)
+const obj = new ObjectModel(null as any)
 
-  console.log('obj', obj.deserialize())
+console.log('obj', obj.deserialize())
 
-}, 8000)
+const DeepDeeperModel = model(class Deep1 {
+  deep2 = field('Deep2', model(class Deep2 {
+    deep3 = field('Deep3', model(class Deep3 {
+      deep4 = field('Deep4', model(class Deep4 {
+        deep5 = field('Deep5', model(class Deep5 {
+          deep6 = field('Deep6', 'any')
+        }))
+      }))
+    }))
+  }))
+})
+
+console.log(JSON.stringify(new DeepDeeperModel({
+  Deep2: {
+    Deep3: {
+      Deep4: {
+        Deep5: {
+          Deep6: '55'
+        }
+      }
+    }
+  }
+}).deserialize()))
