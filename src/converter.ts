@@ -134,6 +134,7 @@ const castClassToOriginal: CastAction = (
   }
 
   modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
+  // TODO:FIXME: Check stable working of .deserialize() function
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
@@ -141,12 +142,10 @@ const castClassToOriginal: CastAction = (
     model[from.name] =
     (dataModel[to.name] as object[]).map(usageModel => {
       objectIsDeclarationModel(usageModel, to.name)
-      // FIXME: it probably can have errors like deserialize() is not function
       return (usageModel as InstanceType<ModelWrapper<any>>).deserialize()
     })
   } else {
     objectIsDeclarationModel(dataModel[to.name], to.name)
-    // FIXME: it probably can have errors like deserialize() is not function
     model[from.name] = (dataModel[to.name] as InstanceType<ModelWrapper<any>>).deserialize()
   }
 }
