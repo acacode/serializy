@@ -8,34 +8,62 @@ import { createSchemeFromOptions } from './scheme'
 export declare type ModelDeclaration = ModelWrapper | AllKeysAre<PropDeclaration>
 export declare type ModelArrayDeclaration = ModelDeclaration | keyof CastPrimitiveTo
 
+export declare interface FieldConfiguration {
+  name: string,
+  readOnly?: boolean,
+  writeOnly?: boolean,
+  type?: PropertyType,
+  usageType?: PropertyType
+}
+
+export declare type PropertyNameDeclaration = string
+export declare type PropertyType = keyof CastPrimitiveTo
+export declare type CustomSerializerFunc = (originalModel: AllKeysAre<any>) => any
+export declare type CustomDeserializerFunc = (usageModel: AllKeysAre<any>, partialOriginalModel: AllKeysAre<any>) => any
+
 export declare type FieldDeclaration<M = any> =
-  [string, (keyof CastPrimitiveTo)?, (keyof CastPrimitiveTo)?]
-  | [string, ModelDeclaration]
-  | [(originalModel: object) => any, ((usageModel: any, partialOriginalModel: object) => any)?]
+  [PropertyNameDeclaration, PropertyType?, PropertyType?] |
+  [PropertyNameDeclaration, ModelDeclaration] |
+  [FieldConfiguration] |
+  [CustomSerializerFunc, CustomDeserializerFunc?]
 
 export declare type FieldArrayDeclaration =
-  [string, ModelArrayDeclaration]
+  [PropertyNameDeclaration, ModelArrayDeclaration]
 
 export declare interface FieldCreatorDeclaration {
-  (originalProperty: string, originalType?: keyof CastPrimitiveTo, usageType?: keyof CastPrimitiveTo): PropDeclaration
-  (originalProperty: string, DeclaredModel: ModelDeclaration): PropDeclaration
   (
-    customSerializer: (originalModel: any) => any,
-    customDeserializer?: (usageModel: any, partialOriginalModel: any) => any
+    originalProperty: PropertyNameDeclaration,
+    originalType?: PropertyType,
+    usageType?: PropertyType
+  ): PropDeclaration
+  (
+    originalProperty: PropertyNameDeclaration,
+    DeclaredModel: ModelDeclaration
+  ): PropDeclaration
+  (
+    fieldConfiguration: FieldConfiguration
+  ): PropDeclaration
+  (
+    customSerializer: CustomSerializerFunc,
+    customDeserializer?: CustomDeserializerFunc
   ): PropDeclaration
 }
 
 export declare type FieldsArrayCreatorDeclaration = (
-  originalProperty: string,
+  originalProperty: PropertyNameDeclaration,
   DeclaredModel: ModelArrayDeclaration
 ) => PropDeclaration
 
-export const createField: FieldCreatorDeclaration = <M = any>(...options: FieldDeclaration<M>) => ({
+const createFieldDeclaration = <M>(
+  options: FieldDeclaration<M> | FieldArrayDeclaration,
+  arrayType: boolean
+) => ({
   [DECLARATION_PROP]: true,
-  scheme: createSchemeFromOptions({ options, arrayType: false })
+  scheme: createSchemeFromOptions({ options, arrayType })
 })
 
-export const createFieldsArray: FieldsArrayCreatorDeclaration = (...options: FieldArrayDeclaration) => ({
-  [DECLARATION_PROP]: true,
-  scheme: createSchemeFromOptions({ options, arrayType: true })
-})
+export const createField: FieldCreatorDeclaration = <M = any>(...options: FieldDeclaration<M>) =>
+  createFieldDeclaration(options, false)
+
+export const createFieldsArray: FieldsArrayCreatorDeclaration = (...options: FieldArrayDeclaration) =>
+  createFieldDeclaration(options, true)

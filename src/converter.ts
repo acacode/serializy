@@ -37,7 +37,7 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
   return true
 }
 
-const propertyIsExist = (model: object, property: any): boolean => {
+const propertyIsNotExist = (model: object, property: any): boolean => {
   if (typeof model[property] === 'undefined') {
     warn(`Property "`,property,`" is not existing in model :`, model)
   }
@@ -127,9 +127,13 @@ declare interface CastConfig {
 
 const castClassToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, to.name)
+  if (readOnly) {
+    return
+  }
+
+  modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
@@ -149,9 +153,13 @@ const castClassToOriginal: CastAction = (
 
 const castClassToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, writeOnly }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, from.name)
+  if (writeOnly) {
+    return
+  }
+
+  modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
       isNotArrayError(from.name, from.name)
@@ -169,8 +177,12 @@ const castClassToUsage: CastAction = (
 
 const castSerializersToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to }, modelOptions }: CastConfig
+  { model, scheme: { from, to, readOnly }, modelOptions }: CastConfig
 ) => {
+  if (readOnly) {
+    return
+  }
+
   if (typeof to.serializer === 'function') {
     const partialModel = (to.serializer as Function)(dataModel, model)
     if (!isObject(partialModel)) {
@@ -185,8 +197,12 @@ const castSerializersToOriginal: CastAction = (
 
 const castSerializersToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to }, modelOptions }: CastConfig
+  { model, scheme: { from, to, writeOnly }, modelOptions }: CastConfig
 ) => {
+  if (writeOnly) {
+    return
+  }
+
   if (typeof from.serializer !== 'function') {
     error('Custom handler should be exist and have type functions')
   }
@@ -195,41 +211,54 @@ const castSerializersToUsage: CastAction = (
 
 const castStringsToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, to.name)
+  if (readOnly) {
+    return
+  }
+
+  modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
+
+  const castStringToOriginal = (value: any) => {
+    checkOnExistingCastType(from.type, to.name)
+    return castTo[from.type as keyof CastPrimitiveTo](value)
+  }
+
   if (arrayType) {
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
     }
-    model[from.name] =
-    (dataModel[to.name] as object[]).map(value => {
-      checkOnExistingCastType(from.type, to.name)
-      return castTo[from.type as keyof CastPrimitiveTo](value)
-    })
+    model[from.name] = (dataModel[to.name] as any[]).map(castStringToOriginal)
   } else {
-    checkOnExistingCastType(from.type, to.name)
-    model[from.name] = castTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
+    model[from.name] = castStringToOriginal(dataModel[to.name])
   }
 }
 
 const castStringsToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, writeOnly }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, from.name)
+  if (writeOnly) {
+    return
+  }
+
+  modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
+
+  const castStringToUsage = (value: any) => {
+    checkOnExistingCastType(to.type, from.name)
+    return castTo[to.type as keyof CastPrimitiveTo](value)
+  }
+
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
       isNotArrayError(from.name, to.name)
     }
-    model[to.name] = (dataModel[from.name] as object[]).map(value => {
-      checkOnExistingCastType(to.type, from.name)
-      return castTo[to.type as keyof CastPrimitiveTo](value)
-    })
+    model[to.name] = (dataModel[from.name] as any[]).map(castStringToUsage)
   } else {
-    checkOnExistingCastType(to.type, from.name)
-    model[to.name] = castTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
+    // TODO: prevent returning undefined
+    model[to.name] = castStringToUsage(dataModel[from.name])
   }
+
 }
 
 const castAction: CastActionsObject = {

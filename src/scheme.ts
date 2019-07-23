@@ -15,6 +15,8 @@ export declare interface Scheme<T = any> {
   to: SchemeConfig<T>
   schemeType: SchemeType
   arrayType: boolean
+  readOnly: boolean
+  writeOnly: boolean
 }
 
 export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M>): Scheme => {
@@ -28,12 +30,16 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       serializer: null,
       type: null,
     },
+    // TODO: add stable working this property
+    readOnly: false,
     schemeType: null as any,
     to: {
       name: '',
       serializer: null,
       type: null,
     },
+    // TODO: add stable working this property
+    writeOnly: false,
   }
 
   const [option1,option2,option3] = options
@@ -50,6 +56,24 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
       scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
       scheme.to.name = NAME_OF_CLASS_PROP
       scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
+    }
+
+    if (typeof option1 === 'object') {
+      /*
+        field({ name: 'PropertyName' })
+      */
+      if (!option1.name) {
+        error('field configuration should contains at least "name" property')
+      }
+
+      scheme.schemeType = SchemeType.ONE_STRING
+      scheme.from.name = option1.name
+      scheme.from.type = option1.type || TYPE_OF_CLASS_PROP_VALUE
+      scheme.to.name = NAME_OF_CLASS_PROP
+      scheme.to.type = option1.usageType || scheme.from.type
+
+      scheme.readOnly = !!option1.readOnly
+      scheme.writeOnly = !!option1.writeOnly
     }
 
     if (typeof option1 === 'function') {

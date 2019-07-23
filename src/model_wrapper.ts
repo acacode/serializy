@@ -1,5 +1,6 @@
+import { SchemeType } from './constants'
 import { convertModel } from './converter'
-import { ValueOf } from './global_types'
+import { AllKeysAre, ValueOf } from './global_types'
 import { error, isObject, warn } from './helpers'
 import { preparePropDeclarations, PropDeclaration } from './prop_declaration'
 
@@ -15,6 +16,7 @@ export declare interface ModelWrapper<T = any> {
   new (originalModel: object): SerializedObject
   serialize (originalModel: object): SerializedObject
   deserialize (usageModel: SerializedObject): DeserializedObject
+  getModelConfig (): ModelConfiguration | null
 }
 
 export declare interface ModelOptions {
@@ -43,6 +45,25 @@ export const createModelConfig = <T>(
     ...(modelOptions || {})
   },
 })
+
+const getPropertyNames = (modelConfig: ModelConfiguration, getOnlyUsageProperties: boolean) => {
+  return modelConfig.declarations.reduce((names: string[], declaration) => {
+    if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
+      names.push(declaration.scheme[getOnlyUsageProperties ? 'to' : 'from'].name)
+    }
+    return names
+  }, [])
+}
+
+const getPropertiesMap = (modelConfig: ModelConfiguration, reverseNames?: boolean) =>
+  modelConfig.declarations.reduce((namesMap: AllKeysAre<string>, declaration) => {
+    if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
+      const propertiesNames = [declaration.scheme.to.name, declaration.scheme.from.name]
+      const [keyName, value] = reverseNames ? propertiesNames.reverse() : propertiesNames
+      namesMap[keyName] = value
+    }
+    return namesMap
+  }, {})
 
 export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   Model: T,
@@ -99,14 +120,22 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   return class ModelWrapper {
 
     static serialize = serialize
-
     static deserialize = deserialize
+
+    static getModelConfig = (): (ModelConfiguration | never) => {
+      if (!modelConfig) {
+        error('Model is not initialized. To do that you should create new instance')
+      }
+      return modelConfig
+    }
+    static getUsagePropertyNames = () => getPropertyNames(ModelWrapper.getModelConfig(), true)
+    static getOriginalPropertyNames = () => getPropertyNames(ModelWrapper.getModelConfig(), false)
+    static getPropertiesMap = (reverseNames?: boolean) => getPropertiesMap(ModelWrapper.getModelConfig(), reverseNames)
 
     deserialize: any
 
     constructor (originalModel: object) {
       return serialize(originalModel)
     }
-
   }
 }

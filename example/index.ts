@@ -96,7 +96,12 @@ const SomeModel = model({
 console.log(new SomeModel({ Prop: 'blabla ' }))
 
 class AnimalD {
-  age = field('Age', 'number')
+  age = field({
+    name: 'Age',
+    readOnly: true,
+    type: 'number',
+    writeOnly: true,
+  })
   name = field('Name', 'string')
 }
 
@@ -120,11 +125,14 @@ console.log(dog)
     name: 'Fluffy'
   }
   */
+setTimeout(() => {
 
-const ObjectModel = model({
-  someProp: field('SomeProps', 'any')
-})
+  const ObjectModel = model({
+    someProp: field('SomeProps', 'any')
+  })
 
-const obj = new ObjectModel(null as any)
+  const obj = new ObjectModel(null as any)
 
-console.log('obj', obj.deserialize())
+  console.log('obj', obj.deserialize())
+
+}, 8000)
