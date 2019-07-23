@@ -19,7 +19,7 @@ export declare interface FieldConfiguration {
 export declare type PropertyNameDeclaration = string
 export declare type PropertyType = keyof CastPrimitiveTo
 export declare type CustomSerializerFunc = (originalModel: AllKeysAre<any>) => any
-export declare type CustomDeserializerFunc = (usageModel: AllKeysAre<any>, partialOriginalModel: AllKeysAre<any>) => any
+export declare type CustomDeserializerFunc = (usageModel: AllKeysAre<any>) => any
 
 export declare type FieldDeclaration<M = any> =
   [PropertyNameDeclaration, PropertyType?, PropertyType?] |

@@ -32,16 +32,33 @@ const productionBuildPlugins = [
       arguments: true,
       toplevel: true,
       unsafe_Function: true,
+      passes: 150,
+      unsafe_arrows: true,
       module: true,
-      unsafe_proto: true
+      loops: true,
+      evaluate: false,
+      unsafe_proto: true,
+      ecma: 5,
+      unsafe_math: true,
+      unsafe_methods: true,
+      warnings: true,
+      // Not support IE10 and earlier versions
+      typeofs: true,
+      // arguments: true,
+      // expression: true,
+      // unsafe_regexp: true,
+      // unsafe_undefined: true
     },
     mangle: {
       properties: {
         reserved: [
           'field', 'fieldArray', 'model', 'serializy',
           'any','boolean','number','object','string',
-          'deserialize', 'serialize'
-        ]
+          'deserialize', 'serialize',
+
+          'getUsagePropertyNames',
+          'getOriginalPropertyNames', 'getPropertiesMap'
+        ],
       },
       module: true,
       toplevel: true

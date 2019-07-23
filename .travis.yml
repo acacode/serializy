@@ -13,7 +13,7 @@ before_install:
   - export BRANCH_IS_TAG=$(node -p "/^([0-9].[0-9].[0-9]+((-(alpha|beta))|))$/.test('${TRAVIS_BRANCH}')")
   - export GIT_LOG="$(git log --pretty=format:"* %s (%h)")"
   - export PROJECT_NAME="acacode/serializy"
-  - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/getLatestTag.js') + ')'")
+  - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/get_latest_tag.js') + ')'")
 
 install:
   - npm ci
@@ -29,6 +29,7 @@ jobs:
         - npm run build
         - npm run test
         - npm run exec
+        - build/output_file_sizes.sh
     - stage: publish
       if: env(BRANCH_IS_TAG) != true AND branch = master AND type = push
       name: "Create Github Release"

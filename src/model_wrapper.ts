@@ -1,4 +1,4 @@
-import { SchemeType } from './constants'
+import { SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { convertModel } from './converter'
 import { AllKeysAre, ValueOf } from './global_types'
 import { error, isObject, warn } from './helpers'
@@ -13,10 +13,14 @@ declare interface DeserializedObject {
 }
 
 export declare interface ModelWrapper<T = any> {
+  modelConfiguration: ModelConfiguration
   new (originalModel: object): SerializedObject
-  serialize (originalModel: object): SerializedObject
-  deserialize (usageModel: SerializedObject): DeserializedObject
-  getModelConfig (): ModelConfiguration | null
+  serialize (originalModel: AllKeysAre<any>): SerializedObject
+  deserialize (usageModel: AllKeysAre<any>): DeserializedObject
+
+  getUsagePropertyNames (): string[]
+  getOriginalPropertyNames (): string[]
+  getPropertiesMap (reverseNames?: boolean): AllKeysAre<string>
 }
 
 export declare interface ModelOptions {
@@ -30,24 +34,73 @@ const DEFAULT_MODEL_OPTIONS: ModelOptions = {
 }
 
 export declare interface ModelConfiguration {
+  declarationsAreFullyInitialized: boolean
   options: ModelOptions
   declarations: PropDeclaration[]
 }
 
 export const createModelConfig = <T>(
   objectWithDeclarations: ValueOf<T>,
-  originalModel: object,
   modelOptions?: Partial<ModelOptions>
 ): ModelConfiguration => ({
-  declarations: preparePropDeclarations<T>(objectWithDeclarations, originalModel),
+  declarations: preparePropDeclarations<T>(objectWithDeclarations),
+  declarationsAreFullyInitialized: false,
   options: {
     ...DEFAULT_MODEL_OPTIONS,
     ...(modelOptions || {})
   },
 })
 
-const getPropertyNames = (modelConfig: ModelConfiguration, getOnlyUsageProperties: boolean) => {
-  return modelConfig.declarations.reduce((names: string[], declaration) => {
+const serializeObject = (modelConfiguration: ModelConfiguration, structure: AllKeysAre<any>): SerializedObject => {
+  if (!isObject(structure)) {
+    warn('Original structure is not an object (current value: ', structure, ')')
+    structure = {}
+  }
+
+  if (!modelConfiguration.declarationsAreFullyInitialized) {
+    for (const { scheme } of modelConfiguration.declarations) {
+      if (scheme.to.type === TYPE_OF_CLASS_PROP_VALUE) {
+        const originalType = typeof structure[scheme.from.name]
+        scheme.to.type = originalType
+        scheme.from.type = originalType
+      }
+    }
+
+    modelConfiguration.declarationsAreFullyInitialized = true
+  }
+
+  const serializedObject = (convertModel(structure, {
+    modelConfiguration,
+    toOriginal: false,
+  }) as SerializedObject)
+
+  serializedObject.__proto__.deserialize = () => convertModel(serializedObject, {
+    modelConfiguration,
+    toOriginal: true,
+  })
+
+  return serializedObject
+}
+
+const deserializeObject = (modelConfiguration: ModelConfiguration, structure: AllKeysAre<any>): DeserializedObject => {
+  if (!isObject(structure)) {
+    error('Usage model is not an object.')
+  }
+
+  if (!modelConfiguration) {
+    error(
+      'This model is never serialized.' +
+      'Before use deserialize() needs to serialize() or create new instance of model'
+    )
+  }
+  return convertModel(structure, {
+    modelConfiguration,
+    toOriginal: true,
+  })
+}
+
+const getPropertyNames = (modelConfiguration: ModelConfiguration, getOnlyUsageProperties: boolean) => {
+  return modelConfiguration.declarations.reduce((names: string[], declaration) => {
     if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
       names.push(declaration.scheme[getOnlyUsageProperties ? 'to' : 'from'].name)
     }
@@ -55,8 +108,8 @@ const getPropertyNames = (modelConfig: ModelConfiguration, getOnlyUsagePropertie
   }, [])
 }
 
-const getPropertiesMap = (modelConfig: ModelConfiguration, reverseNames?: boolean) =>
-  modelConfig.declarations.reduce((namesMap: AllKeysAre<string>, declaration) => {
+const getPropertiesMap = (modelConfiguration: ModelConfiguration, reverseNames?: boolean): AllKeysAre<string> =>
+  modelConfiguration.declarations.reduce((namesMap: AllKeysAre<string>, declaration) => {
     if (declaration.scheme.schemeType !== SchemeType.SERIALIZERS) {
       const propertiesNames = [declaration.scheme.to.name, declaration.scheme.from.name]
       const [keyName, value] = reverseNames ? propertiesNames.reverse() : propertiesNames
@@ -70,72 +123,29 @@ export const createModel = <T extends (object | (new () => ValueOf<T>))>(
   partialModelOptions?: Partial<ModelOptions>
 ): ModelWrapper<T> => {
 
-  let modelConfig: ModelConfiguration
+  const declarationInstance = typeof Model === 'function' ?
+    new (Model as any)() : new (class Model {
+      // it is hack to create unique instances
+      constructor (context: any) {
+        Object.assign(this, { ...context })
+      }
+    })(Model)
 
-  const serialize: ModelWrapper['serialize'] = (originalModel) => {
-
-    if (!isObject(originalModel)) {
-      warn('Original model is not an object (current value: ', originalModel, ')')
-      originalModel = {}
-    }
-
-    const instance = typeof Model === 'function' ?
-      new (Model as any)() : new (class Model {
-        constructor (context: any) {
-          Object.assign(this, { ...context })
-        }
-      })(Model)
-
-    modelConfig = createModelConfig<T>(instance, originalModel, partialModelOptions)
-
-    Object.assign(instance, convertModel(originalModel, {
-      modelConfig,
-      toOriginal: false,
-    }))
-
-    instance.__proto__.deserialize = () => convertModel(instance, {
-      modelConfig,
-      toOriginal: true,
-    })
-
-    return instance
-  }
-
-  const deserialize: ModelWrapper['deserialize'] = (usageModel) => {
-    if (!isObject(usageModel)) {
-      error('Usage model is not an object.')
-    }
-    if (!modelConfig) {
-      error(
-        'This model is never serialized.' +
-        'Before use deserialize() needs to serialize() or create new instance of model'
-      )
-    }
-    return convertModel(usageModel, {
-      modelConfig,
-      toOriginal: true,
-    })
-  }
+  const modelConfiguration: ModelConfiguration = createModelConfig<T>(declarationInstance, partialModelOptions)
 
   return class ModelWrapper {
 
-    static serialize = serialize
-    static deserialize = deserialize
+    static modelConfiguration = modelConfiguration
 
-    static getModelConfig = (): (ModelConfiguration | never) => {
-      if (!modelConfig) {
-        error('Model is not initialized. To do that you should create new instance')
-      }
-      return modelConfig
-    }
-    static getUsagePropertyNames = () => getPropertyNames(ModelWrapper.getModelConfig(), true)
-    static getOriginalPropertyNames = () => getPropertyNames(ModelWrapper.getModelConfig(), false)
-    static getPropertiesMap = (reverseNames?: boolean) => getPropertiesMap(ModelWrapper.getModelConfig(), reverseNames)
+    static serialize = (originalModel: object) => serializeObject(modelConfiguration, originalModel)
+    static deserialize = (usageModel: object) => deserializeObject(modelConfiguration, usageModel)
+    static getUsagePropertyNames = () => getPropertyNames(modelConfiguration, true)
+    static getOriginalPropertyNames = () => getPropertyNames(modelConfiguration, false)
+    static getPropertiesMap = (reverseNames?: boolean) => getPropertiesMap(modelConfiguration, reverseNames)
 
+    // instance methods
     deserialize: any
 
-    constructor (originalModel: object) {
-      return serialize(originalModel)
-    }
+    constructor (originalModel: object) { return serializeObject(modelConfiguration, originalModel) }
   }
 }

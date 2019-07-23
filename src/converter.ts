@@ -88,27 +88,25 @@ const castTo: CastPrimitiveTo = {
 }
 
 declare interface ConvertConfig {
-  modelConfig: ModelConfiguration,
+  modelConfiguration: ModelConfiguration,
   toOriginal: boolean
 }
 
 export const convertModel = (
   dataModel: object,
-  { modelConfig, toOriginal }: ConvertConfig
+  { modelConfiguration, toOriginal }: ConvertConfig
 ) => {
   const model = {}
 
-  for (const { scheme } of modelConfig.declarations) {
-    const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
-    serializer(dataModel, {
-      model,
-      modelOptions: modelConfig.options,
-      scheme
-    })
-  }
-
-  if (!Object.keys(model).length) {
-    error('Unknown error. Object is empty after serializing/deserializing')
+  for (const { scheme } of modelConfiguration.declarations) {
+    if (toOriginal ? !scheme.readOnly : !scheme.writeOnly) {
+      const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
+      serializer(dataModel, {
+        model,
+        modelOptions: modelConfiguration.options,
+        scheme
+      })
+    }
   }
 
   return model
@@ -127,11 +125,8 @@ declare interface CastConfig {
 
 const castClassToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
-  if (readOnly) {
-    return
-  }
 
   modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
   // TODO:FIXME: Check stable working of .deserialize() function
@@ -152,11 +147,8 @@ const castClassToOriginal: CastAction = (
 
 const castClassToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType, writeOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
-  if (writeOnly) {
-    return
-  }
 
   modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
   if (arrayType) {
@@ -176,11 +168,8 @@ const castClassToUsage: CastAction = (
 
 const castSerializersToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, readOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to }, modelOptions }: CastConfig
 ) => {
-  if (readOnly) {
-    return
-  }
 
   if (typeof to.serializer === 'function') {
     const partialModel = (to.serializer as Function)(dataModel, model)
@@ -196,11 +185,8 @@ const castSerializersToOriginal: CastAction = (
 
 const castSerializersToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, writeOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to }, modelOptions }: CastConfig
 ) => {
-  if (writeOnly) {
-    return
-  }
 
   if (typeof from.serializer !== 'function') {
     error('Custom handler should be exist and have type functions')
@@ -210,11 +196,8 @@ const castSerializersToUsage: CastAction = (
 
 const castStringsToOriginal: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
-  if (readOnly) {
-    return
-  }
 
   modelOptions.warnings && propertyIsNotExist(dataModel, to.name)
 
@@ -235,11 +218,8 @@ const castStringsToOriginal: CastAction = (
 
 const castStringsToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType, writeOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
-  if (writeOnly) {
-    return
-  }
 
   modelOptions.warnings && propertyIsNotExist(dataModel, from.name)
 
