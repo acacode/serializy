@@ -131,7 +131,7 @@ const castClassToOriginal: CastAction = (
 
   modelOptions.warnings && !writeOnly && propertyIsNotExist(dataModel, to.name)
 
-  const deserializeModel = (model: AllKeysAre<any>) => {
+  const cast = (model: AllKeysAre<any>) => {
     objectIsDeclarationModel(model, to.name)
     return (to.type as ModelWrapper<any>).deserialize(model)
   }
@@ -140,9 +140,9 @@ const castClassToOriginal: CastAction = (
     if (!(dataModel[to.name] instanceof Array)) {
       isNotArrayError(to.name, to.name)
     }
-    model[from.name] = (dataModel[to.name] as object[]).map(deserializeModel)
+    model[from.name] = (dataModel[to.name] as object[]).map(cast)
   } else {
-    model[from.name] = deserializeModel(dataModel[to.name])
+    model[from.name] = cast(dataModel[to.name])
   }
 }
 
@@ -152,18 +152,19 @@ const castClassToUsage: CastAction = (
 ) => {
 
   modelOptions.warnings && !readOnly && propertyIsNotExist(dataModel, from.name)
+
+  const cast = (model: AllKeysAre<any>) => {
+    const instance = (from.type as ModelWrapper<any>).serialize(model)
+    return objectIsDeclarationModel(instance, from.name) && instance
+  }
+
   if (arrayType) {
     if (!(dataModel[from.name] instanceof Array)) {
       isNotArrayError(from.name, from.name)
     }
-    model[to.name] = (dataModel[from.name] as object[]).map(part => {
-      const instance = new (from.type as ModelWrapper<any>)(part)
-      return objectIsDeclarationModel(instance, from.name) && instance
-    })
+    model[to.name] = (dataModel[from.name] as object[]).map(cast)
   } else {
-    const instance = new (from.type as ModelWrapper<any>)(dataModel[from.name])
-    objectIsDeclarationModel(instance, from.name)
-    model[to.name] = instance
+    model[to.name] = cast(dataModel[from.name])
   }
 }
 
@@ -199,8 +200,8 @@ declare interface ShortCastConfig {
   model: object,
   arrayType: boolean,
   warnings: boolean,
-  currentProp: SchemeConfig,
-  usageProp: SchemeConfig,
+  currentPropScheme: SchemeConfig,
+  usagePropScheme: SchemeConfig,
 }
 
 const castStrings = (
@@ -209,25 +210,25 @@ const castStrings = (
     model,
     arrayType,
     warnings,
-    currentProp,
-    usageProp
+    currentPropScheme,
+    usagePropScheme
   }: ShortCastConfig
 ) => {
 
-  warnings && propertyIsNotExist(dataModel, currentProp.name)
+  warnings && propertyIsNotExist(dataModel, currentPropScheme.name)
 
-  const castString = (value: any) => {
-    checkOnExistingCastType(usageProp.type, currentProp.name)
-    return castTo[usageProp.type as keyof CastPrimitiveTo](value)
+  const cast = (value: any) => {
+    checkOnExistingCastType(usagePropScheme.type, currentPropScheme.name)
+    return castTo[usagePropScheme.type as keyof CastPrimitiveTo](value)
   }
 
   if (arrayType) {
-    if (!(dataModel[currentProp.name] instanceof Array)) {
-      isNotArrayError(currentProp.name, currentProp.name)
+    if (!(dataModel[currentPropScheme.name] instanceof Array)) {
+      isNotArrayError(currentPropScheme.name, currentPropScheme.name)
     }
-    model[usageProp.name] = (dataModel[currentProp.name] as any[]).map(castString)
+    model[usagePropScheme.name] = (dataModel[currentPropScheme.name] as any[]).map(cast)
   } else {
-    model[usageProp.name] = castString(dataModel[currentProp.name])
+    model[usagePropScheme.name] = cast(dataModel[currentPropScheme.name])
   }
 }
 
@@ -241,19 +242,19 @@ const castAction: CastActionsObject = {
     toUsage: castSerializersToUsage,
   },
   [SchemeType.THREE_STRINGS]: {
-    toOriginal: (dataModel, config) => castStrings(dataModel, {
-      arrayType: config.scheme.arrayType,
-      currentProp: config.scheme.to,
-      model: config.model,
-      usageProp: config.scheme.from,
-      warnings: config.modelOptions.warnings && !config.scheme.writeOnly,
+    toOriginal: (dataModel, { scheme, model, modelOptions }) => castStrings(dataModel, {
+      arrayType: scheme.arrayType,
+      currentPropScheme: scheme.to,
+      model,
+      usagePropScheme: scheme.from,
+      warnings: modelOptions.warnings && !scheme.writeOnly,
     }),
-    toUsage:  (dataModel, config) => castStrings(dataModel, {
-      arrayType: config.scheme.arrayType,
-      currentProp: config.scheme.from,
-      model: config.model,
-      usageProp: config.scheme.to,
-      warnings: config.modelOptions.warnings && !config.scheme.readOnly,
+    toUsage:  (dataModel, { scheme, model, modelOptions }) => castStrings(dataModel, {
+      arrayType: scheme.arrayType,
+      currentPropScheme: scheme.from,
+      model,
+      usagePropScheme: scheme.to,
+      warnings: modelOptions.warnings && !scheme.readOnly,
     }),
   }
 }
