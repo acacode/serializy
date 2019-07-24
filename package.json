@@ -11,7 +11,7 @@
     "clean": "rimraf lib dist es",
     "debug": "npm run build:live --debug-brk=5858",
     "exec": "ts-node example/index.ts",
-    "lint:fix": "npm run lint --fix",
+    "lint:fix": "npm run lint -- --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "npm run clean && npm run build",
     "test": "jest"

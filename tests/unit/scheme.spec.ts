@@ -37,12 +37,14 @@ describe('scheme', () => {
               serializer: null,
               type: TYPE_OF_CLASS_PROP_VALUE,
             },
+            readOnly: false,
             schemeType: SchemeType.ONE_STRING,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
               type: TYPE_OF_CLASS_PROP_VALUE,
             },
+            writeOnly: false,
           })
         })
       })
@@ -65,11 +67,13 @@ describe('scheme', () => {
               serializer: customSerializer,
               type: null,
             },
+            readOnly: false,
             schemeType: SchemeType.SERIALIZERS,
             to: {
               name: NAME_OF_CLASS_PROP,
               type: null,
             },
+            writeOnly: false,
           })
         })
 
@@ -95,12 +99,14 @@ describe('scheme', () => {
               serializer: null,
               type: 'string',
             },
+            readOnly: false,
             schemeType: SchemeType.TWO_STRINGS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
               type: 'string',
             },
+            writeOnly: false,
           })
         })
 
@@ -127,12 +133,14 @@ describe('scheme', () => {
               serializer: null,
               type: SomeModelClass,
             },
+            readOnly: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
               type: SomeModelClass,
             },
+            writeOnly: false,
           })
         })
       })
@@ -158,11 +166,13 @@ describe('scheme', () => {
               name: 'PropertyName',
               serializer: null,
             },
+            readOnly: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
             },
+            writeOnly: false,
           })
         })
       })
@@ -214,12 +224,14 @@ describe('scheme', () => {
               serializer: null,
               type: 'string',
             },
+            readOnly: false,
             schemeType: SchemeType.THREE_STRINGS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
               type: 'number',
             },
+            writeOnly: false,
           })
         })
       })
