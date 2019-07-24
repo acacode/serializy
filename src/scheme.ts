@@ -47,6 +47,7 @@ export const createSchemeFromOptions = <M = any>(
 
   const [option1,option2,option3] = options
 
+
   // Count of arguments is 1
   if (options.length === 1) {
 
@@ -67,7 +68,7 @@ export const createSchemeFromOptions = <M = any>(
         field({ name: 'PropertyName' })
       */
 
-      if (!name) {
+      if (!option1.name) {
         error('field configuration should contains at least "name" property')
       }
 
