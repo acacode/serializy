@@ -21,7 +21,8 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint:fix"
+      "pre-commit": "npm run lint:fix",
+      "post-update": "npm run prepare && npm run exec"
     }
   },
   "devDependencies": {
