@@ -10,7 +10,7 @@
   [![](https://badgen.net/bundlephobia/minzip/serializy)](https://bundlephobia.com/result?p=serializy)
 
   <p>
-    Data mapper between client-side and server-side applications
+    Object schema validation and data serialization
   </p>
 </div>
 
