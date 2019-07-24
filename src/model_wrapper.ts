@@ -1,5 +1,6 @@
 import { SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { convertModel } from './converter'
+import { CommonFieldCreator } from './field_declaration'
 import { AllKeysAre, ValueOf } from './global_types'
 import { error, isObject, warn } from './helpers'
 import { preparePropDeclarations, PropDeclaration } from './prop_declaration'
@@ -40,7 +41,7 @@ export declare interface ModelConfiguration {
 }
 
 export const createModelConfig = <T>(
-  objectWithDeclarations: ValueOf<T>,
+  objectWithDeclarations: AllKeysAre<PropDeclaration | CommonFieldCreator>,
   modelOptions?: Partial<ModelOptions>
 ): ModelConfiguration => ({
   declarations: preparePropDeclarations<T>(objectWithDeclarations),

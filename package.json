@@ -14,6 +14,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "npm run clean && npm run build",
+    "output-file-sizes": "bash build/output_file_sizes.sh",
     "test": "jest"
   },
   "author": "acacode",

@@ -45,10 +45,10 @@ class ProfileDeclaration {
       ({ badHabits }) => ({ DeepInfo: { BadHabits: badHabits } })
     )
   family = field('Family', {
-    childCount: field('ChildrenCount', 'number', 'string'),
+    childCount: field('ChildrenCount', 'number', 'string')({ readOnly: false, writeOnly: true }),
     spouse: field('Spouse', 'boolean')
   })
-  id = field('ID')
+  id = field('ID')({ readOnly: true })
   job = field('Job', {
     experience: field('Exp', 'number'),
     skills: fieldArray('Skills', 'string')
@@ -90,7 +90,7 @@ const NullableModel = model(class NullableModel {
 console.log('nm', new NullableModel({ Field: null }).deserialize())
 
 const SomeModel = model({
-  prop1: field('Prop')
+  prop1: field('Prop')({ writeOnly: true })
 })
 
 console.log(new SomeModel({ Prop: 'blabla ' }))
@@ -164,3 +164,17 @@ console.log(JSON.stringify(new DeepDeeperModel({
     }
   }
 }).deserialize()))
+
+const Example2 = model(class {
+  id = field('ID')({ readOnly: true })
+  myProp = field('ID')({ writeOnly: true })
+})
+
+const clientModel = new Example2({ ID: '5' })
+
+console.log('usage - ', clientModel) // { id: '5', myProp: '5' } - клиентская модель
+
+clientModel.id = '6'
+clientModel.myProp = '7'
+
+console.log('original - ', clientModel.deserialize()) // { ID: '5' } - серверная модель

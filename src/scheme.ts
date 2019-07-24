@@ -1,43 +1,40 @@
 import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { AllKeysAre } from './global_types'
+import { BasePropertyOptions, CommonPropertyOptions, ModelDeclaration } from './field_declaration'
 import { error } from './helpers'
-import { createModel, ModelWrapper } from './model_wrapper'
-import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
+import { createModel } from './model_wrapper'
+import { PropDeclarationConfig } from './prop_declaration'
 
 export interface SchemeConfig<T = any> {
   serializer: null | Function,
   name: typeof NAME_OF_CLASS_PROP | string,
-  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelWrapper<T> | AllKeysAre<PropDeclaration>,
+  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelDeclaration,
 }
 
-export declare interface Scheme<T = any> {
+export declare interface Scheme<T = any> extends BasePropertyOptions, CommonPropertyOptions {
   from: SchemeConfig<T>
   to: SchemeConfig<T>
   schemeType: SchemeType
-  arrayType: boolean
-  readOnly: boolean
-  writeOnly: boolean
 }
 
-export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M>): Scheme => {
-
-  const { options } = config
+export const createSchemeFromOptions = <M = any>(
+  { options, writeOnly, arrayType, readOnly }: PropDeclarationConfig<M>
+): Scheme => {
 
   const scheme: Scheme = {
-    arrayType: !!config.arrayType,
+    arrayType: !!arrayType,
     from: {
       name: '',
       serializer: null,
       type: null,
     },
-    readOnly: false,
+    readOnly: !!readOnly,
     schemeType: null as any,
     to: {
       name: '',
       serializer: null,
       type: null,
     },
-    writeOnly: false,
+    writeOnly: !!writeOnly,
   }
 
   const [option1,option2,option3] = options
