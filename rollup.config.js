@@ -32,7 +32,7 @@ const productionBuildPlugins = [
       arguments: true,
       toplevel: true,
       unsafe_Function: true,
-      passes: 150,
+      passes: 300,
       unsafe_arrows: true,
       module: true,
       loops: true,

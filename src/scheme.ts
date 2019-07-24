@@ -4,15 +4,15 @@ import { error } from './helpers'
 import { createModel } from './model_wrapper'
 import { PropDeclarationConfig } from './prop_declaration'
 
-export interface SchemeConfig<T = any> {
+export interface FieldScheme<T = any> {
   serializer: null | Function,
   name: typeof NAME_OF_CLASS_PROP | string,
   type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelDeclaration,
 }
 
 export declare interface Scheme<T = any> extends BasePropertyOptions, CommonPropertyOptions {
-  from: SchemeConfig<T>
-  to: SchemeConfig<T>
+  from: FieldScheme<T>
+  to: FieldScheme<T>
   schemeType: SchemeType
 }
 
@@ -39,7 +39,7 @@ export const createSchemeFromOptions = <M = any>(
     writeOnly: !!writeOnly,
   }
 
-  const makeScheme = (type: SchemeType, from?: Partial<SchemeConfig>, to?: Partial<SchemeConfig>) => {
+  const makeScheme = (type: SchemeType, from?: Partial<FieldScheme>, to?: Partial<FieldScheme>) => {
     scheme.schemeType = type
     Object.assign(scheme.from, from || {})
     Object.assign(scheme.to, to || {})
@@ -135,14 +135,10 @@ export const createSchemeFromOptions = <M = any>(
         field(function CustomSerializer(){},function CustomDeserializer(){})
       */
 
-      if (typeof option2 !== 'function') {
-        error('Second argument should be function which needed to deserialize usage model to original')
-      }
-
       makeScheme(
         SchemeType.SERIALIZERS,
         { serializer: option1 },
-        { serializer: option2 as Function }
+        { serializer: typeof option2 === 'function' ? option2 : SERIALIZER_NOOP }
       )
     }
   }
