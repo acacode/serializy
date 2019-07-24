@@ -29,7 +29,6 @@ jobs:
         - npm run build
         - npm run test
         - npm run exec
-        - build/output_file_sizes.sh
     - stage: publish
       if: env(BRANCH_IS_TAG) != true AND branch = master AND type = push
       name: "Create Github Release"
