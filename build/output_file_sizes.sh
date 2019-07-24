@@ -1,6 +1,6 @@
 #!/bin/sh
 echo "--- output files: ---"
-echo "- src folder -" ; ls -lsh src
-echo "- dist folder -" ; ls -lsh dist
-echo "- es folder -" ; ls -lsh es
-echo "- lib folder -" ; ls -lsh lib
+echo "- src folder -" ; wc -c src/*
+echo "- dist folder -" ; wc -c dist/*
+echo "- es folder -" ; wc -c es/*
+echo "- lib folder -" ; wc -c lib/*
