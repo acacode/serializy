@@ -167,14 +167,14 @@ console.log(JSON.stringify(new DeepDeeperModel({
 
 const Example2 = model(class {
   id = field('ID')({ readOnly: true })
-  myProp = field('ID')({ writeOnly: true })
+  myProp = field('PROP')({ writeOnly: true })
 })
 
-const clientModel = new Example2({ ID: '5' })
+const clientModel = new Example2({ ID: '5', PROP: 'PROP' })
 
-console.log('usage - ', clientModel) // { id: '5', myProp: '5' } - клиентская модель
+console.log('usage - ', clientModel) // { id: '5' } - то чем будет руководствоваться клиент
 
 clientModel.id = '6'
 clientModel.myProp = '7'
 
-console.log('original - ', clientModel.deserialize()) // { ID: '5' } - серверная модель
+console.log('original - ', clientModel.deserialize()) // { PROP: '7' } - то что уйдет на сервак

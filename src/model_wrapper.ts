@@ -74,15 +74,17 @@ const serializeObject = (
     modelConfiguration.declarationsAreFullyInitialized = true
   }
 
-  const serializedObject = (convertModel(structure, {
+  const serializedObject = Object.create({
+    deserialize: () => convertModel(serializedObject, {
+      modelConfiguration,
+      toOriginal: true,
+    })
+  })
+
+  Object.assign(serializedObject, convertModel(structure, {
     modelConfiguration,
     toOriginal: false,
   }) as SerializedObject)
-
-  serializedObject.__proto__.deserialize = () => convertModel(serializedObject, {
-    modelConfiguration,
-    toOriginal: true,
-  })
 
   return serializedObject
 }
