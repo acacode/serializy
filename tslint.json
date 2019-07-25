@@ -2,7 +2,8 @@
 	"defaultSeverity": "error",
 	"extends": [
 		"tslint:recommended",
-		"tslint-config-standard"
+		"tslint-config-prettier",
+		"tslint-plugin-prettier"
 	],
 	"linterOptions": {
 			"exclude": [
@@ -12,6 +13,7 @@
 			]
 	},
 	"rules":{
+		"prettier": true,
 		"trailing-comma":true,
 		"typedef": [
 			true,
@@ -26,6 +28,11 @@
 		"max-classes-per-file": false,
 		"ban-types": false,
 		"arrow-parens": false,
-		"member-access": [true, "no-public"]
+		"member-access": [true, "no-public"],
+		"curly": false,
+		"no-unused-expression": false,
+
+		// specific for using require()
+		"no-var-requires": false
 	}
 }

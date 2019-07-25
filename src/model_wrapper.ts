@@ -17,12 +17,12 @@ declare interface DeserializedObject {
 export declare interface ModelWrapper<T = any> {
   modelConfiguration: ModelConfiguration
   new (originalModel: object): SerializedObject
-  serialize (originalModel: AllKeysAre<any>): SerializedObject
-  deserialize (usageModel: AllKeysAre<any>): DeserializedObject
+  serialize(originalModel: AllKeysAre<any>): SerializedObject
+  deserialize(usageModel: AllKeysAre<any>): DeserializedObject
 
-  getUsagePropertyNames (): string[]
-  getOriginalPropertyNames (): string[]
-  getPropertiesMap (reverseNames?: boolean): AllKeysAre<string>
+  getUsagePropertyNames(): string[]
+  getOriginalPropertyNames(): string[]
+  getPropertiesMap(reverseNames?: boolean): AllKeysAre<string>
 }
 
 export declare interface ModelOptions {
@@ -57,7 +57,6 @@ const serializeObject = (
   modelConfiguration: ModelConfiguration,
   structure: AllKeysAre<any>
 ): SerializedObject => {
-
   if (!isObject(structure)) {
     structure = {}
   }
@@ -101,7 +100,7 @@ const deserializeObject = (
   if (!modelConfiguration) {
     error(
       'This model is never serialized.' +
-      'Before using deserialize() needs to call serialize() or create new instance of model'
+        'Before using deserialize() needs to call serialize() or create new instance of model'
     )
   }
   return convertModel(structure, {
@@ -151,10 +150,10 @@ export const createModel = <T extends object | (new () => ValueOf<T>)>(
       ? new (Model as any)()
       : new (class Model {
           // it is hack to create unique instances
-        constructor (context: any) {
-          Object.assign(this, { ...context })
-        }
-      })(Model)
+          constructor(context: any) {
+            Object.assign(this, { ...context })
+          }
+        })(Model)
 
   const modelConfiguration: ModelConfiguration = createModelConfig<T>(
     declarationInstance,
@@ -178,7 +177,7 @@ export const createModel = <T extends object | (new () => ValueOf<T>)>(
     // instance methods
     deserialize: any
 
-    constructor (originalModel: object) {
+    constructor(originalModel: object) {
       return serializeObject(modelConfiguration, originalModel)
     }
   }

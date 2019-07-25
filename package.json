@@ -14,7 +14,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "npm run clean && npm run build",
-    "output-file-sizes": "bash build/output_file_sizes.sh",
+    "build-sizes": "bash build/output_file_sizes.sh",
     "test": "jest"
   },
   "author": "acacode",
@@ -36,6 +36,7 @@
     "jest": "^24.8.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.18.10",
+    "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.11.3",
     "rollup-plugin-commonjs": "^9.3.4",
@@ -46,8 +47,9 @@
     "ts-jest": "^24.0.2",
     "ts-node": "^8.0.2",
     "tslint": "5.13.0",
+    "tslint-config-prettier": "^1.18.0",
     "tslint-config-standard": "^8.0.1",
-    "tslint-eslint-rules": "^5.4.0",
+    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "3.3.3333"
   },
   "dependencies": {},

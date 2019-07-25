@@ -1,17 +1,13 @@
-
-export const createModelUsingSpec = ({
-  field,
-  fieldArray,
-  model
-}: any) => {
-
-  const BarModel = model(class BarModel {
-    anyBarP = field('AnyBarP', 'any')
-    stringBarP = field('StringBarP', 'string')
-    numberBarP = field('NumberBarP', 'number')
-    BooleanBarP = field('BooleanBarP', 'boolean')
-    objectBarP = field('ObjectBarP', 'object')
-  })
+export const createModelUsingSpec = ({ field, fieldArray, model }: any) => {
+  const BarModel = model(
+    class BarModel {
+      anyBarP = field('AnyBarP', 'any')
+      stringBarP = field('StringBarP', 'string')
+      numberBarP = field('NumberBarP', 'number')
+      BooleanBarP = field('BooleanBarP', 'boolean')
+      objectBarP = field('ObjectBarP', 'object')
+    }
+  )
 
   const SpecModel = model(
     class ModelUsingSpec {
@@ -20,7 +16,9 @@ export const createModelUsingSpec = ({
       baz = fieldArray('Baz', 'number')
       foo = field('Foo', 'string', 'string')
       foo1 = field('Foo1', 'object')
-      fooSerialDeserialP = field(({ Foo, Bar }: any) => `foo bar - ${Foo}:${Bar}`)
+      fooSerialDeserialP = field(
+        ({ Foo, Bar }: any) => `foo bar - ${Foo}:${Bar}`
+      )
       fooSerialP = field(({ Foo, Bar }: any) => `foo bar - ${Foo}:${Bar}`)
     }
   )
@@ -37,9 +35,9 @@ export const createModelUsingSpec = ({
         key1: 1,
         key2: 2
       },
-      StringBarP: 'string',
+      StringBarP: 'string'
     },
-    Baz: [1,2,3,4],
+    Baz: [1, 2, 3, 4],
     Foo: 'foo',
     Foo1: {
       foo1Key1: 1,
@@ -48,28 +46,28 @@ export const createModelUsingSpec = ({
   }
 
   const usageStructure = {
-    'bar': 1,
-    'barModel': {
-      'BooleanBarP': false,
-      'anyBarP': symbol,
-      'numberBarP': 50001,
-      'objectBarP': {
-        'key1': 1,
-        'key2': 2,
+    bar: 1,
+    barModel: {
+      BooleanBarP: false,
+      anyBarP: symbol,
+      numberBarP: 50001,
+      objectBarP: {
+        key1: 1,
+        key2: 2
       },
-      'stringBarP': 'string',
+      stringBarP: 'string'
     },
-    'baz': [ 1, 2, 3, 4, ],
-    'foo': 'foo',
-    'foo1': {
-      'foo1Key1': 1,
-      'foo1Key2': 1,
+    baz: [1, 2, 3, 4],
+    foo: 'foo',
+    foo1: {
+      foo1Key1: 1,
+      foo1Key2: 1
     },
-    'fooSerialDeserialP': 'foo bar - foo:1',
-    'fooSerialP': 'foo bar - foo:1',
+    fooSerialDeserialP: 'foo bar - foo:1',
+    fooSerialP: 'foo bar - foo:1'
   }
 
-  const serializedModel = new (SpecModel)(originalStructure)
+  const serializedModel = new SpecModel(originalStructure)
 
   return { serializedModel, originalStructure, usageStructure }
 }

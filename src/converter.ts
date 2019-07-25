@@ -1,11 +1,14 @@
 import { SchemeType } from './constants'
 import { AllKeysAre } from './global_types'
-import { checkPropertyExist, checkType, error, isObject, isPrimitive, warn } from './helpers'
 import {
-  ModelConfiguration,
-  ModelOptions,
-  ModelWrapper
-} from './model_wrapper'
+  checkPropertyExist,
+  checkType,
+  error,
+  isObject,
+  isPrimitive,
+  warn
+} from './helpers'
+import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
 import { FieldScheme, Scheme } from './scheme'
 
 declare type CastAction = (
@@ -19,8 +22,8 @@ declare type CastAction = (
 
 declare type CastActionsObject = {
   [key in SchemeType]: {
-    toOriginal: CastAction;
-    toUsage: CastAction;
+    toOriginal: CastAction
+    toUsage: CastAction
   }
 }
 
@@ -48,7 +51,7 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
       ` of property `,
       property,
       ` is not possible for type casting\r\n` +
-      `Please use one of following types: ${possibleCastTypes.join(', ')}`
+        `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
   return true
@@ -60,7 +63,7 @@ const objectIsDeclarationModel = (declaredModel: any, property: any) => {
       `Declared model for `,
       property,
       ` was not created via model() function.` +
-      `Please wrap this model into "model()" function`
+        `Please wrap this model into "model()" function`
     )
   }
   return true
@@ -109,7 +112,7 @@ export const convertModel = (
   const model = {}
 
   for (const { scheme } of modelConfiguration.declarations) {
-    if (toOriginal ? !scheme.readOnly : !scheme.writeOnly) {
+    if (!toOriginal || !scheme.optional) {
       const serializer =
         castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
       serializer(dataModel, {
@@ -131,13 +134,9 @@ declare interface CastConfig {
 
 const castClassToOriginal: CastAction = (
   dataModel: object,
-  {
-    model,
-    scheme: { from, to, arrayType, writeOnly },
-    modelOptions
-  }: CastConfig
+  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings && !writeOnly && checkPropertyExist(dataModel, to.name)
+  modelOptions.warnings && checkPropertyExist(dataModel, to.name)
 
   const cast = (model: AllKeysAre<any>) => {
     objectIsDeclarationModel(model, to.name)
@@ -154,11 +153,9 @@ const castClassToOriginal: CastAction = (
 
 const castClassToUsage: CastAction = (
   dataModel: object,
-  { model, scheme: { from, to, arrayType, readOnly }, modelOptions }: CastConfig
+  { model, scheme: { from, to, arrayType, optional }, modelOptions }: CastConfig
 ) => {
-  modelOptions.warnings &&
-    !readOnly &&
-    checkPropertyExist(dataModel, from.name)
+  modelOptions.warnings && !optional && checkPropertyExist(dataModel, from.name)
 
   const cast = (model: AllKeysAre<any>) => {
     const instance = (from.type as ModelWrapper<any>).serialize(model)
@@ -243,7 +240,7 @@ const castAction: CastActionsObject = {
         currentPropScheme: scheme.to,
         model,
         usagePropScheme: scheme.from,
-        warnings: modelOptions.warnings && !scheme.writeOnly
+        warnings: modelOptions.warnings
       }),
     toUsage: (dataModel, { scheme, model, modelOptions }) =>
       castStrings(dataModel, {
@@ -251,7 +248,7 @@ const castAction: CastActionsObject = {
         currentPropScheme: scheme.from,
         model,
         usagePropScheme: scheme.to,
-        warnings: modelOptions.warnings && !scheme.readOnly
+        warnings: modelOptions.warnings && !scheme.optional
       })
   }
 }

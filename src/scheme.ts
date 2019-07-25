@@ -1,16 +1,31 @@
-import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { BasePropertyOptions, CommonPropertyOptions, ModelDeclaration } from './field_declaration'
+import {
+  NAME_OF_CLASS_PROP,
+  SchemeType,
+  TYPE_OF_CLASS_PROP_VALUE
+} from './constants'
+import {
+  BasePropertyOptions,
+  CommonPropertyOptions,
+  ModelDeclaration
+} from './field_declaration'
 import { error } from './helpers'
 import { createModel } from './model_wrapper'
 import { PropDeclarationConfig } from './prop_declaration'
 
 export interface FieldScheme<T = any> {
-  serializer: null | Function,
-  name: typeof NAME_OF_CLASS_PROP | string,
-  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelDeclaration,
+  serializer: null | Function
+  name: typeof NAME_OF_CLASS_PROP | string
+  type:
+    | typeof TYPE_OF_CLASS_PROP_VALUE
+    | null
+    | string
+    | Function
+    | ModelDeclaration
 }
 
-export declare interface Scheme<T = any> extends BasePropertyOptions, CommonPropertyOptions {
+export declare interface Scheme<T = any>
+  extends BasePropertyOptions,
+    CommonPropertyOptions {
   from: FieldScheme<T>
   to: FieldScheme<T>
   schemeType: SchemeType
@@ -18,38 +33,41 @@ export declare interface Scheme<T = any> extends BasePropertyOptions, CommonProp
 
 const SERIALIZER_NOOP = () => ({})
 
-export const createSchemeFromOptions = <M = any>(
-  { options, writeOnly, arrayType, readOnly }: PropDeclarationConfig<M>
-): Scheme => {
-
+export const createSchemeFromOptions = <M = any>({
+  options,
+  arrayType,
+  optional
+}: PropDeclarationConfig<M>): Scheme => {
   const scheme: Scheme = {
     arrayType: !!arrayType,
     from: {
       name: '',
       serializer: null,
-      type: null,
+      type: null
     },
-    readOnly: !!readOnly,
+    optional: !!optional,
     schemeType: null as any,
     to: {
       name: NAME_OF_CLASS_PROP,
       serializer: null,
-      type: null,
-    },
-    writeOnly: !!writeOnly,
+      type: null
+    }
   }
 
-  const makeScheme = (type: SchemeType, from?: Partial<FieldScheme>, to?: Partial<FieldScheme>) => {
+  const makeScheme = (
+    type: SchemeType,
+    from?: Partial<FieldScheme>,
+    to?: Partial<FieldScheme>
+  ) => {
     scheme.schemeType = type
     Object.assign(scheme.from, from || {})
     Object.assign(scheme.to, to || {})
   }
 
-  const [option1,option2,option3] = options
+  const [option1, option2, option3] = options
 
   // Count of arguments is 1
   if (options.length === 1) {
-
     if (typeof option1 === 'string') {
       /*
         field('PropertyName')
@@ -59,7 +77,6 @@ export const createSchemeFromOptions = <M = any>(
         { name: option1, type: TYPE_OF_CLASS_PROP_VALUE },
         { type: TYPE_OF_CLASS_PROP_VALUE }
       )
-
     }
 
     if (typeof option1 === 'object') {
@@ -79,8 +96,7 @@ export const createSchemeFromOptions = <M = any>(
         { type: option1.usageType || type }
       )
 
-      scheme.readOnly = !!readOnly
-      scheme.writeOnly = !!writeOnly
+      scheme.optional = !!optional
     }
 
     if (typeof option1 === 'function') {
@@ -98,9 +114,7 @@ export const createSchemeFromOptions = <M = any>(
 
   // Count of arguments is 2
   if (options.length === 2) {
-
     if (typeof option1 === 'string') {
-
       if (typeof option2 === 'string') {
         /*
           field('PropertyName','propertyType')
@@ -120,7 +134,8 @@ export const createSchemeFromOptions = <M = any>(
           field('PropertyName', SimpleObjectModel)
         */
 
-        const model = typeof option2 === 'object' ? createModel(option2) : option2
+        const model =
+          typeof option2 === 'object' ? createModel(option2) : option2
 
         makeScheme(
           SchemeType.STRING_AND_CLASS,
@@ -138,15 +153,20 @@ export const createSchemeFromOptions = <M = any>(
       makeScheme(
         SchemeType.SERIALIZERS,
         { serializer: option1 },
-        { serializer: typeof option2 === 'function' ? option2 : SERIALIZER_NOOP }
+        {
+          serializer: typeof option2 === 'function' ? option2 : SERIALIZER_NOOP
+        }
       )
     }
   }
 
   // Count of arguments is 3
   if (options.length === 3) {
-
-    if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
+    if (
+      typeof option1 === 'string' &&
+      typeof option2 === 'string' &&
+      typeof option3 === 'string'
+    ) {
       /*
         field('PropertyName','propertyType','usagePropertyType')
       */
@@ -161,7 +181,7 @@ export const createSchemeFromOptions = <M = any>(
   if (!scheme.schemeType) {
     error(
       `Unknown scheme type\r\n` +
-      `Probably it happened because you send to field()/fieldArray() invalid arguments`
+        `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
   }
 

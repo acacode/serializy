@@ -5,36 +5,47 @@ import { ModelWrapper } from './model_wrapper'
 import { PropDeclaration } from './prop_declaration'
 import { createSchemeFromOptions } from './scheme'
 
-export declare type ModelDeclaration = ModelWrapper | AllKeysAre<CommonFieldCreator | PropDeclaration>
-export declare type ModelArrayDeclaration = ModelDeclaration | keyof CastPrimitiveTo
+export declare type ModelDeclaration =
+  | ModelWrapper
+  | AllKeysAre<CommonFieldCreator | PropDeclaration>
+export declare type ModelArrayDeclaration =
+  | ModelDeclaration
+  | keyof CastPrimitiveTo
 
 export declare interface BasePropertyOptions {
   arrayType: boolean
 }
 export declare interface CommonPropertyOptions {
-  readOnly: boolean
-  writeOnly: boolean
+  optional: boolean
 }
 
-export declare interface FieldConfiguration extends Partial<BasePropertyOptions>, Partial<CommonPropertyOptions> {
-  name: string,
-  type?: PropertyType,
+export declare interface FieldConfiguration
+  extends Partial<BasePropertyOptions>,
+    Partial<CommonPropertyOptions> {
+  name: string
+  type?: PropertyType
   usageType?: PropertyType
 }
 
 export declare type PropertyNameDeclaration = string
 export declare type PropertyType = keyof CastPrimitiveTo
-export declare type CustomSerializerFunc = (originalModel: AllKeysAre<any>) => any
-export declare type CustomDeserializerFunc = (usageModel: AllKeysAre<any>) => any
+export declare type CustomSerializerFunc = (
+  originalModel: AllKeysAre<any>
+) => any
+export declare type CustomDeserializerFunc = (
+  usageModel: AllKeysAre<any>
+) => any
 
 export declare type FieldDeclaration<M = any> =
-  [PropertyNameDeclaration, PropertyType?, PropertyType?] |
-  [PropertyNameDeclaration, ModelDeclaration] |
-  [FieldConfiguration] |
-  [CustomSerializerFunc, CustomDeserializerFunc?]
+  | [PropertyNameDeclaration, PropertyType?, PropertyType?]
+  | [PropertyNameDeclaration, ModelDeclaration]
+  | [FieldConfiguration]
+  | [CustomSerializerFunc, CustomDeserializerFunc?]
 
-export declare type FieldArrayDeclaration =
-  [PropertyNameDeclaration, ModelArrayDeclaration]
+export declare type FieldArrayDeclaration = [
+  PropertyNameDeclaration,
+  ModelArrayDeclaration
+]
 
 export declare interface CommonFieldCreator {
   (propertyOptions: Partial<CommonPropertyOptions>): PropDeclaration
@@ -51,9 +62,7 @@ export declare interface FieldCreatorDeclaration {
     originalProperty: PropertyNameDeclaration,
     DeclaredModel: ModelDeclaration
   ): CommonFieldCreator
-  (
-    fieldConfiguration: FieldConfiguration
-  ): CommonFieldCreator
+  (fieldConfiguration: FieldConfiguration): CommonFieldCreator
   (
     customSerializer: CustomSerializerFunc,
     customDeserializer?: CustomDeserializerFunc
@@ -69,13 +78,12 @@ const createFieldDeclaration = <M>(
   options: FieldDeclaration<M> | FieldArrayDeclaration,
   arrayType: boolean
 ): CommonFieldCreator => {
-  const commonFieldCreator = (({ readOnly = false, writeOnly = false } = {}) => ({
+  const commonFieldCreator = (({ optional = false } = {}) => ({
     [DECLARATION_PROP]: true,
     scheme: createSchemeFromOptions({
       arrayType,
-      options,
-      readOnly,
-      writeOnly,
+      optional,
+      options
     })
   })) as CommonFieldCreator
 
@@ -84,8 +92,10 @@ const createFieldDeclaration = <M>(
   return commonFieldCreator
 }
 
-export const createField: FieldCreatorDeclaration = <M = any>(...options: FieldDeclaration<M>) =>
-  createFieldDeclaration(options, false)
+export const createField: FieldCreatorDeclaration = <M = any>(
+  ...options: FieldDeclaration<M>
+) => createFieldDeclaration(options, false)
 
-export const createFieldsArray: FieldsArrayCreatorDeclaration = (...options: FieldArrayDeclaration) =>
-  createFieldDeclaration(options, true)
+export const createFieldsArray: FieldsArrayCreatorDeclaration = (
+  ...options: FieldArrayDeclaration
+) => createFieldDeclaration(options, true)

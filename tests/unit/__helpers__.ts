@@ -1,10 +1,11 @@
-
 export interface TestableData {
   [propertyName: string]: Array<[string, any]>
 }
 
-export const testAllCases = (testableData: TestableData, getDescribeName: (propertyName: string) => string) => {
-
+export const testAllCases = (
+  testableData: TestableData,
+  getDescribeName: (propertyName: string) => string
+) => {
   Object.keys(testableData).forEach(propertyName => {
     describe(getDescribeName(propertyName), () => {
       const tests = testableData[propertyName]
@@ -15,7 +16,10 @@ export const testAllCases = (testableData: TestableData, getDescribeName: (prope
   })
 }
 
-export const testPropertiesOnExist = (requiredProperties: Array<[string, string]>, objectContainsProperties: any) => {
+export const testPropertiesOnExist = (
+  requiredProperties: Array<[string, string]>,
+  objectContainsProperties: any
+) => {
   requiredProperties.forEach(([property, type]) => {
     describe(`"${property}" property`, () => {
       test(`module should contain this property`, () => {
@@ -28,4 +32,5 @@ export const testPropertiesOnExist = (requiredProperties: Array<[string, string]
   })
 }
 
-export const simpleObjectCopy = (object: any) => JSON.parse(JSON.stringify(object))
+export const simpleObjectCopy = (object: any) =>
+  JSON.parse(JSON.stringify(object))

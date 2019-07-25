@@ -1,5 +1,9 @@
-
-import { DECLARATION_PROP, NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from '../../src/constants'
+import {
+  DECLARATION_PROP,
+  NAME_OF_CLASS_PROP,
+  SchemeType,
+  TYPE_OF_CLASS_PROP_VALUE
+} from '../../src/constants'
 
 describe('constants', () => {
   test('DECLARATION_PROP', () => {
@@ -18,7 +22,7 @@ describe('constants', () => {
       SERIALIZERS: '@SERIALIZERS',
       STRING_AND_CLASS: '@STRING_AND_CLASS',
       THREE_STRINGS: '@ONLY_STRINGS',
-      TWO_STRINGS: '@ONLY_STRINGS',
+      TWO_STRINGS: '@ONLY_STRINGS'
     })
   })
 })

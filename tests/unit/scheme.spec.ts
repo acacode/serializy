@@ -1,14 +1,20 @@
-
-import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from '../../src/constants'
+import {
+  NAME_OF_CLASS_PROP,
+  SchemeType,
+  TYPE_OF_CLASS_PROP_VALUE
+} from '../../src/constants'
 import { createSchemeFromOptions } from '../../src/scheme'
 
 const invalidSchemeTest = (options: any) => {
-  test(`should catch an exception because scheme is invalid (options: ${options.join(',')}`, () => {
+  test(`should catch an exception because scheme is invalid (options: ${options.join(
+    ','
+  )}`, () => {
     let catchedException = false
     try {
       createSchemeFromOptions({
         arrayType: false,
-        options,
+        optional: false,
+        options
       })
     } catch (e) {
       catchedException = true
@@ -19,14 +25,13 @@ const invalidSchemeTest = (options: any) => {
 }
 
 describe('scheme', () => {
-
   describe('createSchemeFromOptions', () => {
-
     describe('1 argument', () => {
       describe('Property name', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: ['PropertyName']
           })
 
@@ -35,25 +40,26 @@ describe('scheme', () => {
             from: {
               name: 'PropertyName',
               serializer: null,
-              type: TYPE_OF_CLASS_PROP_VALUE,
+              type: TYPE_OF_CLASS_PROP_VALUE
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.ONE_STRING,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
-              type: TYPE_OF_CLASS_PROP_VALUE,
-            },
-            writeOnly: false,
+              type: TYPE_OF_CLASS_PROP_VALUE
+            }
           })
         })
       })
       describe('Custom serializer', () => {
         test('should create a valid scheme', () => {
-
-          function customSerializer (): any { return null }
+          function customSerializer(): any {
+            return null
+          }
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: [customSerializer]
           })
 
@@ -65,15 +71,14 @@ describe('scheme', () => {
             from: {
               name: '',
               serializer: customSerializer,
-              type: null,
+              type: null
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.SERIALIZERS,
             to: {
               name: NAME_OF_CLASS_PROP,
-              type: null,
-            },
-            writeOnly: false,
+              type: null
+            }
           })
         })
 
@@ -89,6 +94,7 @@ describe('scheme', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: ['PropertyName', 'string']
           })
 
@@ -97,16 +103,15 @@ describe('scheme', () => {
             from: {
               name: 'PropertyName',
               serializer: null,
-              type: 'string',
+              type: 'string'
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.TWO_STRINGS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
-              type: 'string',
-            },
-            writeOnly: false,
+              type: 'string'
+            }
           })
         })
 
@@ -116,13 +121,13 @@ describe('scheme', () => {
         invalidSchemeTest([{}, 1])
       })
       describe('Property name + Model class', () => {
-
         test('should create a valid scheme', () => {
           class SomeModelClass {}
           // const SomeModelClass = model(class SomeModelClass {})
 
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: ['PropertyName', SomeModelClass as any]
           })
 
@@ -131,27 +136,29 @@ describe('scheme', () => {
             from: {
               name: 'PropertyName',
               serializer: null,
-              type: SomeModelClass,
+              type: SomeModelClass
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
-              type: SomeModelClass,
-            },
-            writeOnly: false,
+              type: SomeModelClass
+            }
           })
         })
       })
       describe('Property name + Model simple object', () => {
         test('should create a valid scheme', () => {
-
           const scheme = createSchemeFromOptions({
             arrayType: false,
-            options: ['PropertyName', {
-              foo: 'bar',
-            } as any]
+            optional: false,
+            options: [
+              'PropertyName',
+              {
+                foo: 'bar'
+              } as any
+            ]
           })
 
           expect(typeof scheme.from.type).toEqual('function')
@@ -164,26 +171,29 @@ describe('scheme', () => {
             arrayType: false,
             from: {
               name: 'PropertyName',
-              serializer: null,
+              serializer: null
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
               name: NAME_OF_CLASS_PROP,
-              serializer: null,
-            },
-            writeOnly: false,
+              serializer: null
+            }
           })
         })
       })
       describe('Custom serializer + Custom deserializer', () => {
-
         test('should create a valid scheme', () => {
-          function customSerializer (): any { return null }
-          function customDeserializer (): any { return null }
+          function customSerializer(): any {
+            return null
+          }
+          function customDeserializer(): any {
+            return null
+          }
 
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: [customSerializer, customDeserializer]
           })
 
@@ -195,25 +205,25 @@ describe('scheme', () => {
             from: {
               name: '',
               serializer: customSerializer,
-              type: null,
+              type: null
             },
             schemeType: SchemeType.SERIALIZERS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: customDeserializer,
-              type: null,
-            },
+              type: null
+            }
           })
         })
       })
     })
 
     describe('3 arguments', () => {
-
-      describe('Property name + Property type + Property usage type',() => {
+      describe('Property name + Property type + Property usage type', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({
             arrayType: false,
+            optional: false,
             options: ['PropertyName', 'string', 'number']
           })
 
@@ -222,20 +232,18 @@ describe('scheme', () => {
             from: {
               name: 'PropertyName',
               serializer: null,
-              type: 'string',
+              type: 'string'
             },
-            readOnly: false,
+            optional: false,
             schemeType: SchemeType.THREE_STRINGS,
             to: {
               name: NAME_OF_CLASS_PROP,
               serializer: null,
-              type: 'number',
-            },
-            writeOnly: false,
+              type: 'number'
+            }
           })
         })
       })
     })
-
   })
 })

@@ -11,7 +11,9 @@ export interface NumericDictionary<T> {
   [index: number]: T
 }
 
-export type AnyKindOfDictionary<T= unknown> = Dictionary<T> | NumericDictionary<T>
+export type AnyKindOfDictionary<T = unknown> =
+  | Dictionary<T>
+  | NumericDictionary<T>
 
 export type Many<T> = T | ReadonlyArray<T>
 

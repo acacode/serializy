@@ -1,4 +1,3 @@
-
 export const TYPE_OF_CLASS_PROP_VALUE = '@@VALUE_TYPE'
 export const NAME_OF_CLASS_PROP = '@@CLASS_PROP_NAME'
 export const DECLARATION_PROP = '@@property_declaration'
@@ -8,5 +7,5 @@ export enum SchemeType {
   TWO_STRINGS = '@ONLY_STRINGS',
   THREE_STRINGS = '@ONLY_STRINGS',
   STRING_AND_CLASS = '@STRING_AND_CLASS',
-  SERIALIZERS = '@SERIALIZERS',
+  SERIALIZERS = '@SERIALIZERS'
 }
