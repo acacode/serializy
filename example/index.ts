@@ -198,6 +198,7 @@ const exampleCase = () => {
     class {
       id = field('ID')({ optional: true })
       myProp = field('PROP')
+      myProp2 = field(null)
     }
   )
 

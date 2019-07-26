@@ -8,7 +8,7 @@ import {
   CommonPropertyOptions,
   ModelDeclaration
 } from './field_declaration'
-import { error } from './helpers'
+import { criticalError, error } from './helpers'
 import { createModel } from './model_wrapper'
 import { PropDeclarationConfig } from './prop_declaration'
 
@@ -179,7 +179,7 @@ export const createSchemeFromOptions = <M = any>({
   }
 
   if (!scheme.schemeType) {
-    error(
+    criticalError(
       `Unknown scheme type\r\n` +
         `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
