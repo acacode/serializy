@@ -1,23 +1,25 @@
 import { SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
 import { convertModel } from './converter'
 import { CommonFieldCreator } from './field_declaration'
-import { AllKeysAre, ValueOf } from './global_types'
+import { AllKeysAre, InKeyOf, InKeyOfWithType } from './global_types'
 import { checkType, error, isObject } from './helpers'
 import { preparePropDeclarations, PropDeclaration } from './prop_declaration'
 
 declare interface SerializedObject {
-  [usageField: string]: any
-  deserialize: () => object
+  deserialize(): DeserializedObject
 }
 
 declare interface DeserializedObject {
   [originalField: string]: any
 }
 
-export declare interface ModelWrapper<T = any> {
+export declare interface ModelWrapper<T> {
   modelConfiguration: ModelConfiguration
-  new (originalModel: object): SerializedObject
-  serialize(originalModel: AllKeysAre<any>): SerializedObject
+  new (originalModel: object): InKeyOfWithType<DeclarationsInstance<T>, any> &
+    SerializedObject
+  serialize(
+    originalModel: AllKeysAre<any>
+  ): InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject
   deserialize(usageModel: AllKeysAre<any>): DeserializedObject
 
   getUsagePropertyNames(): string[]
@@ -53,10 +55,10 @@ export const createModelConfig = <T>(
   }
 })
 
-const serializeObject = (
+const serializeObject = <T>(
   modelConfiguration: ModelConfiguration,
   structure: AllKeysAre<any>
-): SerializedObject => {
+): InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject => {
   if (!isObject(structure)) {
     structure = {}
   }
@@ -64,13 +66,9 @@ const serializeObject = (
   if (!modelConfiguration.declarationsAreFullyInitialized) {
     for (const {
       scheme: { to, from }
-    } of modelConfiguration.declarations) {
-      if (to.type === TYPE_OF_CLASS_PROP_VALUE) {
-        const originalType = typeof structure[from.name]
-        to.type = originalType
-        from.type = originalType
-      }
-    }
+    } of modelConfiguration.declarations)
+      if (to.type === TYPE_OF_CLASS_PROP_VALUE)
+        to.type = from.type = typeof structure[from.name]
 
     modelConfiguration.declarationsAreFullyInitialized = true
   }
@@ -83,15 +81,16 @@ const serializeObject = (
       })
   })
 
-  Object.assign(serializedObject, convertModel(structure, {
-    modelConfiguration,
-    toOriginal: false
-  }) as SerializedObject)
-
-  return serializedObject
+  return Object.assign(
+    serializedObject,
+    convertModel(structure, {
+      modelConfiguration,
+      toOriginal: false
+    })
+  ) as InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject
 }
 
-const deserializeObject = (
+const deserializeObject = <T>(
   modelConfiguration: ModelConfiguration,
   structure: AllKeysAre<any>
 ): DeserializedObject => {
@@ -141,7 +140,19 @@ const getPropertiesMap = (
     return namesMap
   }, {})
 
-export const createModel = <T extends object | (new () => ValueOf<T>)>(
+declare type DeclarationsInstance<C> = C extends (new () => any)
+  ? InstanceType<C>
+  : C
+
+// TODO: complete it
+declare type SerializedData<
+  C,
+  D = InKeyOfWithType<DeclarationsInstance<C>, PropDeclaration>
+> = {
+  [K in keyof D]: D[K]
+}
+
+export const createModel = <T extends object | (new () => any)>(
   Model: T,
   partialModelOptions?: Partial<ModelOptions>
 ): ModelWrapper<T> => {
@@ -164,9 +175,9 @@ export const createModel = <T extends object | (new () => ValueOf<T>)>(
     static modelConfiguration = modelConfiguration
 
     static serialize = (originalModel: object) =>
-      serializeObject(modelConfiguration, originalModel)
+      serializeObject<T>(modelConfiguration, originalModel)
     static deserialize = (usageModel: object) =>
-      deserializeObject(modelConfiguration, usageModel)
+      deserializeObject<T>(modelConfiguration, usageModel)
     static getUsagePropertyNames = () =>
       getPropertyNames(modelConfiguration, true)
     static getOriginalPropertyNames = () =>
@@ -178,7 +189,7 @@ export const createModel = <T extends object | (new () => ValueOf<T>)>(
     deserialize: any
 
     constructor(originalModel: object) {
-      return serializeObject(modelConfiguration, originalModel)
+      return serializeObject<T>(modelConfiguration, originalModel)
     }
-  }
+  } as any // TODO: find a good solution to remove this
 }

@@ -5,11 +5,11 @@ import { ModelWrapper } from './model_wrapper'
 import { PropDeclaration } from './prop_declaration'
 import { createSchemeFromOptions } from './scheme'
 
-export declare type ModelDeclaration =
-  | ModelWrapper
+export declare type ModelDeclaration<T = any> =
+  | ModelWrapper<T>
   | AllKeysAre<CommonFieldCreator | PropDeclaration>
-export declare type ModelArrayDeclaration =
-  | ModelDeclaration
+export declare type ModelArrayDeclaration<T = any> =
+  | ModelDeclaration<T>
   | keyof CastPrimitiveTo
 
 export declare interface BasePropertyOptions {
@@ -36,7 +36,7 @@ export declare type CustomDeserializerFunc = (
   usageModel: AllKeysAre<any>
 ) => any
 
-export declare type FieldDeclaration<M = any> =
+export declare type FieldOptions =
   | [PropertyNameDeclaration, PropertyType?, PropertyType?]
   | [PropertyNameDeclaration, ModelDeclaration]
   | [FieldConfiguration]
@@ -74,28 +74,26 @@ export declare type FieldsArrayCreatorDeclaration = (
   DeclaredModel: ModelArrayDeclaration
 ) => CommonFieldCreator
 
-const createFieldDeclaration = <M>(
-  options: FieldDeclaration<M> | FieldArrayDeclaration,
-  arrayType: boolean
+const createFieldDeclaration = (
+  options: FieldOptions | FieldArrayDeclaration,
+  arrayType: BasePropertyOptions['arrayType']
 ): CommonFieldCreator => {
-  const commonFieldCreator = (({ optional = false } = {}) => ({
+  const commonFieldCreator = ({ optional = false } = {}) => ({
     [DECLARATION_PROP]: true,
     scheme: createSchemeFromOptions({
       arrayType,
       optional,
       options
     })
-  })) as CommonFieldCreator
+  })
 
   commonFieldCreator[DECLARATION_PROP] = true
 
-  return commonFieldCreator
+  return commonFieldCreator as CommonFieldCreator
 }
 
-export const createField: FieldCreatorDeclaration = <M = any>(
-  ...options: FieldDeclaration<M>
-) => createFieldDeclaration(options, false)
+export const createField = (...options: FieldOptions) =>
+  createFieldDeclaration(options, false)
 
-export const createFieldsArray: FieldsArrayCreatorDeclaration = (
-  ...options: FieldArrayDeclaration
-) => createFieldDeclaration(options, true)
+export const createFieldsArray = (...options: FieldArrayDeclaration) =>
+  createFieldDeclaration(options, true)

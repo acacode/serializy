@@ -11,16 +11,17 @@ export interface NumericDictionary<T> {
   [index: number]: T
 }
 
-export type AnyKindOfDictionary<T = unknown> =
-  | Dictionary<T>
-  | NumericDictionary<T>
+export type AnyDictionary<T = unknown> = Dictionary<T> | NumericDictionary<T>
 
 export type Many<T> = T | ReadonlyArray<T>
 
 export type PropertyName = string | number | symbol
 
-// TODO: use it
-export type DDD<T extends AnyKindOfDictionary> = (
-  object: T | null | undefined,
-  ...paths: Array<Many<PropertyName>>
-) => T
+export type InKeyOf<M> = {
+  [K in keyof M]: M[K]
+}
+
+export type InKeyOfWithType<M, T> = {
+  [K in keyof M]: T
+}
+// export type PropertyNamesArray = Array<Many<PropertyName>>

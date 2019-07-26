@@ -4,7 +4,7 @@ import {
   CommonFieldCreator,
   CommonPropertyOptions,
   FieldArrayDeclaration,
-  FieldDeclaration
+  FieldOptions
 } from './field_declaration'
 import { AllKeysAre } from './global_types'
 import { Scheme } from './scheme'
@@ -14,10 +14,10 @@ export declare interface PropDeclaration {
   scheme: Scheme
 }
 
-export declare interface PropDeclarationConfig<M = any>
+export declare interface PropDeclarationConfig
   extends BasePropertyOptions,
     CommonPropertyOptions {
-  options: FieldDeclaration<M> | FieldArrayDeclaration
+  options: FieldOptions | FieldArrayDeclaration
 }
 
 export const preparePropDeclarations = <T>(

@@ -37,7 +37,7 @@ export const createSchemeFromOptions = <M = any>({
   options,
   arrayType,
   optional
-}: PropDeclarationConfig<M>): Scheme => {
+}: PropDeclarationConfig): Scheme => {
   const scheme: Scheme = {
     arrayType: !!arrayType,
     from: {

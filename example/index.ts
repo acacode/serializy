@@ -1,4 +1,5 @@
 import { field, fieldArray, model } from '../src'
+import { CustomSerializerFunc } from '../src/field_declaration'
 
 const exampleCase = () => {
   const ServerData = {
@@ -207,7 +208,10 @@ const exampleCase = () => {
   console.log('usage - ', clientModel) // { id: '5' } - то чем будет руководствоваться клиент
 
   clientModel.id = '6'
+
   clientModel.myProp = '7'
+
+  clientModel.myProp2 = 123123
 
   console.log('original - ', clientModel.deserialize()) // { PROP: '7' } - то что уйдет на сервак
 }
