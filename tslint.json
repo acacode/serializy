@@ -5,6 +5,9 @@
 		"tslint-config-prettier",
 		"tslint-plugin-prettier"
 	],
+	"rulesDirectory": [
+	  "tslint-plugin-prettier"
+	],
 	"linterOptions": {
 			"exclude": [
 				"dist/serializy.*",
@@ -13,7 +16,13 @@
 			]
 	},
 	"rules":{
-		"prettier": true,
+		"prettier": [
+			true,
+			{
+				"singleQuote": true,
+				"semi": false
+			}
+		],
 		"trailing-comma":true,
 		"typedef": [
 			true,
