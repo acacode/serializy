@@ -1,4 +1,4 @@
-import { DECLARATION_PROP, NAME_OF_CLASS_PROP } from './constants'
+import { DECLARATION_PROP, EMPTY_NAME } from './constants'
 import {
   BasePropertyOptions,
   CommonFieldCreator,
@@ -32,7 +32,7 @@ export const preparePropDeclarations = <T>(
           typeof property === 'function' ? property({}) : property
         const { scheme } = propertyData
 
-        if (scheme.to.name === NAME_OF_CLASS_PROP) {
+        if (scheme.to.name === EMPTY_NAME) {
           scheme.to.name = propName
         }
 

@@ -1,8 +1,4 @@
-import {
-  NAME_OF_CLASS_PROP,
-  SchemeType,
-  TYPE_OF_CLASS_PROP_VALUE
-} from '../../src/constants'
+import { EMPTY_NAME, SchemeType } from '../../src/constants'
 import { createSchemeFromOptions } from '../../src/scheme'
 
 const invalidSchemeTest = (options: any) => {
@@ -40,14 +36,14 @@ describe('scheme', () => {
             from: {
               name: 'PropertyName',
               serializer: null,
-              type: TYPE_OF_CLASS_PROP_VALUE
+              type: 'any'
             },
             optional: false,
-            schemeType: SchemeType.ONE_STRING,
+            schemeType: SchemeType.STRINGS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: null,
-              type: TYPE_OF_CLASS_PROP_VALUE
+              type: 'any'
             }
           })
         })
@@ -76,7 +72,7 @@ describe('scheme', () => {
             optional: false,
             schemeType: SchemeType.SERIALIZERS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               type: null
             }
           })
@@ -106,9 +102,9 @@ describe('scheme', () => {
               type: 'string'
             },
             optional: false,
-            schemeType: SchemeType.TWO_STRINGS,
+            schemeType: SchemeType.STRINGS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: null,
               type: 'string'
             }
@@ -141,7 +137,7 @@ describe('scheme', () => {
             optional: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: null,
               type: SomeModelClass
             }
@@ -176,7 +172,7 @@ describe('scheme', () => {
             optional: false,
             schemeType: SchemeType.STRING_AND_CLASS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: null
             }
           })
@@ -209,7 +205,7 @@ describe('scheme', () => {
             },
             schemeType: SchemeType.SERIALIZERS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: customDeserializer,
               type: null
             }
@@ -235,9 +231,9 @@ describe('scheme', () => {
               type: 'string'
             },
             optional: false,
-            schemeType: SchemeType.THREE_STRINGS,
+            schemeType: SchemeType.STRINGS,
             to: {
-              name: NAME_OF_CLASS_PROP,
+              name: EMPTY_NAME,
               serializer: null,
               type: 'number'
             }

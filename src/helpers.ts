@@ -1,3 +1,5 @@
+import { FieldScheme } from './scheme'
+
 export const isObject = (value: any): boolean =>
   typeof value === 'object' && value !== null && !(value instanceof Array)
 
@@ -42,9 +44,12 @@ export const checkType = (
   error(propertyName, sentence)
 }
 
-export const checkPropertyExist = (object: object, property: any): boolean => {
-  if (typeof object[property] === 'undefined') {
-    warn(`Property "${property}" is not existing in structure :`, object)
+export const checkPropertyExist = (
+  object: object,
+  field: FieldScheme
+): boolean => {
+  if (typeof object[field.name] === 'undefined') {
+    warn(`Property "${field.name}" is not existing in structure :`, object)
   }
   return true
 }

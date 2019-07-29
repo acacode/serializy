@@ -1,8 +1,4 @@
-import {
-  NAME_OF_CLASS_PROP,
-  SchemeType,
-  TYPE_OF_CLASS_PROP_VALUE
-} from './constants'
+import { EMPTY_NAME, SchemeType } from './constants'
 import {
   BasePropertyOptions,
   CommonPropertyOptions,
@@ -14,13 +10,8 @@ import { PropDeclarationConfig } from './prop_declaration'
 
 export interface FieldScheme<T = any> {
   serializer: null | Function
-  name: typeof NAME_OF_CLASS_PROP | string
-  type:
-    | typeof TYPE_OF_CLASS_PROP_VALUE
-    | null
-    | string
-    | Function
-    | ModelDeclaration
+  name: typeof EMPTY_NAME | string
+  type: null | string | Function | ModelDeclaration
 }
 
 export declare interface Scheme<T = any>
@@ -48,7 +39,7 @@ export const createSchemeFromOptions = <M = any>({
     optional: !!optional,
     schemeType: null as any,
     to: {
-      name: NAME_OF_CLASS_PROP,
+      name: EMPTY_NAME,
       serializer: null,
       type: null
     }
@@ -66,6 +57,8 @@ export const createSchemeFromOptions = <M = any>({
 
   const [option1, option2, option3] = options
 
+  const DEFAULT_TYPE = 'any'
+
   // Count of arguments is 1
   if (options.length === 1) {
     if (typeof option1 === 'string') {
@@ -73,9 +66,9 @@ export const createSchemeFromOptions = <M = any>({
         field('PropertyName')
       */
       makeScheme(
-        SchemeType.ONE_STRING,
-        { name: option1, type: TYPE_OF_CLASS_PROP_VALUE },
-        { type: TYPE_OF_CLASS_PROP_VALUE }
+        SchemeType.STRINGS,
+        { name: option1, type: DEFAULT_TYPE },
+        { type: DEFAULT_TYPE }
       )
     }
 
@@ -88,15 +81,15 @@ export const createSchemeFromOptions = <M = any>({
         error('field configuration should contains at least "name" property')
       }
 
-      const type = option1.type || TYPE_OF_CLASS_PROP_VALUE
+      const type = option1.type || DEFAULT_TYPE
 
       makeScheme(
-        SchemeType.ONE_STRING,
+        SchemeType.STRINGS,
         { name: option1.name, type },
         { type: option1.usageType || type }
       )
 
-      scheme.optional = !!optional
+      scheme.optional = !!option1.optional
     }
 
     if (typeof option1 === 'function') {
@@ -120,7 +113,7 @@ export const createSchemeFromOptions = <M = any>({
           field('PropertyName','propertyType')
         */
         makeScheme(
-          SchemeType.TWO_STRINGS,
+          SchemeType.STRINGS,
           { name: option1, type: option2 },
           { type: option2 }
         )
@@ -171,7 +164,7 @@ export const createSchemeFromOptions = <M = any>({
         field('PropertyName','propertyType','usagePropertyType')
       */
       makeScheme(
-        SchemeType.THREE_STRINGS,
+        SchemeType.STRINGS,
         { name: option1, type: option2 },
         { type: option3 }
       )

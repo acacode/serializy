@@ -1,7 +1,7 @@
-import { SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
+import { SchemeType } from './constants'
 import { convertModel } from './converter'
 import { CommonFieldCreator } from './field_declaration'
-import { AllKeysAre, InKeyOf, InKeyOfWithType } from './global_types'
+import { AllKeysAre, InKeyOfWithType } from './global_types'
 import { checkType, error, isObject } from './helpers'
 import { preparePropDeclarations, PropDeclaration } from './prop_declaration'
 
@@ -13,13 +13,16 @@ declare interface DeserializedObject {
   [originalField: string]: any
 }
 
+declare type SerializedStructure<T> = InKeyOfWithType<
+  DeclarationsInstance<T>,
+  any
+> &
+  SerializedObject
+
 export declare interface ModelWrapper<T> {
   modelConfiguration: ModelConfiguration
-  new (originalModel: object): InKeyOfWithType<DeclarationsInstance<T>, any> &
-    SerializedObject
-  serialize(
-    originalModel: AllKeysAre<any>
-  ): InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject
+  new (originalModel: object): SerializedStructure<T>
+  serialize(originalModel: AllKeysAre<any>): SerializedStructure<T>
   deserialize(usageModel: AllKeysAre<any>): DeserializedObject
 
   getUsagePropertyNames(): string[]
@@ -38,7 +41,6 @@ const DEFAULT_MODEL_OPTIONS: ModelOptions = {
 }
 
 export declare interface ModelConfiguration {
-  declarationsAreFullyInitialized: boolean
   options: ModelOptions
   declarations: PropDeclaration[]
 }
@@ -48,7 +50,6 @@ export const createModelConfig = <T>(
   modelOptions?: Partial<ModelOptions>
 ): ModelConfiguration => ({
   declarations: preparePropDeclarations<T>(objectWithDeclarations),
-  declarationsAreFullyInitialized: false,
   options: {
     ...DEFAULT_MODEL_OPTIONS,
     ...(modelOptions || {})
@@ -58,36 +59,19 @@ export const createModelConfig = <T>(
 const serializeObject = <T>(
   modelConfiguration: ModelConfiguration,
   structure: AllKeysAre<any>
-): InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject => {
+): SerializedStructure<T> => {
   if (!isObject(structure)) {
     structure = {}
   }
 
-  if (!modelConfiguration.declarationsAreFullyInitialized) {
-    for (const {
-      scheme: { to, from }
-    } of modelConfiguration.declarations)
-      if (to.type === TYPE_OF_CLASS_PROP_VALUE)
-        to.type = from.type = typeof structure[from.name]
-
-    modelConfiguration.declarationsAreFullyInitialized = true
-  }
-
   const serializedObject = Object.create({
-    deserialize: () =>
-      convertModel(serializedObject, {
-        modelConfiguration,
-        toOriginal: true
-      })
+    deserialize: () => convertModel(serializedObject, modelConfiguration, true)
   })
 
   return Object.assign(
     serializedObject,
-    convertModel(structure, {
-      modelConfiguration,
-      toOriginal: false
-    })
-  ) as InKeyOfWithType<DeclarationsInstance<T>, any> & SerializedObject
+    convertModel(structure, modelConfiguration, false)
+  ) as SerializedStructure<T>
 }
 
 const deserializeObject = <T>(
@@ -102,10 +86,7 @@ const deserializeObject = <T>(
         'Before using deserialize() needs to call serialize() or create new instance of model'
     )
   }
-  return convertModel(structure, {
-    modelConfiguration,
-    toOriginal: true
-  })
+  return convertModel(structure, modelConfiguration, true)
 }
 
 const getPropertyNames = (
@@ -145,12 +126,12 @@ declare type DeclarationsInstance<C> = C extends (new () => any)
   : C
 
 // TODO: complete it
-declare type SerializedData<
-  C,
-  D = InKeyOfWithType<DeclarationsInstance<C>, PropDeclaration>
-> = {
-  [K in keyof D]: D[K]
-}
+// declare type SerializedData<
+//   C,
+//   D = InKeyOfWithType<DeclarationsInstance<C>, PropDeclaration>
+// > = {
+//   [K in keyof D]: D[K]
+// }
 
 export const createModel = <T extends object | (new () => any)>(
   Model: T,
