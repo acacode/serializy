@@ -2,11 +2,13 @@ import * as serializyFromLib from '../../lib/serializy'
 import * as serializyMinFromLib from '../../lib/serializy.min'
 import * as serializySrc from '../../src'
 
-import { simpleObjectCopy, testAllCases } from './__helpers__'
+import { mockConsole, simpleObjectCopy, testAllCases } from './__helpers__'
 import { createModelUsingSpec } from './__spec__'
 
 const createBuildFilesTest = (serializyBuild: any, filePath: string) => {
   describe(`Test build files (${filePath})`, () => {
+    mockConsole(true)
+
     const funcs: any = {
       field: [
         ['should be defined', () => expect(serializyBuild.field).toBeDefined()]
@@ -29,9 +31,9 @@ const createBuildFilesTest = (serializyBuild: any, filePath: string) => {
           serializyBuild
         )
         // using object copy is required because 'serializedModel' is not just simple object (have instances of models)
-        expect(simpleObjectCopy(serializedModel)).toStrictEqual(
-          simpleObjectCopy(usageStructure)
-        )
+        expect(simpleObjectCopy(serializedModel)).toStrictEqual({
+          ...simpleObjectCopy(usageStructure)
+        })
       })
     })
 

@@ -5,7 +5,7 @@ describe('constants', () => {
     expect(DECLARATION_PROP).toEqual('@@property_declaration')
   })
   test('EMPTY_NAME', () => {
-    expect(EMPTY_NAME).toEqual('@@CLASS_PROP_NAME')
+    expect(EMPTY_NAME).toEqual('@@EMPTY_NAME')
   })
 
   test('SchemeType', () => {

@@ -1,9 +1,10 @@
 import { EMPTY_NAME, SchemeType } from '../../src/constants'
 import { createSchemeFromOptions } from '../../src/scheme'
+import { mockConsole } from './__helpers__'
 
 const invalidSchemeTest = (options: any) => {
-  test(`should catch an exception because scheme is invalid (options: ${options.join(
-    ','
+  test(`should catch an exception because scheme is invalid (options: ${JSON.stringify(
+    options
   )}`, () => {
     let catchedException = false
     try {
@@ -21,6 +22,8 @@ const invalidSchemeTest = (options: any) => {
 }
 
 describe('scheme', () => {
+  mockConsole(true)
+
   describe('createSchemeFromOptions', () => {
     describe('1 argument', () => {
       describe('Property name', () => {

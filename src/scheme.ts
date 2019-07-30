@@ -4,7 +4,7 @@ import {
   CommonPropertyOptions,
   ModelDeclaration
 } from './field_declaration'
-import { criticalError, error } from './helpers'
+import { criticalError } from './helpers'
 import { createModel } from './model_wrapper'
 import { PropDeclarationConfig } from './prop_declaration'
 
@@ -78,7 +78,7 @@ export const createSchemeFromOptions = <M = any>({
       */
 
       if (!option1.name) {
-        error('field configuration should contains at least "name" property')
+        criticalError('field configuration should contains "name" property')
       }
 
       const type = option1.type || DEFAULT_TYPE

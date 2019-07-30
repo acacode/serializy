@@ -34,3 +34,43 @@ export const testPropertiesOnExist = (
 
 export const simpleObjectCopy = (object: any) =>
   JSON.parse(JSON.stringify(object))
+
+const mockedMethods = ['log', 'warn', 'error']
+export const { originalConsoleFuncs, consoleMessages } = mockedMethods.reduce(
+  (acc: any, method: any) => {
+    acc.originalConsoleFuncs[method] = console[method].bind(console)
+    acc.consoleMessages[method] = []
+
+    return acc
+  },
+  {
+    consoleMessages: {},
+    originalConsoleFuncs: {}
+  }
+)
+
+export const mockConsole = (callOriginals?: boolean) => {
+  const createMockConsoleFunc = (method: any) => {
+    console[method] = (...args: any[]) => {
+      consoleMessages[method].push(args)
+      if (callOriginals) return originalConsoleFuncs[method](...args)
+    }
+  }
+
+  const deleteMockConsoleFunc = (method: any) => {
+    console[method] = originalConsoleFuncs[method]
+    consoleMessages[method] = []
+  }
+
+  beforeEach(() => {
+    mockedMethods.forEach((method: any) => {
+      createMockConsoleFunc(method)
+    })
+  })
+
+  afterEach(() => {
+    mockedMethods.forEach((method: any) => {
+      deleteMockConsoleFunc(method)
+    })
+  })
+}
