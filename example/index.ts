@@ -87,7 +87,7 @@ const NullableModel = model(
   }
 )
 
-console.log('nm', new NullableModel({ Field: null }).deserialize())
+console.log('nm', new NullableModel({}).deserialize())
 
 const SomeModel = model({
   prop1: field('Prop')

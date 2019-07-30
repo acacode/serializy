@@ -26,6 +26,11 @@ describe('scheme', () => {
 
   describe('createSchemeFromOptions', () => {
     describe('1 argument', () => {
+      invalidSchemeTest([null])
+      invalidSchemeTest([100])
+      invalidSchemeTest([true])
+      invalidSchemeTest([{}])
+
       describe('Property name', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({
@@ -80,15 +85,44 @@ describe('scheme', () => {
             }
           })
         })
+      })
+      describe('Field configuration', () => {
+        test('should create a valid scheme', () => {
+          const scheme = createSchemeFromOptions({
+            arrayType: false,
+            optional: false,
+            options: [
+              {
+                name: 'Blabla',
+                optional: true
+              }
+            ]
+          })
 
-        invalidSchemeTest([null])
-        invalidSchemeTest([100])
-        invalidSchemeTest([true])
-        invalidSchemeTest([{}])
+          expect(scheme).toMatchObject({
+            arrayType: false,
+            from: {
+              name: 'Blabla',
+              serializer: null,
+              type: 'any'
+            },
+            optional: true,
+            schemeType: SchemeType.STRINGS,
+            to: {
+              name: EMPTY_NAME,
+              type: 'any'
+            }
+          })
+        })
       })
     })
 
     describe('2 arguments', () => {
+      invalidSchemeTest([null, null])
+      invalidSchemeTest([100, 'sss'])
+      invalidSchemeTest(['Prop', 100])
+      invalidSchemeTest([{}, 1])
+
       describe('Property name + Property type', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({
@@ -113,11 +147,6 @@ describe('scheme', () => {
             }
           })
         })
-
-        invalidSchemeTest([null, null])
-        invalidSchemeTest([100, 'sss'])
-        invalidSchemeTest(['Prop', 100])
-        invalidSchemeTest([{}, 1])
       })
       describe('Property name + Model class', () => {
         test('should create a valid scheme', () => {
@@ -218,6 +247,9 @@ describe('scheme', () => {
     })
 
     describe('3 arguments', () => {
+      invalidSchemeTest(['', '', ''])
+      invalidSchemeTest([123125, null, ''])
+
       describe('Property name + Property type + Property usage type', () => {
         test('should create a valid scheme', () => {
           const scheme = createSchemeFromOptions({

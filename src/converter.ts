@@ -9,7 +9,7 @@ import {
   warn
 } from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
-import { Scheme } from './scheme'
+import { FieldScheme, Scheme } from './scheme'
 
 declare type CastAction = (
   dataStructure: object,
@@ -40,7 +40,7 @@ const impossibleCastWarning = (value: any, toType: string) =>
   value !== null &&
   warn('Not possible to cast value "', value, `" to type ${toType}.`)
 
-const checkOnExistingCastType = (type: any, property: any): boolean => {
+const checkOnExistingCastType = (type: any, property: any): void => {
   const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     error(
@@ -52,7 +52,21 @@ const checkOnExistingCastType = (type: any, property: any): boolean => {
         `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
-  return true
+}
+
+const checkOnExistingValidType = (scheme: FieldScheme, value: any): void => {
+  if (
+    value !== null &&
+    typeof scheme.type === 'string' &&
+    scheme.type !== 'any' &&
+    typeof value !== scheme.type
+  ) {
+    warn(
+      `value`,
+      value,
+      `of the property "${scheme.name}" have not declared type - "${scheme.type}"`
+    )
+  }
 }
 
 const objectIsDeclarationModel = (declaredModel: any, property: any) => {
@@ -213,6 +227,9 @@ const castStrings = (
     checkPropertyExist(dataStructure, currentPropScheme)
 
   const cast = (value: any) => {
+    if (!toOriginal) {
+      checkOnExistingValidType(currentPropScheme, value)
+    }
     checkOnExistingCastType(usagePropScheme.type, currentPropScheme.name)
     return castTo[usagePropScheme.type as keyof CastPrimitiveTo](value)
   }

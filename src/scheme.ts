@@ -171,6 +171,13 @@ export const createSchemeFromOptions = <M = any>({
     }
   }
 
+  if (scheme.schemeType !== SchemeType.SERIALIZERS && !scheme.from.name) {
+    criticalError(
+      'Invalid scheme\r\n' +
+        `First argument of field()/fieldArray() should be not empty string`
+    )
+  }
+
   if (!scheme.schemeType) {
     criticalError(
       `Unknown scheme type\r\n` +
