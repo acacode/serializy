@@ -49,6 +49,11 @@ export const { originalConsoleFuncs, consoleMessages } = mockedMethods.reduce(
   }
 )
 
+export const clearConsole = () =>
+  mockedMethods.forEach(method => {
+    consoleMessages[method] = []
+  })
+
 export const mockConsole = (callOriginals?: boolean) => {
   const createMockConsoleFunc = (method: any) => {
     console[method] = (...args: any[]) => {
