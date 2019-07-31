@@ -125,7 +125,7 @@ You can attach custom serializer/deserializer for specific cases.
 
 - `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
 
-You can attach custom serializer/deserializer for specific cases.  
+This is just another way to declare property   
 ![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
