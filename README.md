@@ -95,7 +95,7 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 
 <hr>
 
-### 🔹 `field()`[[Source]](./src/field_declaration.ts#L33)  
+### 🔹 `field()`[[Source]](./src/field_declaration.ts#L102)  
 
 This function is needed for describing property of server-side structure.  
 ![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
@@ -103,7 +103,7 @@ This function is needed for describing property of server-side structure.
 Argument variations:  
 - `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any'):  
+`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any'):  
 ![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
 
 
@@ -134,7 +134,7 @@ class  -->
 <hr>
 
 
-### 🔹 `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
+### 🔹 `fieldArray()`[[Source]](./src/field_declaration.ts#L105)  
 
 This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
 ![image](https://user-images.githubusercontent.com/16340911/60383955-019c7400-9a81-11e9-8c49-270617f0f8be.png)
@@ -143,7 +143,7 @@ Argument variations:
 
 - `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any')  
+`originalType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any')  
 
 
 - `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
@@ -154,7 +154,7 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 <hr>
 
 
-### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L47)  
+### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L48)  
 
 This function allows to make model from structure declaration.  
 
@@ -172,9 +172,14 @@ All examples are located [here](./example/index.ts)
 ![example of usage 2](./assets/serializy_example2.png)
 
 
+## 📢 Integrations  
+
+  [kinka-serializy](https://github.com/acacode/kinka-serializy) - integration serializy with http web-client `kinka`  
+
+
 ## 📢 Plans 
 
-Currently is needed to create integration with [`axios`](https://github.com/axios/axios) and [`kinka`](https://github.com/acacode/kinka)  
+Currently is needed to create integration with [`axios`](https://github.com/axios/axios)  
 And that I think will been a great idea, because you will just needed to say http web-clients what you want to see in the response of http request  
 
 
