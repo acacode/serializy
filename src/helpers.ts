@@ -10,8 +10,11 @@ export const isPrimitive = (value: any): boolean =>
     typeof value === 'function'
   )
 
-const createInfoMessage = (messageType: string, emoji: string) =>
-  `${emoji} [serializy ${messageType}] ${emoji} \r\nMessage:`
+const createInfoMessage = (
+  messageType: string,
+  emoji: string
+  // subTitle?: string
+) => `${emoji} [serializy ${messageType}] ${emoji} \r\nMessage:`
 
 export const error = (...messages: any[]): void => {
   console.error(

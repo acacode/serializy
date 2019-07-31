@@ -81,14 +81,6 @@ profile.id = `${profile.id}_CHANGED`
 
 console.log(profile.deserialize())
 
-const NullableModel = model(
-  class NullableModel {
-    foo = field('Field', 'string')
-  }
-)
-
-console.log('nm', new NullableModel({}).deserialize())
-
 const SomeModel = model({
   prop1: field('Prop')
 })
@@ -175,44 +167,55 @@ console.log(
   )
 )
 
+const ObjectModel = model(
+  {
+    someProp: field({
+      name: 'SomeProps',
+      optional: true,
+      type: 'any',
+      usageType: 'string'
+    })
+  },
+  {
+    warnings: false
+  }
+)
+
+const obj = new ObjectModel({
+  SomeProps: 213123123123
+})
+
+console.log('obj', obj)
+console.log('obj', obj.deserialize())
+
+const Example2 = model(
+  class {
+    id = field('ID')({ optional: true })
+    myProp = field('PROP')
+  }
+)
+
+const clientModel = new Example2({ PROP: 'PROP' })
+
+console.log('usage - ', clientModel) // { id: '5' } - то чем будет руководствоваться клиент
+
+clientModel.id = '6'
+clientModel.myProp = '7'
+
+console.log('original - ', clientModel.deserialize()) // { PROP: '7' } - то что уйдет на сервак
+console.log('original - ', Example2.deserialize(clientModel)) // { PROP: '7' } - то что уйдет на сервак
+
 const exampleCase = () => {
-  const ObjectModel = model(
-    {
-      someProp: field({
-        name: 'SomeProps',
-        optional: true,
-        type: 'any',
-        usageType: 'string'
-      })
-    },
-    {
-      warnings: false
+  const NullableModel = model(
+    class NullableModel {
+      foo = field('Field', 'string')
     }
   )
 
-  const obj = new ObjectModel({
-    SomeProps: 213123123123
-  })
+  const nullableModel = new NullableModel({})
 
-  console.log('obj', obj)
-  console.log('obj', obj.deserialize())
-
-  const Example2 = model(
-    class {
-      id = field('ID')({ optional: true })
-      myProp = field('PROP')
-    }
-  )
-
-  const clientModel = new Example2({ PROP: 'PROP' })
-
-  console.log('usage - ', clientModel) // { id: '5' } - то чем будет руководствоваться клиент
-
-  clientModel.id = '6'
-  clientModel.myProp = '7'
-
-  console.log('original - ', clientModel.deserialize()) // { PROP: '7' } - то что уйдет на сервак
-  console.log('original - ', Example2.deserialize(clientModel)) // { PROP: '7' } - то что уйдет на сервак
+  console.log(nullableModel)
+  console.log(nullableModel.deserialize())
 }
 
 setTimeout(exampleCase, 8000)

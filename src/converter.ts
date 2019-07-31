@@ -91,7 +91,7 @@ const castTo: CastPrimitiveTo = {
     return Object.assign({}, value)
   },
   string: (value: any): string => {
-    if (!isPrimitive(value)) {
+    if (!isPrimitive(value) || typeof value === 'undefined' || value === null) {
       impossibleCastWarning(value, 'string')
       return value
     }
@@ -223,7 +223,7 @@ const castStrings = (
 
   const currentValue = dataStructure[currentPropScheme.name]
 
-  if (scheme.optional && typeof currentValue === 'undefined') {
+  if ((scheme.optional || toOriginal) && typeof currentValue === 'undefined') {
     return
   }
 
