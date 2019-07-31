@@ -18,6 +18,7 @@
 - Wrongs warning/error messages linked with serializing empty objects and `null` values  
 - Warnings in console when some property is `null` or `undefined`  
 - [Critical bug] Deserializing structures using `Model.deserialize()` was not working with objects not created via `serializy`  
+- [Critical bug] Linked with contains `.deserialize()` property in each object  
 
 ### Changed    
 - Warning, error, exception messages (typo, more friendly messages)  
