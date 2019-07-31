@@ -69,18 +69,6 @@ const checkOnExistingValidType = (scheme: FieldScheme, value: any): void => {
   }
 }
 
-const objectIsDeclarationModel = (declaredModel: any, property: any) => {
-  if (!declaredModel.deserialize) {
-    error(
-      `Declared model for `,
-      property,
-      ` was not created via model() function.` +
-        `Please wrap this model into "model()" function`
-    )
-  }
-  return true
-}
-
 const castTo: CastPrimitiveTo = {
   any: (value: any): any => value,
   boolean: (value: any): boolean => !!value,
@@ -144,7 +132,6 @@ const castClassToOriginal: CastAction = (
   warnings && !optional && checkPropertyExist(dataStructure, to)
 
   const cast = (model: AllKeysAre<any>) => {
-    objectIsDeclarationModel(model, to.name)
     return (to.type as ModelWrapper<any>).deserialize(model)
   }
 
@@ -174,7 +161,7 @@ const castClassToUsage: CastAction = (
 
   const cast = (model: AllKeysAre<any>) => {
     const instance = (from.type as ModelWrapper<any>).serialize(model)
-    return objectIsDeclarationModel(instance, from.name) && instance
+    return instance
   }
 
   const currentValue = dataStructure[from.name]

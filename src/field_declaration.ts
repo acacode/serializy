@@ -42,37 +42,44 @@ export declare type FieldOptions =
   | [FieldConfiguration]
   | [CustomSerializerFunc, CustomDeserializerFunc?]
 
-export declare type FieldArrayDeclaration = [
-  PropertyNameDeclaration,
-  ModelArrayDeclaration
-]
+export declare type FieldArrayDeclaration =
+  | [PropertyNameDeclaration, PropertyType?, PropertyType?]
+  | [PropertyNameDeclaration, ModelDeclaration]
 
 export declare interface CommonFieldCreator {
   (propertyOptions: Partial<CommonPropertyOptions>): PropDeclaration
   [DECLARATION_PROP]: boolean
 }
 
-export declare interface FieldCreatorDeclaration {
-  (
-    originalProperty: PropertyNameDeclaration,
-    originalType?: PropertyType,
-    usageType?: PropertyType
-  ): CommonFieldCreator
-  (
-    originalProperty: PropertyNameDeclaration,
-    DeclaredModel: ModelDeclaration
-  ): CommonFieldCreator
-  (fieldConfiguration: FieldConfiguration): CommonFieldCreator
-  (
-    customSerializer: CustomSerializerFunc,
-    customDeserializer?: CustomDeserializerFunc
-  ): CommonFieldCreator
-}
-
-export declare type FieldsArrayCreatorDeclaration = (
+declare type StringsFieldDeclaration = (
   originalProperty: PropertyNameDeclaration,
-  DeclaredModel: ModelArrayDeclaration
+  originalType?: PropertyType,
+  usageType?: PropertyType
 ) => CommonFieldCreator
+
+declare type ModelFieldDeclaration = (
+  originalProperty: PropertyNameDeclaration,
+  DeclaredModel: ModelDeclaration
+) => CommonFieldCreator
+
+declare type ConfigurationFieldDeclaration = (
+  fieldConfiguration: FieldConfiguration
+) => CommonFieldCreator
+
+declare type SerializersFieldDeclaration = (
+  customSerializer: CustomSerializerFunc,
+  customDeserializer?: CustomDeserializerFunc
+) => CommonFieldCreator
+
+export declare type FieldCreatorDeclaration =
+  | StringsFieldDeclaration
+  | ModelFieldDeclaration
+  | ConfigurationFieldDeclaration
+  | SerializersFieldDeclaration
+
+export declare type FieldsArrayCreatorDeclaration =
+  | StringsFieldDeclaration
+  | ModelFieldDeclaration
 
 const createFieldDeclaration = (
   options: FieldOptions | FieldArrayDeclaration,

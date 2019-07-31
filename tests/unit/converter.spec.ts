@@ -39,21 +39,31 @@ describe('converter', () => {
         defaultValues: false,
         warnings: true
       }
-      const dataStructure = { Test: 'test' }
-      const toOriginal = false
 
       expect(
         convertModel(
-          dataStructure,
+          { Test: 'test' },
           {
             declarations,
             options
           },
-          toOriginal
+          false
         )
       ).toMatchObject({
         test: 'test'
       })
+      expect(
+        convertModel(
+          {
+            test: 'test'
+          },
+          {
+            declarations,
+            options
+          },
+          true
+        )
+      ).toMatchObject({ Test: 'test' })
     })
     test('should successfuly convert scheme with type SchemeType.STRING_AND_CLASS to usage', () => {
       const fooModel = model(
@@ -85,25 +95,40 @@ describe('converter', () => {
         defaultValues: false,
         warnings: true
       }
-      const dataStructure = {
-        Test: {
-          Foo: 'bar'
-        }
-      }
-      const toOriginal = false
-
       expect(
         convertModel(
-          dataStructure,
+          {
+            Test: {
+              Foo: 'bar'
+            }
+          },
           {
             declarations,
             options
           },
-          toOriginal
+          false
         )
       ).toMatchObject({
         test: {
           foo: 'bar'
+        }
+      })
+      expect(
+        convertModel(
+          {
+            test: {
+              foo: 'bar'
+            }
+          },
+          {
+            declarations,
+            options
+          },
+          true
+        )
+      ).toMatchObject({
+        Test: {
+          Foo: 'bar'
         }
       })
     })
@@ -124,7 +149,9 @@ describe('converter', () => {
             schemeType: SchemeType.SERIALIZERS,
             to: {
               name: 'test',
-              serializer: ({ test }: any) => ({ Foo: test }),
+              serializer: ({ test }: any) => {
+                return { Test: { Foo: test } }
+              },
               type: null
             }
           }

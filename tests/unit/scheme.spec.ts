@@ -249,6 +249,7 @@ describe('scheme', () => {
     describe('3 arguments', () => {
       invalidSchemeTest(['', '', ''])
       invalidSchemeTest([123125, null, ''])
+      invalidSchemeTest([{}, null, ''])
 
       describe('Property name + Property type + Property usage type', () => {
         test('should create a valid scheme', () => {
