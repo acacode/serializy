@@ -218,4 +218,5 @@ const exampleCase = () => {
   console.log(nullableModel.deserialize())
 }
 
-setTimeout(exampleCase, 8000)
+exampleCase()
+// setTimeout(exampleCase, 8000)

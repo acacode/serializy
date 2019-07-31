@@ -121,6 +121,12 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 
 You can attach custom serializer/deserializer for specific cases.  
 ![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
+
+
+- `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
+
+You can attach custom serializer/deserializer for specific cases.  
+![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
@@ -135,7 +141,7 @@ This is the same thing like [`field()`](#fieldsource) but it needs to describe a
 
 Argument variations:  
 
-- `fieldArray(originalPropertyName: string, originalType: string)`  
+- `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
 `originalType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any')  
 
