@@ -107,6 +107,7 @@ Argument variations:
 
 
 ![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
+![image](./assets/empty_block.png)  
 
 
 
@@ -125,6 +126,7 @@ Argument variations:
 
 ![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
 ![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
+![image](./assets/empty_block.png)  
 
 
   
@@ -140,6 +142,7 @@ Argument variations:
 
 
 ![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
+![image](./assets/empty_block.png)  
 
 
   
@@ -158,12 +161,12 @@ Argument variations:
 
 
 ![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
+![image](./assets/empty_block.png)  
 
 
-  
-  
 
-  
+
+
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
