@@ -109,6 +109,9 @@ Argument variations:
 ![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
 
 
+
+
+
   
 - ◼️ `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 
@@ -125,6 +128,9 @@ Argument variations:
 
 
 
+
+
+  
 - ◼️ `field(customSerializer: function, customDeserializer?: function)`  
 
   You can attach custom serializer/deserializer for specific cases.  
@@ -137,6 +143,9 @@ Argument variations:
 
 
 
+
+
+  
 - ◼️ `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
 
   This is just another way to declare property.   
@@ -149,6 +158,12 @@ Argument variations:
 
 
 ![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
+
+
+
+
+
+  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
