@@ -22,16 +22,16 @@
 
 ### Changed    
 - Warning, error, exception messages (typo, more friendly messages)  
-- [Internal] Changed return value of `field()/fieldsArray()`  
+- [Internal] Changed return value of `field()/fieldArray()`  
 
 ### Added  
 - `optional` field configuration property  
 - New type of field declaration  
     `field({ name: 'prop_name', type: 'prop_type', usageType: 'usage_prop_type' })`  
 - [Internal] Unit tests  
-- Added abilities for `fieldsArray()` function. Now available common schemes:  
-    - `fieldsArray('prop_name', 'prop_type', 'usage_prop_type')`  
-    - `fieldsArray('prop_name', ModelDeclaration)`  
+- Added abilities for `fieldArray()` function. Now available common schemes:  
+    - `fieldArray('prop_name', 'prop_type', 'usage_prop_type')`  
+    - `fieldArray('prop_name', ModelDeclaration)`  
 
 ### Removed  
 - [Internal] Scheme types : `ONE_STRING`, `TWO_STRINGS`, `THREE_STRINGS` (Combine this types into one `STRINGS`)  

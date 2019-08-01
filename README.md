@@ -127,6 +127,7 @@ Options:
   
   This type of the field declaration allows you to declare simple properties which are mostly primitive values.  
   Arguments:  
+      - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
       - **`originalType?: string`** - type of the original property.    
       - **`usageType?: string`** - needed type of the usage property.  
 
@@ -241,30 +242,30 @@ Options:
   This is just another way to declare property.   
   Properties:  
       - **`name: string`** - key name in the original structure  
-      - ️**`type?: PropertyType`** - type of the original property  
+      - **`type?: PropertyType`** - type of the original property  
       - **`usageType?: PropertyType`** - type for usage property  
       - **`arrayType?: boolean`** - property have array type or not  
       - **`optional?: boolean`** - this property is required or not  
 
 
-Examples:  
-```js
-const Model = model({
-  someProp: field({
-    name: 'SomeProp',
-    optional: true,
-    type: 'number',
-    usageType: 'string'
+  Examples:  
+  ```js
+  const Model = model({
+    someProp: field({
+      name: 'SomeProp',
+      optional: true,
+      type: 'number',
+      usageType: 'string'
+    })
   })
-})
 
-const structure = new Model({
-  SomeProp: 12345
-})
+  const structure = new Model({
+    SomeProp: 12345
+  })
 
-console.log(structure.someProp) // '12345' because usageType - 'string'
-console.log(structure.deserialize()) // { SomeProp: 12345 }
-```  
+  console.log(structure.someProp) // '12345' because usageType - 'string'
+  console.log(structure.deserialize()) // { SomeProp: 12345 }
+  ```  
 ![image](./assets/empty_block.png)  
 
 
@@ -278,22 +279,31 @@ class  -->
 <hr>
 
 
-### 🔹 `fieldArray()`[[Source]](./src/field_declaration.ts#L105)  
+### 🔹 **`fieldArray()`**[[Source]](./src/field_declaration.ts#L105)  
 
 This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
-![image](https://user-images.githubusercontent.com/16340911/60383955-019c7400-9a81-11e9-8c49-270617f0f8be.png)
+
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    stringsArray: fieldArray('DataArray', 'string')
+    // stringsArray - name of the usage property
+    // 'DataArray' (first arg) - name of the original property which should be array
+    // 'string' (second arg) - type of the each element in array
+  })
+```
 
 Argument variations:  
 
-- `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
-`originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any')  
+- **`fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`**  
+      - **`originalPropertyName`** - name of property which should be exist in original structure  
+      - **`originalType?: string`** - type of the original property.  
+      - **`usageType?: string`** - needed type of the usage property.  
 
 
-- `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
-`originalPropertyName` - name of property which should be exist in original structure  
-[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
-And keys/properties should have values created via `field()`, `fieldArray()` function  
+- **`fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
+      - **`originalPropertyName`** - name of property which should be exist in original structure  
+      [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+      And keys/properties should have values created via `field()`, `fieldArray()` function  
 
 <hr>
 
@@ -302,8 +312,11 @@ And keys/properties should have values created via `field()`, `fieldArray()` fun
 
 This function allows to make model from structure declaration.  
 
-![image](https://user-images.githubusercontent.com/16340911/60385059-d5d3bb00-9a8d-11e9-89f5-258d2364ab52.png)  
-
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    // your property declarations
+  })
+```
 
    
    
