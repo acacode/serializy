@@ -294,8 +294,8 @@ All examples are located [here](./example/index.ts)
 
 ## 📢 Integrations  
 
-  [**kinka-serializy**](https://github.com/acacode/kinka-serializy) - integration serializy with http web-client `kinka`  
-  [**axios-serializy**](https://github.com/acacode/axios-serializy) - integration serializy with http web-client `axios`  
+  [**kinka-serializy**](https://github.com/acacode/kinka-serializy) - integration serializy with http web-client [**kinka**](https://github.com/acacode/kinka)  
+  [**axios-serializy**](https://github.com/acacode/axios-serializy) - integration serializy with http web-client [**axios**](https://github.com/axios/axios)
 
 
 ## 📝 License
