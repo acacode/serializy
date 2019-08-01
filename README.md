@@ -101,31 +101,53 @@ This function is needed for describing property of server-side structure.
 ![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
 
 Argument variations:  
-- `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
+- ◼️ `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
 `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any'):  
+
+
 ![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
 
 
   
-- `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+- ◼️ `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 
-[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
-And keys/properties should have values created via `field()`, `fieldArray()` function  
+  [Description]  
+  Arguments:  
+      - ◾️ `originalPropertyName: string` - name of the property in original structure.  Original property with this name will be assigned to usage property.  
+      - ◾️ `modelDeclaration: ModelDeclaration` - model declaration needed for convert original object into usage object.  
+          [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+          And keys/properties should have values created via `field()`, `fieldArray()` function  
+
+
 ![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
 ![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
 
 
 
-- `field(customSerializer: function, customDeserializer: function)`  
+- ◼️ `field(customSerializer: function, customDeserializer?: function)`  
 
-You can attach custom serializer/deserializer for specific cases.  
+  You can attach custom serializer/deserializer for specific cases.  
+  Arguments:  
+      - ◾️ `customSerializer: function` - this function should return value of the usage property. Takes one argument - original structure   
+      - ◾️ `customDeserializer?: function` - this function should return object which will been merged to the original structure. Takes one argument - usage structure  
+
+
 ![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
 
 
-- `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
 
-This is just another way to declare property   
+- ◼️ `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
+
+  This is just another way to declare property.   
+  Properties:  
+      - ◾️ `name: string` - key name in the original structure  
+      - ️◾️ `type?: PropertyType` - type of the original property  
+      - ◾️ `usageType?: PropertyType`- type for usage property  
+      - ◾️ `arrayType?: boolean` - property have array type or not  
+      - ◾️ `optional?: boolean` - this property is required or not  
+
+
 ![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
@@ -141,12 +163,12 @@ This is the same thing like [`field()`](#fieldsource) but it needs to describe a
 
 Argument variations:  
 
-- `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
+- ◼️ `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
 `originalType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any')  
 
 
-- `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+- ◼️ `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 `originalPropertyName` - name of property which should be exist in original structure  
 [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
 And keys/properties should have values created via `field()`, `fieldArray()` function  
