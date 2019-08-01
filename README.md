@@ -97,36 +97,60 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 
 <hr>
 
-### 🔹 `field(...options: FieldOptions)`[[Source]](./src/field_declaration.ts#L102)  
+### 🔹 **`field(...options: FieldOptions)`**[[Source]](./src/field_declaration.ts#L102)  
 
-This function is needed for describing property in the original structure.  
-![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
+This function needed for transforming property of the original structure to usage property.  
+
+For example, you've got object `{ FirsT_naMe: 'John' }` and you need to convert property `"FirsT_naMe"` to the `"firstName"`, you can just write:  
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    firstName: field('FirsT_naMe', 'string')
+    // firstName - name of the usage property
+    // 'FirsT_naMe' (first arg) - name of the original property
+    // 'string' (second arg) - type of the both sides properties
+  })
+```
+Or you've got object with string value of number like `{ Age: '19' }` but you need to use type number, you can just write:  
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    age: field('Age', 'string', 'number')
+    // firstName - name of the usage property
+    // 'FirsT_naMe' (first arg) - name of the original property
+    // 'string' (second arg) - type of original property
+    // 'number' (third arg) - type of usage property
+  })
+```
 
 Options:  
 
-- ◼️ `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
+- **`field(originalPropertyName: string, originalType?: string, usageType?: string)`**
+  
+  This type of the field declaration allows you to declare simple properties which are mostly primitive values.  
+  Arguments:  
+      - **`originalType?: string`** - type of the original property.    
+      - **`usageType?: string`** - needed type of the usage property.  
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any'):  
+    note: `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) (`'boolean'`, `'number'`, `'string'`, `'object'`, `'any'`)  
 
-Examples:  
-```js
+  Examples:  
+  ```js
 
-const Model = model({
-  someProp: field({
-    name: 'SomeProp',
-    optional: true,
-    type: 'number',
-    usageType: 'string'
+  const Model = model({
+    someProp: field({
+      name: 'SomeProp',
+      optional: true,
+      type: 'number',
+      usageType: 'string'
+    })
   })
-})
 
-const structure = new Model({
-  SomeProp: 12345
-})
+  const structure = new Model({
+    SomeProp: 12345
+  })
 
-console.log(structure.someProp) // '12345' because usageType - 'string'
-console.log(structure.deserialize()) // { SomeProp: 12345 }
-```  
+  console.log(structure.someProp) // '12345' because usageType - 'string'
+  console.log(structure.deserialize()) // { SomeProp: 12345 }
+  ```  
 ![image](./assets/empty_block.png)  
 
 
@@ -134,40 +158,40 @@ console.log(structure.deserialize()) // { SomeProp: 12345 }
   
   
   
-- ◼️ `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+- **`field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
 
-  This type of the field declaration allows you to transform complex structures to usage structures    
+  This type of the field declaration allows you to declare complex structures to usage structures    
   Arguments:  
-      - ◾️ `originalPropertyName: string` - name of the property in original structure.  Original property with this name will be assigned to usage property.  
-      - ◾️ `modelDeclaration: ModelDeclaration` - model declaration needed for convert original object into usage object.  
+      - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
+      - **`modelDeclaration: ModelDeclaration`** - model declaration needed for convert original object into usage object.  
           [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
           And keys/properties should have values created via `field()`, `fieldArray()` function  
 
 
-Examples:  
-```js
-const FooModel = model(class FooModel {
-  foo = field('Foo', 'number', 'string')
-})
-
-class Model = model({class Model {
-  fooStruct = field('FooStruct', FooModel)
-}})
-```  
-```js
-class Model = model({class Model {
-  fooStruct = field('FooStruct', {
+  Examples:  
+  ```js
+  const FooModel = model(class FooModel {
     foo = field('Foo', 'number', 'string')
   })
-}})
 
-const fooBarStruct = new Model({
-  FooStruct: { Foo: 12345 }
-})
+  class Model = model({class Model {
+    fooStruct = field('FooStruct', FooModel)
+  }})
+  ```  
+  ```js
+  class Model = model({class Model {
+    fooStruct = field('FooStruct', {
+      foo = field('Foo', 'number', 'string')
+    })
+  }})
 
-console.log(fooBarStruct) // { fooStruct: { foo: '12345' } }
-console.log(fooBarStruct.deserialize()) // { FooStruct: { Foo: 12345 } }
-```  
+  const fooBarStruct = new Model({
+    FooStruct: { Foo: 12345 }
+  })
+
+  console.log(fooBarStruct) // { fooStruct: { foo: '12345' } }
+  console.log(fooBarStruct.deserialize()) // { FooStruct: { Foo: 12345 } }
+  ```  
 ![image](./assets/empty_block.png)  
 
 
@@ -175,36 +199,36 @@ console.log(fooBarStruct.deserialize()) // { FooStruct: { Foo: 12345 } }
   
 
   
-- ◼️ `field(customSerializer: function, customDeserializer?: function)`  
+- **`field(customSerializer: function, customDeserializer?: function)`**  
 
   You can attach custom serializer/deserializer for specific cases.  
   Arguments:  
-      - ◾️ `customSerializer: function` - this function should return value of the usage property. Takes one argument - original structure   
-      - ◾️ `customDeserializer?: function` - this function should return object which will been merged to the original structure. Takes one argument - usage structure  
+      - **`customSerializer: function`** - this function should return value of the usage property. Takes one argument - original structure   
+      - **`customDeserializer?: function`** - this function should return object which will been merged to the original structure. Takes one argument - usage structure  
 
 
-Examples:  
-```js
-const Model = model({
-  barBaz: field(
-    ({ bar, baz }) => `${bar}/${baz}`,
-    ({ barBaz }) => {
-      const [bar, baz] = barBaz.split('/')
-      return { bar, baz }
-    }
-  ),
-  foo: field(({ foo }) => foo, ({ foo }) => ({ foo })) // in this case just better to use field('foo')
-})
+  Examples:  
+  ```js
+  const Model = model({
+    barBaz: field(
+      ({ bar, baz }) => `${bar}/${baz}`,
+      ({ barBaz }) => {
+        const [bar, baz] = barBaz.split('/')
+        return { bar, baz }
+      }
+    ),
+    foo: field(({ foo }) => foo, ({ foo }) => ({ foo })) // in this case just better to use field('foo')
+  })
 
-const structure = new Model({
-  foo: 'foo',
-  bar: 'bar',
-  baz: 'baz'
-})
+  const structure = new Model({
+    foo: 'foo',
+    bar: 'bar',
+    baz: 'baz'
+  })
 
-console.log(structure) // { barBaz: 'bar/baz', foo: 'foo' }
-console.log(structure.deserialize()) // { foo: 'foo', bar: 'bar', baz: 'baz' }
-```  
+  console.log(structure) // { barBaz: 'bar/baz', foo: 'foo' }
+  console.log(structure.deserialize()) // { foo: 'foo', bar: 'bar', baz: 'baz' }
+  ```  
 ![image](./assets/empty_block.png)  
 
 
@@ -212,15 +236,15 @@ console.log(structure.deserialize()) // { foo: 'foo', bar: 'bar', baz: 'baz' }
   
 
   
-- ◼️ `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
+- **`field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`**  
 
   This is just another way to declare property.   
   Properties:  
-      - ◾️ `name: string` - key name in the original structure  
-      - ️◾️ `type?: PropertyType` - type of the original property  
-      - ◾️ `usageType?: PropertyType`- type for usage property  
-      - ◾️ `arrayType?: boolean` - property have array type or not  
-      - ◾️ `optional?: boolean` - this property is required or not  
+      - **`name: string`** - key name in the original structure  
+      - ️**`type?: PropertyType`** - type of the original property  
+      - **`usageType?: PropertyType`** - type for usage property  
+      - **`arrayType?: boolean`** - property have array type or not  
+      - **`optional?: boolean`** - this property is required or not  
 
 
 Examples:  
@@ -261,12 +285,12 @@ This is the same thing like [`field()`](#fieldsource) but it needs to describe a
 
 Argument variations:  
 
-- ◼️ `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
+- `fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`  
 `originalPropertyName` - name of property which should be exist in original structure  
 `originalType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any')  
 
 
-- ◼️ `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+- `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 `originalPropertyName` - name of property which should be exist in original structure  
 [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
 And keys/properties should have values created via `field()`, `fieldArray()` function  
