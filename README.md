@@ -105,8 +105,25 @@ Argument variations:
 
 `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any'):  
 
+Examples:  
+```js
 
-![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
+const Model = model({
+  someProp: field({
+    name: 'SomeProp',
+    optional: true,
+    type: 'number',
+    usageType: 'string'
+  })
+})
+
+const structure = new Model({
+  SomeProp: 12345
+})
+
+console.log(structure.someProp) // '12345' because usageType - 'string'
+console.log(structure.deserialize()) // { SomeProp: 12345 }
+```  
 ![image](./assets/empty_block.png)  
 
 
@@ -116,7 +133,7 @@ Argument variations:
   
 - ◼️ `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 
-  [Description]  
+  This type of the field declaration allows you to transform complex structures to usage structures    
   Arguments:  
       - ◾️ `originalPropertyName: string` - name of the property in original structure.  Original property with this name will be assigned to usage property.  
       - ◾️ `modelDeclaration: ModelDeclaration` - model declaration needed for convert original object into usage object.  
@@ -124,8 +141,31 @@ Argument variations:
           And keys/properties should have values created via `field()`, `fieldArray()` function  
 
 
-![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
-![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
+Examples:  
+```js
+const FooModel = model(class FooModel {
+  foo = field('Foo', 'number', 'string')
+})
+
+class Model = model({class Model {
+  fooStruct = field('FooStruct', FooModel)
+}})
+```  
+Examples:  
+```js
+class Model = model({class Model {
+  fooStruct = field('FooStruct', {
+    foo = field('Foo', 'number', 'string')
+  })
+}})
+
+const fooBarStruct = new Model({
+  FooStruct: { Foo: 12345 }
+})
+
+console.log(fooBarStruct) // { fooStruct: { foo: '12345' } }
+console.log(fooBarStruct.deserialize()) // { FooStruct: { Foo: 12345 } }
+```  
 ![image](./assets/empty_block.png)  
 
 
@@ -141,7 +181,28 @@ Argument variations:
       - ◾️ `customDeserializer?: function` - this function should return object which will been merged to the original structure. Takes one argument - usage structure  
 
 
-![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
+Examples:  
+```js
+const Model = model({
+  barBaz: field(
+    ({ bar, baz }) => `${bar}/${baz}`,
+    ({ barBaz }) => {
+      const [bar, baz] = barBaz.split('/')
+      return { bar, baz }
+    }
+  ),
+  foo: field(({ foo }) => foo, ({ foo }) => ({ foo })) // in this case just better to use field('foo')
+})
+
+const structure = new Model({
+  foo: 'foo',
+  bar: 'bar',
+  baz: 'baz'
+})
+
+console.log(structure) // { barBaz: 'bar/baz', foo: 'foo' }
+console.log(structure.deserialize()) // { foo: 'foo', bar: 'bar', baz: 'baz' }
+```  
 ![image](./assets/empty_block.png)  
 
 
@@ -160,7 +221,24 @@ Argument variations:
       - ◾️ `optional?: boolean` - this property is required or not  
 
 
-![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
+Examples:  
+```js
+const Model = model({
+  someProp: field({
+    name: 'SomeProp',
+    optional: true,
+    type: 'number',
+    usageType: 'string'
+  })
+})
+
+const structure = new Model({
+  SomeProp: 12345
+})
+
+console.log(structure.someProp) // '12345' because usageType - 'string'
+console.log(structure.deserialize()) // { SomeProp: 12345 }
+```  
 ![image](./assets/empty_block.png)  
 
 

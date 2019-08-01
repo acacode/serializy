@@ -79,6 +79,52 @@ describe('main unit tests (real test cases)', () => {
       expect(consoleMessages.warn.length).toBe(0)
     })
 
+    test('custom serializer', () => {
+      const Model = model({
+        barBaz: field(
+          ({ bar, baz }) => `${bar}/${baz}`,
+          ({ barBaz }) => {
+            const [bar, baz] = barBaz.split('/')
+            return { bar, baz }
+          }
+        ),
+        foo: field(({ foo }) => foo, ({ foo }) => ({ foo }))
+      })
+
+      const structure = new Model({
+        bar: 'bar',
+        baz: 'baz',
+        foo: 'foo'
+      })
+
+      expect(structure).toStrictEqual({ barBaz: 'bar/baz', foo: 'foo' })
+    })
+
+    test('custom deserializer', () => {
+      const Model = model({
+        barBaz: field(
+          ({ bar, baz }) => `${bar}/${baz}`,
+          ({ barBaz }) => {
+            const [bar, baz] = barBaz.split('/')
+            return { bar, baz }
+          }
+        ),
+        foo: field(({ foo }) => foo, ({ foo }) => ({ foo }))
+      })
+
+      const structure = new Model({
+        bar: 'bar',
+        baz: 'baz',
+        foo: 'foo'
+      })
+
+      expect(structure.deserialize()).toStrictEqual({
+        bar: 'bar',
+        baz: 'baz',
+        foo: 'foo'
+      })
+    })
+
     describe('deserialize() should return the same value as before serialize()', () => {
       const testCases = [
         () => {
