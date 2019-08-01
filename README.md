@@ -295,12 +295,7 @@ All examples are located [here](./example/index.ts)
 ## 📢 Integrations  
 
   [kinka-serializy](https://github.com/acacode/kinka-serializy) - integration serializy with http web-client `kinka`  
-
-
-## 📢 Plans 
-
-Currently is needed to create integration with [`axios`](https://github.com/axios/axios)  
-And that I think will been a great idea, because you will just needed to say http web-clients what you want to see in the response of http request  
+  [axios-serializy](https://github.com/acacode/axios-serializy) - integration serializy with http web-client `axios`  
 
 
 ## 📝 License
