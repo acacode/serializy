@@ -95,12 +95,13 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 
 <hr>
 
-### 🔹 `field()`[[Source]](./src/field_declaration.ts#L102)  
+### 🔹 `field(...options: FieldOptions)`[[Source]](./src/field_declaration.ts#L102)  
 
-This function is needed for describing property of server-side structure.  
+This function is needed for describing property in the original structure.  
 ![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
 
-Argument variations:  
+Options:  
+
 - ◼️ `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
 
 `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) ('boolean', 'number', 'string', 'object', 'any'):  
