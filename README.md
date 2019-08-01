@@ -110,8 +110,8 @@ Argument variations:
 
 
 
-
-
+  
+  
   
 - ◼️ `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
 
@@ -127,8 +127,8 @@ Argument variations:
 ![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
 
 
-
-
+  
+  
 
   
 - ◼️ `field(customSerializer: function, customDeserializer?: function)`  
@@ -142,8 +142,8 @@ Argument variations:
 ![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
 
 
-
-
+  
+  
 
   
 - ◼️ `field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`  
@@ -160,8 +160,8 @@ Argument variations:
 ![image](https://user-images.githubusercontent.com/16340911/62254558-44e05e80-b402-11e9-8fd6-59e3491d0238.png)  
 
 
-
-
+  
+  
 
   
 <!-- Function `field()` needs you to describe some property of your model like  
