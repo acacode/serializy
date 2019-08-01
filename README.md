@@ -152,7 +152,6 @@ class Model = model({class Model {
   fooStruct = field('FooStruct', FooModel)
 }})
 ```  
-Examples:  
 ```js
 class Model = model({class Model {
   fooStruct = field('FooStruct', {
