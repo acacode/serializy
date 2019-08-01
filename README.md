@@ -2,12 +2,14 @@
 
   [![serializy](./assets/logo.png)](https://www.npmjs.com/package/serializy) 
 
-  [![](https://img.shields.io/badge/license-MIT-red.svg)](./LICENSE)
-  [![](https://img.shields.io/npm/v/serializy.svg)](https://www.npmjs.com/package/serializy)
-  [![](https://img.shields.io/travis/acacode/serializy.svg)](https://travis-ci.org/acacode/serializy)
-  [![](https://img.shields.io/npm/dm/serializy.svg)](http://npm-stat.com/charts.html?package=serializy)
-  [![](https://badgen.net/bundlephobia/min/serializy)](https://bundlephobia.com/result?p=serializy)
-  [![](https://badgen.net/bundlephobia/minzip/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![license](https://img.shields.io/badge/license-MIT-red.svg)](./LICENSE)
+  [![npm](https://img.shields.io/npm/v/serializy.svg)](https://www.npmjs.com/package/serializy)
+  [![](https://data.jsdelivr.com/v1/package/npm/serializy/badge)](https://www.jsdelivr.com/package/npm/serializy)
+  [![build status](https://img.shields.io/travis/acacode/serializy.svg)](https://travis-ci.org/acacode/serializy)
+  [![downloads per month](https://img.shields.io/npm/dm/serializy.svg)](http://npm-stat.com/charts.html?package=serializy)
+  [![min size](https://badgen.net/bundlephobia/min/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![minzip size](https://badgen.net/bundlephobia/minzip/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![install size](https://packagephobia.now.sh/badge?p=serializy)](https://packagephobia.now.sh/result?p=serializy)
 
   <p>
     Object schema validation and data serialization
