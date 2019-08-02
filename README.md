@@ -266,7 +266,7 @@ Options:
       - **`type?: PropertyType`** - type of the original property  
       - **`usageType?: PropertyType`** - type for usage property  
       - **`arrayType?: boolean`** - property have array type or not  
-      - **`optional?: boolean`** - this property is required or not  
+      - **`optional?: boolean`** - same [from property](#-fieldoptions-fieldoptionssource) options but have more priority
 
 
   Examples:  
@@ -302,7 +302,7 @@ class  -->
 
 ### 🔹 **`fieldArray()`**[[Source]](./src/field_declaration.ts#L105)  
 
-This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
+This is the same thing like [`field()`](#-fieldoptions-fieldoptionssource) but it needs to describe array of data  
 
 ```js
   const Struct = model({ // it is required wrapper for structure declarations
