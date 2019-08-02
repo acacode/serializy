@@ -1,14 +1,27 @@
 import { SchemeType } from './constants'
-import { error, isObject, isPrimitive, warn } from './helpers'
+import { AllKeysAre } from './global_types'
+import {
+  checkPropertyExist,
+  checkType,
+  error,
+  isObject,
+  isPrimitive,
+  warn
+} from './helpers'
 import { ModelConfiguration, ModelOptions, ModelWrapper } from './model_wrapper'
-import { Scheme } from './scheme'
+import { FieldScheme, Scheme } from './scheme'
 
-declare type CastAction = (dataModel: object, { model, scheme: { from, to }, modelOptions }: CastConfig) => void
+declare type CastAction = (
+  dataStructure: object,
+  usageStructure: object,
+  castConfig: CastConfig,
+  toOriginal?: boolean
+) => void
 
 declare type CastActionsObject = {
   [key in SchemeType]: {
-    toOriginal: CastAction,
-    toUsage: CastAction,
+    toOriginal: CastAction
+    toUsage: CastAction
   }
 }
 
@@ -24,34 +37,36 @@ export declare interface CastPrimitiveTo {
 
 const impossibleCastWarning = (value: any, toType: string) =>
   // checks on null is required. Because most APIs have nullable fields.
-  value !== null && warn('Not possible to cast value "', value, `" to type ${toType}.`)
+  value !== null &&
+  warn('Not possible to cast value "', value, `" to type ${toType}.`)
 
-const checkOnExistingCastType = (type: any, property: any): boolean => {
+const checkOnExistingCastType = (type: any, property: any): void => {
   const possibleCastTypes = Object.keys(castTo)
   if (possibleCastTypes.indexOf(type) === -1) {
     error(
-        `Type `, type, ` of value of property `, property, ` is not possible for type casting\r\n` +
+      `Type `,
+      type,
+      ` of property `,
+      property,
+      ` is not possible for type casting\r\n` +
         `Please use one of following types: ${possibleCastTypes.join(', ')}`
     )
   }
-  return true
 }
 
-const propertyIsExist = (model: object, property: any): boolean => {
-  if (typeof model[property] === 'undefined') {
-    warn(`Property "`,property,`" is not existing in model :`, model)
-  }
-  return true
-}
-
-const objectIsDeclarationModel = (declaredModel: any, property: any) => {
-  if (!declaredModel.deserialize) {
-    error(
-      `Declared model for `,property,` is not created via model() function.` +
-      `Please wrap this model into "model()" function`
+const checkOnExistingValidType = (scheme: FieldScheme, value: any): void => {
+  if (
+    value !== null &&
+    typeof scheme.type === 'string' &&
+    scheme.type !== 'any' &&
+    typeof value !== scheme.type
+  ) {
+    warn(
+      `value`,
+      value,
+      `of the property "${scheme.name}" have not declared type - "${scheme.type}"`
     )
   }
-  return true
 }
 
 const castTo: CastPrimitiveTo = {
@@ -68,7 +83,6 @@ const castTo: CastPrimitiveTo = {
     return castedValue
   },
   object: (value: any): object => {
-
     if (!isObject(value)) {
       impossibleCastWarning(value, 'object')
       return value
@@ -77,8 +91,7 @@ const castTo: CastPrimitiveTo = {
     return Object.assign({}, value)
   },
   string: (value: any): string => {
-
-    if (!isPrimitive(value)) {
+    if (!isPrimitive(value) || typeof value === 'undefined' || value === null) {
       impossibleCastWarning(value, 'string')
       return value
     }
@@ -87,161 +100,152 @@ const castTo: CastPrimitiveTo = {
   }
 }
 
-declare interface ConvertConfig {
-  modelConfig: ModelConfiguration,
-  toOriginal: boolean
-}
-
 export const convertModel = (
-  dataModel: object,
-  { modelConfig, toOriginal }: ConvertConfig
+  dataStructure: object,
+  { declarations, options }: ModelConfiguration,
+  toOriginal: boolean
 ) => {
-  const model = {}
+  const usageStructure = {}
 
-  for (const { scheme } of modelConfig.declarations) {
-    const serializer = castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
-    serializer(dataModel, {
-      model,
-      modelOptions: modelConfig.options,
-      scheme
-    })
+  for (const { scheme } of declarations) {
+    const converter: CastAction =
+      castAction[scheme.schemeType][toOriginal ? 'toOriginal' : 'toUsage']
+    converter(dataStructure, usageStructure, { options, scheme }, toOriginal)
   }
 
-  if (!Object.keys(model).length) {
-    error('Unknown error. Object is empty after serializing/deserializing')
-  }
-
-  return model
+  return usageStructure
 }
-
-const isNotArrayError = (usageProperty: string, originalProperty: string): never => error(
-  `For `,usageProperty,` property you are use 'fieldArray()' and ` +
-  `because of this the original property `,originalProperty,` should have type array`
-)
 
 declare interface CastConfig {
-  modelOptions: ModelOptions
-  model: object
+  options: ModelOptions
   scheme: Scheme
 }
 
 const castClassToOriginal: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  dataStructure: object,
+  usageStructure: object,
+  {
+    scheme: { from, to, arrayType, optional },
+    options: { warnings }
+  }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, to.name)
-  // TODO:FIXME: Check stable working of .deserialize() function
+  warnings && !optional && checkPropertyExist(dataStructure, to)
+
+  const cast = (model: AllKeysAre<any>) => {
+    return (to.type as ModelWrapper<any>).deserialize(model)
+  }
+
+  const currentValue = dataStructure[to.name]
+
+  if (optional && typeof currentValue === 'undefined') {
+    return
+  }
+
   if (arrayType) {
-    if (!(dataModel[to.name] instanceof Array)) {
-      isNotArrayError(to.name, to.name)
-    }
-    model[from.name] =
-    (dataModel[to.name] as object[]).map(usageModel => {
-      objectIsDeclarationModel(usageModel, to.name)
-      return (usageModel as InstanceType<ModelWrapper<any>>).deserialize()
-    })
+    checkType(currentValue, 'array', to.name)
+    usageStructure[from.name] = (currentValue as object[]).map(cast)
   } else {
-    objectIsDeclarationModel(dataModel[to.name], to.name)
-    model[from.name] = (dataModel[to.name] as InstanceType<ModelWrapper<any>>).deserialize()
+    usageStructure[from.name] = cast(currentValue)
   }
 }
 
 const castClassToUsage: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+  dataStructure: object,
+  usageStructure: object,
+  {
+    scheme: { from, to, arrayType, optional },
+    options: { warnings }
+  }: CastConfig
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, from.name)
+  warnings && !optional && checkPropertyExist(dataStructure, from)
+
+  const cast = (model: AllKeysAre<any>) => {
+    const instance = (from.type as ModelWrapper<any>).serialize(model)
+    return instance
+  }
+
+  const currentValue = dataStructure[from.name]
+
+  if (optional && typeof currentValue === 'undefined') {
+    return
+  }
+
   if (arrayType) {
-    if (!(dataModel[from.name] instanceof Array)) {
-      isNotArrayError(from.name, from.name)
-    }
-    model[to.name] = (dataModel[from.name] as object[]).map(part => {
-      const instance = new (from.type as ModelWrapper<any>)(part)
-      return objectIsDeclarationModel(instance, from.name) && instance
-    })
+    checkType(currentValue, 'array', from.name)
+    usageStructure[to.name] = (currentValue as object[]).map(cast)
   } else {
-    const instance = new (from.type as ModelWrapper<any>)(dataModel[from.name])
-    objectIsDeclarationModel(instance, from.name)
-    model[to.name] = instance
+    usageStructure[to.name] = cast(currentValue)
   }
 }
 
 const castSerializersToOriginal: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to }, modelOptions }: CastConfig
+  dataStructure: object,
+  usageStructure: object,
+  { scheme: { from, to } }: CastConfig
 ) => {
   if (typeof to.serializer === 'function') {
-    const partialModel = (to.serializer as Function)(dataModel, model)
-    if (!isObject(partialModel)) {
-      error(
-        'Return value of callback function of property .to() should have type object\r\n' +
-        'Because return value will be merged into result object model'
-      )
-    }
-    Object.assign(model, partialModel)
-  } else delete model[from.name]
+    const partialModel = to.serializer(dataStructure, usageStructure)
+    checkType(partialModel, 'object', 'Custom deserializer', 'return')
+    Object.assign(usageStructure, partialModel)
+  } else delete usageStructure[from.name]
 }
 
 const castSerializersToUsage: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to }, modelOptions }: CastConfig
+  dataStructure: object,
+  usageStructure: object,
+  { scheme: { from, to } }: CastConfig
 ) => {
-  if (typeof from.serializer !== 'function') {
-    error('Custom handler should be exist and have type functions')
-  }
-  model[to.name] = (from.serializer as Function)(dataModel)
+  checkType(from.serializer, 'function', 'Custom serializer')
+  usageStructure[to.name] = (from.serializer as Function)(dataStructure)
 }
 
-const castStringsToOriginal: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
+const castStrings = (
+  dataStructure: object,
+  usageStructure: object,
+  { scheme, options: { warnings } }: CastConfig,
+  toOriginal: boolean
 ) => {
-  modelOptions.warnings && propertyIsExist(dataModel, to.name)
-  if (arrayType) {
-    if (!(dataModel[to.name] instanceof Array)) {
-      isNotArrayError(to.name, to.name)
-    }
-    model[from.name] =
-    (dataModel[to.name] as object[]).map(value => {
-      checkOnExistingCastType(from.type, to.name)
-      return castTo[from.type as keyof CastPrimitiveTo](value)
-    })
-  } else {
-    checkOnExistingCastType(from.type, to.name)
-    model[from.name] = castTo[from.type as keyof CastPrimitiveTo](dataModel[to.name])
-  }
-}
+  const [currentPropScheme, usagePropScheme] = toOriginal
+    ? [scheme.to, scheme.from]
+    : [scheme.from, scheme.to]
 
-const castStringsToUsage: CastAction = (
-  dataModel: object,
-  { model, scheme: { from, to, arrayType }, modelOptions }: CastConfig
-) => {
-  modelOptions.warnings && propertyIsExist(dataModel, from.name)
-  if (arrayType) {
-    if (!(dataModel[from.name] instanceof Array)) {
-      isNotArrayError(from.name, to.name)
+  warnings &&
+    !scheme.optional &&
+    checkPropertyExist(dataStructure, currentPropScheme)
+
+  const cast = (value: any) => {
+    if (!toOriginal) {
+      checkOnExistingValidType(currentPropScheme, value)
     }
-    model[to.name] = (dataModel[from.name] as object[]).map(value => {
-      checkOnExistingCastType(to.type, from.name)
-      return castTo[to.type as keyof CastPrimitiveTo](value)
-    })
+    checkOnExistingCastType(usagePropScheme.type, currentPropScheme.name)
+    return castTo[usagePropScheme.type as keyof CastPrimitiveTo](value)
+  }
+
+  const currentValue = dataStructure[currentPropScheme.name]
+
+  if ((scheme.optional || toOriginal) && typeof currentValue === 'undefined') {
+    return
+  }
+
+  if (scheme.arrayType) {
+    checkType(currentValue, 'array', currentPropScheme.name)
+    usageStructure[usagePropScheme.name] = (currentValue as any[]).map(cast)
   } else {
-    checkOnExistingCastType(to.type, from.name)
-    model[to.name] = castTo[to.type as keyof CastPrimitiveTo](dataModel[from.name])
+    usageStructure[usagePropScheme.name] = cast(currentValue)
   }
 }
 
 const castAction: CastActionsObject = {
   [SchemeType.STRING_AND_CLASS]: {
     toOriginal: castClassToOriginal,
-    toUsage: castClassToUsage,
+    toUsage: castClassToUsage
   },
   [SchemeType.SERIALIZERS]: {
     toOriginal: castSerializersToOriginal,
-    toUsage: castSerializersToUsage,
+    toUsage: castSerializersToUsage
   },
-  [SchemeType.THREE_STRINGS]: {
-    toOriginal: castStringsToOriginal,
-    toUsage: castStringsToUsage,
+  [SchemeType.STRINGS]: {
+    toOriginal: castStrings,
+    toUsage: castStrings
   }
 }

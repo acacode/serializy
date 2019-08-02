@@ -1,44 +1,47 @@
-import { DECLARATION_PROP, NAME_OF_CLASS_PROP, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { FieldArrayDeclaration, FieldDeclaration } from './field_declaration'
-import { ValueOf } from './global_types'
+import { DECLARATION_PROP, EMPTY_NAME } from './constants'
+import {
+  BasePropertyOptions,
+  CommonFieldCreator,
+  CommonPropertyOptions,
+  FieldArrayDeclaration,
+  FieldOptions
+} from './field_declaration'
+import { AllKeysAre } from './global_types'
 import { Scheme } from './scheme'
 
 export declare interface PropDeclaration {
-  [DECLARATION_PROP]: boolean,
+  [DECLARATION_PROP]: boolean
   scheme: Scheme
 }
 
-export declare interface PropDeclarationConfig<M = any> {
-  arrayType: boolean
-  options: FieldDeclaration<M> | FieldArrayDeclaration
+export declare interface PropDeclarationConfig
+  extends BasePropertyOptions,
+    CommonPropertyOptions {
+  options: FieldOptions | FieldArrayDeclaration
 }
 
 export const preparePropDeclarations = <T>(
-  objectWithDeclarations: ValueOf<T>,
-  originalModel: object,
+  objectWithDeclarations: AllKeysAre<PropDeclaration | CommonFieldCreator>
 ) =>
-  Object.keys(objectWithDeclarations).reduce((
-    declarations: PropDeclaration[],
-    propName: string
-  ) => {
-    const property: PropDeclaration = objectWithDeclarations[propName]
-    if (property[DECLARATION_PROP]) {
-      const { scheme } = property
+  Object.keys(objectWithDeclarations).reduce(
+    (declarations: PropDeclaration[], propName: string) => {
+      const property: PropDeclaration | CommonFieldCreator =
+        objectWithDeclarations[propName]
+      if (property[DECLARATION_PROP]) {
+        const propertyData =
+          typeof property === 'function' ? property({}) : property
+        const { scheme } = propertyData
 
-      if (scheme.to.name === NAME_OF_CLASS_PROP) {
-        scheme.to.name = propName
+        if (scheme.to.name === EMPTY_NAME) {
+          scheme.to.name = propName
+        }
+
+        declarations.push({ ...propertyData })
+
+        delete objectWithDeclarations[propName]
       }
 
-      if (scheme.to.type === TYPE_OF_CLASS_PROP_VALUE) {
-        const originalType = typeof originalModel[scheme.from.name]
-        scheme.to.type = originalType
-        scheme.from.type = originalType
-      }
-
-      declarations.push({ ...property })
-
-      delete objectWithDeclarations[propName]
-    }
-
-    return declarations
-  }, [])
+      return declarations
+    },
+    []
+  )

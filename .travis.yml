@@ -13,7 +13,7 @@ before_install:
   - export BRANCH_IS_TAG=$(node -p "/^([0-9].[0-9].[0-9]+((-(alpha|beta))|))$/.test('${TRAVIS_BRANCH}')")
   - export GIT_LOG="$(git log --pretty=format:"* %s (%h)")"
   - export PROJECT_NAME="acacode/serializy"
-  - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/getLatestTag.js') + ')'")
+  - export RELEASE_BODY=$(node -p "'[Click here to see release changes](https://github.com/$PROJECT_NAME/blob/$TRAVIS_BRANCH/CHANGELOG.md#' + require('./build/get_latest_tag.js') + ')'")
 
 install:
   - npm ci
@@ -56,7 +56,8 @@ jobs:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm publish
 
+
 notifications:
   slack:
     rooms:
-      secure: Gc/Rlr5eMpqXL1qlton9qb+RpCDJTM8yrC9vZ40olNs3sGVeV7oR1gOCuCSYgdLE81PPnJ392Vw9fvTYK1jkPB6T6zgDrmULWzeyvhl6OvgYxPKaFNq4ttaSEEiPsulTDCvbpsO7Okvev0deY1+6lV2h9hsMoW3O/fi18p9Of5cmpU1dGC0pd6/Ew75iEhx3h4FbcsjecciBqx/6a6Dp11mDt9aRRP9WOzi6lGEGvzKP83ubOCHs3yaVxcjfRbqUG+k5GPjUEQACjISVFSw8ujkEWPgECUjbHgxda736jL8EFB7ynOGI9ZSGMeRi7+tVMovOLYf7vlEVLW6jaRPEJDQkP5H7OXe5IyTlks4fPhr34t/BB8J1Ner+ohAiAF0j/xld4TV2FPobDD+0mVDn9GHRlP8/7Nenfjy5ka60CaZQIuMeXjBzDsstZLp1mYFiMHvw+THJ29JbjKaE0xZEX6nDHNWw9GPMn7aDtZ/ctd+JJgzYDnVE2UndZhM8maad1MLhXkBi1tRIxUVRK1o0O8GZX8z5BlQIjSy/dIg5qoUuIx1keC+yO12F/bQOmW9OR3+5S0S4eHOBmdR/jYuZHZIJrT9PgNdW2+99ReixkY4Pvfn5P3Pt9z55IJSLxRFG+t96+vUggjVNRNiKPJsRctS4GasCsu21EYKY+y82/Ig=
+      secure: tZ7R4VKqn5zjvXhxzIMRq+4CG17Klk9u/xKf0p5mLihd6esC4+Wg/HRpCkJ2oYodrcNA012CzHy3OeChiA10GpHL1Z1yTa/JWVtv5mvx7SxfkiTtSlg53eeH9CVinQpRNWpcSLTlZF5Pprs6alt5Jm5/hEJymHbKp1y+4cpHjrLO8yIgGcxlpCfDQQ9k/1tIPDifyEqbyIAL2aBnafNk8E8WKLqPPZ4TfFZDepvHqZmH7sYwWnexO716wGbO5lRMYoRHjPD63mbkMJehAqeFOo7lJnO4FESL/4ad1bh8iQ9L9wCY/AKmZyrUMNmVUFX0k7yq9NjJ33PJAD4hG696PC2fZVBvAe1c/QI1IGBYjX13UIKV/lIBdSYLGDoXFerO5jpQqvDLzL9Na7LWf1q4sljuOIPlMCx+HbWBn2bc6nQT0WQqnWfWNvERIaERwrI+YFPeXslD+fWdaBY9ugzgvhZgIVA2mpFxuMlkCJjvkPOED8gdo2gsd7nwHOduiVHoJ7bGtXv+B0lUYOs8HuvsY2WLqorsFZVbZivyLE6Hav3Aao821VHThbdIXBWDtRq4bAyE7JUHv6aPkGymvOeZOny6qb4R5PaGXrA/iNEUjbYrhQ0I/DbCuTIvhaR8/8O4UU4U6h1eO2fNl7oGi8M7lbHh7uV5hw3sXuIWFgnsXbA=

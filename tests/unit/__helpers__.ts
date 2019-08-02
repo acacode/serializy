@@ -1,10 +1,11 @@
-
 export interface TestableData {
   [propertyName: string]: Array<[string, any]>
 }
 
-export const testAllCases = (testableData: TestableData, getDescribeName: (propertyName: string) => string) => {
-
+export const testAllCases = (
+  testableData: TestableData,
+  getDescribeName: (propertyName: string) => string
+) => {
   Object.keys(testableData).forEach(propertyName => {
     describe(getDescribeName(propertyName), () => {
       const tests = testableData[propertyName]
@@ -15,7 +16,10 @@ export const testAllCases = (testableData: TestableData, getDescribeName: (prope
   })
 }
 
-export const testPropertiesOnExist = (requiredProperties: Array<[string, string]>, objectContainsProperties: any) => {
+export const testPropertiesOnExist = (
+  requiredProperties: Array<[string, string]>,
+  objectContainsProperties: any
+) => {
   requiredProperties.forEach(([property, type]) => {
     describe(`"${property}" property`, () => {
       test(`module should contain this property`, () => {
@@ -28,4 +32,50 @@ export const testPropertiesOnExist = (requiredProperties: Array<[string, string]
   })
 }
 
-export const simpleObjectCopy = (object: any) => JSON.parse(JSON.stringify(object))
+export const simpleObjectCopy = (object: any) =>
+  JSON.parse(JSON.stringify(object))
+
+const mockedMethods = ['log', 'warn', 'error']
+export const { originalConsoleFuncs, consoleMessages } = mockedMethods.reduce(
+  (acc: any, method: any) => {
+    acc.originalConsoleFuncs[method] = console[method].bind(console)
+    acc.consoleMessages[method] = []
+
+    return acc
+  },
+  {
+    consoleMessages: {},
+    originalConsoleFuncs: {}
+  }
+)
+
+export const clearConsole = () =>
+  mockedMethods.forEach(method => {
+    consoleMessages[method] = []
+  })
+
+export const mockConsole = (callOriginals?: boolean) => {
+  const createMockConsoleFunc = (method: any) => {
+    console[method] = (...args: any[]) => {
+      consoleMessages[method].push(args)
+      if (callOriginals) return originalConsoleFuncs[method](...args)
+    }
+  }
+
+  const deleteMockConsoleFunc = (method: any) => {
+    console[method] = originalConsoleFuncs[method]
+    consoleMessages[method] = []
+  }
+
+  beforeEach(() => {
+    mockedMethods.forEach((method: any) => {
+      createMockConsoleFunc(method)
+    })
+  })
+
+  afterEach(() => {
+    mockedMethods.forEach((method: any) => {
+      deleteMockConsoleFunc(method)
+    })
+  })
+}

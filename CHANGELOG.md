@@ -11,6 +11,35 @@
 ### Removed
  -->
 
+## [1.0.0-beta.1](https://github.com/acacode/serializy/releases/tag/1.0.0-beta.1)
+
+### Fixed  
+- Problems with deserializing `undefined` value  
+- Wrongs warning/error messages linked with serializing empty objects and `null` values  
+- Warnings in console when some property is `null` or `undefined`  
+- [Critical bug] Deserializing structures using `Model.deserialize()` was not working with objects not created via `serializy`  
+- [Critical bug] Linked with contains `.deserialize()` property in each object  
+
+### Changed    
+- Warning, error, exception messages (typo, more friendly messages)  
+- [Internal] Changed return value of `field()/fieldArray()`  
+
+### Added  
+- `optional` field configuration property  
+- New type of field declaration  
+    `field({ name: 'prop_name', type: 'prop_type', usageType: 'usage_prop_type' })`  
+- [Internal] Unit tests  
+- Added abilities for `fieldArray()` function. Now available common schemes:  
+    - `fieldArray('prop_name', 'prop_type', 'usage_prop_type')`  
+    - `fieldArray('prop_name', ModelDeclaration)`  
+
+### Removed  
+- [Internal] Scheme types : `ONE_STRING`, `TWO_STRINGS`, `THREE_STRINGS` (Combine this types into one `STRINGS`)  
+
+
+
+
+
 ## [1.0.0-alpha.2](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.2)
 
 ### Fixed
@@ -19,8 +48,12 @@
 ### Changed  
 - Fully removed `yarn` from project because already using npm
 
-## [1.0.0-alpha.1](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.1)
 
+
+
+
+
+## [1.0.0-alpha.1](https://github.com/acacode/serializy/releases/tag/1.0.0-alpha.1)
 
 ### Internal
 - Fixed internal typings  
@@ -47,10 +80,17 @@
 
 
 
+
+
+
 ## [0.0.1-beta](https://github.com/acacode/serializy/releases/tag/0.0.1-beta)
 
 ### Added
 - Added new types for type declaration: `'any'`, `'object'`
+
+
+
+
 
 
 ## [0.0.1-alpha](https://github.com/acacode/serializy/releases/tag/0.0.1-alpha)

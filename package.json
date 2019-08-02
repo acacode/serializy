@@ -1,7 +1,7 @@
 {
   "name": "serializy",
-  "version": "1.0.0-alpha.2",
-  "description": "Data serializer for client-side applications",
+  "version": "1.0.0-beta.1",
+  "description": "Object schema validation and data serialization",
   "main": "lib/serializy.js",
   "unpkg": "dist/serializy.js",
   "module": "es/serializy.js",
@@ -11,13 +11,20 @@
     "clean": "rimraf lib dist es",
     "debug": "npm run build:live --debug-brk=5858",
     "exec": "ts-node example/index.ts",
-    "lint:fix": "npm run lint --fix",
+    "lint:fix": "npm run lint -- --fix",
     "lint": "tslint 'src/**/*.ts' 'tests/**/*.ts'",
     "prepare": "npm run clean && npm run build",
+    "build-sizes": "bash build/output_file_sizes.sh",
     "test": "jest"
   },
   "author": "acacode",
   "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:fix",
+      "post-update": "npm run prepare && npm run exec"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
@@ -25,9 +32,11 @@
     "@types/jest": "^24.0.13",
     "babel-jest": "^24.8.0",
     "chai": "^4.2.0",
+    "husky": "^3.0.1",
     "jest": "^24.8.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.18.10",
+    "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.11.3",
     "rollup-plugin-commonjs": "^9.3.4",
@@ -38,8 +47,9 @@
     "ts-jest": "^24.0.2",
     "ts-node": "^8.0.2",
     "tslint": "5.13.0",
+    "tslint-config-prettier": "^1.18.0",
     "tslint-config-standard": "^8.0.1",
-    "tslint-eslint-rules": "^5.4.0",
+    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "3.3.3333"
   },
   "dependencies": {},
@@ -49,14 +59,16 @@
     "url": "git+https://github.com/acacode/serializy.git"
   },
   "keywords": [
-    "parser",
+    "json",
+    "object",
+    "schema",
+    "jsonschema",
+    "validator",
+    "validation",
     "serializer",
-    "serialize",
+    "serialization",
     "mapper",
     "convert",
-    "converter",
-    "javascript",
-    "js",
     "data"
   ],
   "files": [

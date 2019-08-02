@@ -2,15 +2,17 @@
 
   [![serializy](./assets/logo.png)](https://www.npmjs.com/package/serializy) 
 
-  [![](https://img.shields.io/badge/license-MIT-red.svg)](./LICENSE)
-  [![](https://img.shields.io/npm/v/serializy.svg)](https://www.npmjs.com/package/serializy)
-  [![](https://img.shields.io/travis/acacode/serializy.svg)](https://travis-ci.org/acacode/serializy)
-  [![](https://img.shields.io/npm/dm/serializy.svg)](http://npm-stat.com/charts.html?package=serializy)
-  [![](https://badgen.net/bundlephobia/min/serializy)](https://bundlephobia.com/result?p=serializy)
-  [![](https://badgen.net/bundlephobia/minzip/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![license](https://img.shields.io/badge/license-MIT-red.svg)](./LICENSE)
+  [![npm](https://img.shields.io/npm/v/serializy.svg)](https://www.npmjs.com/package/serializy)
+  [![](https://data.jsdelivr.com/v1/package/npm/serializy/badge)](https://www.jsdelivr.com/package/npm/serializy)
+  [![build status](https://img.shields.io/travis/acacode/serializy.svg)](https://travis-ci.org/acacode/serializy)
+  [![downloads per month](https://img.shields.io/npm/dm/serializy.svg)](http://npm-stat.com/charts.html?package=serializy)
+  [![min size](https://badgen.net/bundlephobia/min/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![minzip size](https://badgen.net/bundlephobia/minzip/serializy)](https://bundlephobia.com/result?p=serializy)
+  [![install size](https://packagephobia.now.sh/badge?p=serializy)](https://packagephobia.now.sh/result?p=serializy)
 
   <p>
-    Data mapper between client-side and server-side applications
+    Object schema validation and data serialization
   </p>
 </div>
 
@@ -42,7 +44,7 @@ class DeveloperDeclaration {
   languages = fieldArray('LaNgUagEs', 'string')
 }
 ```
-Creating declaration using class is not important, you can create just a simple object:  
+Creating declaration using class is not necessarily, you can create just a simple object:  
 ```js
 
 const DeveloperDeclaration = {
@@ -66,12 +68,18 @@ const ServerStructure = {
 }
 
 const developer = new DeveloperModel(ServerStructure)
+/*
+  developer object will be
+  {
+    likeCoffee: true,
+    languages: ['GoLang', 'Python']
+  }
+*/
 
-console.log(developer.likeCoffee) // will be true :-)
 ```
 
 But what if you need to change your client model and send it to the server ?  
-You can use `.deserialize()` of each created instance of declared model:  
+You can use `.deserialize()` of the each created instance of declared model:  
 
 ```js
 
@@ -87,40 +95,204 @@ developer.deserialize()
 */
 ```
 Also your created structure declaration (like `DeveloperModel`) have methods:  
-- `.serialize(serverModel)` - to convert server-side structure to client-side  
-- `.deserialize(clientModel)` - to convert client-side structure to server-side  
-  
-## 📚 Documentation
+- **`.serialize(serverModel)`** - to convert server-side structure to client-side  
+- **`.deserialize(clientModel)`** - to convert client-side structure to server-side  
+In addition, structure declarations have methods:  
+- **`.getUsagePropertyNames()`** - returns array of usage property names declared in model  
+- **`.getOriginalPropertyNames()`** - returns array of original property names declared in model  
+- **`.getPropertiesMap(reverseNames?: boolean)`** - returns map where key is usage property name and value is original property name. `reverseNames` - just changing sides key/value  
+
+## 📚 Documentation  
+
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
 
 <hr>
 
-### 🔹 `field()`[[Source]](./src/field_declaration.ts#L33)  
+### 🔹 **`field(...options: FieldOptions)`**[[Source]](./src/field_declaration.ts#L102)  
 
-This function is needed for describing property of server-side structure.  
-![image](https://user-images.githubusercontent.com/16340911/60381983-1539e180-9a65-11e9-874e-7c67d4244b2e.png)  
+This function needed for transforming property of the original structure to usage property.  
+Syntax: `field(...options: FieldOptions)` or `field(...options: FieldOptions)(propertyOptions: Partial<CommonPropertyOptions>)`  
 
-Argument variations:  
-- `field(originalPropertyName: string, originalType?: string, usageType?: string)`  
+Property options it is configuration object which can allows to change various behaviour of this property. Currently object have:  
+```js
+{
+  optional: boolean
+  // true - will say to serializy that this property
+  // can be not contains in original/usage structure
+  // By default: false
+}
+```
 
-`originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any'):  
-![image](https://user-images.githubusercontent.com/16340911/60689395-9d851000-9ec5-11e9-99bc-cb55b3ea6ea1.png)  
+For example, you've got object `{ FirsT_naMe: 'John' }` and you need to convert property `"FirsT_naMe"` to the `"firstName"`, you can just write:  
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    firstName: field('FirsT_naMe', 'string')
+    // firstName - name of the usage property
+    // 'FirsT_naMe' (first arg) - name of the original property
+    // 'string' (second arg) - type of the both sides properties
+  })
+```
+Or you've got object with string value of number like `{ Age: '19' }` but you need to use type number, you can just write:  
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    age: field('Age', 'string', 'number')
+    // firstName - name of the usage property
+    // 'FirsT_naMe' (first arg) - name of the original property
+    // 'string' (second arg) - type of original property
+    // 'number' (third arg) - type of usage property
+  })
+```
+
+Options:  
+
+- **`field(originalPropertyName: string, originalType?: string, usageType?: string)`**
+  
+  This type of the field declaration allows you to describe simple properties which are mostly primitive values.  
+  Arguments:  
+      - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
+      - **`originalType?: string`** - type of the original property.    
+      - **`usageType?: string`** - needed type of the usage property.  
+
+    note: `originalType` and `usageType` should be one of the [following strings](./src/converter.ts#L30) (`'boolean'`, `'number'`, `'string'`, `'object'`, `'any'`)  
+
+  Examples:  
+  ```js
+
+  const Model = model({
+    someProp: field('SomeProp','number','string')
+    hidden: field('Hidden','boolean')({ optional: true })
+    any: field('Any', 'any')
+  })
+
+  const structure = new Model({
+    SomeProp: 12345,
+    Any: { foo: 'bar' }
+  })
+
+  console.log(structure.someProp) // '12345'
+  console.log(structure.deserialize()) // { SomeProp: 12345, Any: { foo: 'bar' } }
+  ```  
+![image](./assets/empty_block.png)  
+
 
 
   
-- `field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
+  
+  
+- **`field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
 
-[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
-And keys/properties should have values created via `field()`, `fieldArray()` function  
-![image](https://user-images.githubusercontent.com/16340911/60382161-f9840a80-9a67-11e9-9ea8-a5e56762b13a.png)  
-![image](https://user-images.githubusercontent.com/16340911/60382173-1f111400-9a68-11e9-8fb1-f1a2e7c11a6d.png)  
+  This type of the field declaration allows you to describe complex structures to usage structures    
+  Arguments:  
+      - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
+      - **`modelDeclaration: ModelDeclaration`** - model declaration needed for convert original object into usage object.  
+          [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+          And keys/properties should have values created via `field()`, `fieldArray()` function  
+
+
+  Examples:  
+  ```js
+  const FooModel = model(class FooModel {
+    foo = field('Foo', 'number', 'string')
+  })
+
+  class Model = model({class Model {
+    fooStruct = field('FooStruct', FooModel)
+  }})
+  ```  
+  ```js
+  class Model = model({class Model {
+    // or you can not create additional wrapped model() class
+    fooStruct = field('FooStruct', {
+      foo = field('Foo', 'number', 'string')
+    })
+  }})
+
+  const fooBarStruct = new Model({
+    FooStruct: { Foo: 12345 }
+  })
+
+  console.log(fooBarStruct) // { fooStruct: { foo: '12345' } }
+  console.log(fooBarStruct.deserialize()) // { FooStruct: { Foo: 12345 } }
+  ```  
+![image](./assets/empty_block.png)  
+
+
+  
+  
+
+  
+- **`field(customSerializer: function, customDeserializer?: function)`**  
+
+  You can attach custom serializer/deserializer for specific cases.  
+  Arguments:  
+      - **`customSerializer: function`** - this function should return value of the usage property. Takes one argument - original structure   
+      - **`customDeserializer?: function`** - this function should return object which will been merged to the original structure. Takes one argument - usage structure  
+
+
+  Examples:  
+  ```js
+  const Model = model({
+    barBaz: field(
+      ({ bar, baz }) => `${bar}/${baz}`,
+      ({ barBaz }) => {
+        const [bar, baz] = barBaz.split('/')
+        return { bar, baz }
+      }
+    ),
+    foo: field(({ foo }) => foo, ({ foo }) => ({ foo })) // in this case just better to use field('foo')
+  })
+
+  const structure = new Model({
+    foo: 'foo',
+    bar: 'bar',
+    baz: 'baz'
+  })
+
+  console.log(structure) // { barBaz: 'bar/baz', foo: 'foo' }
+  console.log(structure.deserialize()) // { foo: 'foo', bar: 'bar', baz: 'baz' }
+  ```  
+![image](./assets/empty_block.png)  
+
+
+  
+  
+
+  
+- **`field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`**  
+
+  This is just another way to describe property.   
+  Properties:  
+      - **`name: string`** - key name in the original structure  
+      - **`type?: PropertyType`** - type of the original property  
+      - **`usageType?: PropertyType`** - type for usage property  
+      - **`arrayType?: boolean`** - property have array type or not  
+      - **`optional?: boolean`** - same [from property](#-fieldoptions-fieldoptionssource) options but have more priority
+
+
+  Examples:  
+  ```js
+  const Model = model({
+    someProp: field({
+      name: 'SomeProp',
+      optional: true,
+      type: 'number',
+      usageType: 'string'
+    })
+  })
+
+  const structure = new Model({
+    SomeProp: 12345
+  })
+
+  console.log(structure.someProp) // '12345' because usageType - 'string'
+  console.log(structure.deserialize()) // { SomeProp: 12345 }
+  ```  
+![image](./assets/empty_block.png)  
 
 
 
-- `field(customSerializer: function, customDeserializer: function)`  
 
-You can attach custom serializer/deserializer for specific cases.  
-![image](https://user-images.githubusercontent.com/16340911/60382224-c4c48300-9a68-11e9-963c-606971be4564.png)  
+
 <!-- Function `field()` needs you to describe some property of your model like  
 ```
 class  -->
@@ -128,32 +300,67 @@ class  -->
 <hr>
 
 
-### 🔹 `fieldArray()`[[Source]](./src/field_declaration.ts#L38)  
+### 🔹 **`fieldArray()`**[[Source]](./src/field_declaration.ts#L105)  
 
-This is the same thing like [`field()`](#fieldsource) but it needs to describe array of data  
-![image](https://user-images.githubusercontent.com/16340911/60383955-019c7400-9a81-11e9-8c49-270617f0f8be.png)
+This is the same thing like [`field()`](#-fieldoptions-fieldoptionssource) but it needs to describe array of data  
+
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    stringsArray: fieldArray('DataArray', 'string')
+    // stringsArray - name of the usage property
+    // 'DataArray' (first arg) - name of the original property which should be array
+    // 'string' (second arg) - type of the each element in array
+  })
+```
 
 Argument variations:  
 
-- `fieldArray(originalPropertyName: string, originalType: string)`  
-`originalPropertyName` - name of property which should be exist in original structure  
-`originalType` should be one of the [following strings](./src/converter.ts#L17) ('boolean', 'number', 'string', 'object', 'any')  
+- **`fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`**  
+      - **`originalPropertyName`** - name of property which should be exist in original structure  
+      - **`originalType?: string`** - type of the original property.  
+      - **`usageType?: string`** - needed type of the usage property.  
 
 
-- `fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`  
-`originalPropertyName` - name of property which should be exist in original structure  
-[`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
-And keys/properties should have values created via `field()`, `fieldArray()` function  
+- **`fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
+      - **`originalPropertyName`** - name of property which should be exist in original structure  
+      [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
+      And keys/properties should have values created via `field()`, `fieldArray()` function  
 
 <hr>
 
 
-### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L47)  
+### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L48)  
 
 This function allows to make model from structure declaration.  
+Syntax: 
+```js
+  model(YourStructDeclaration: object | class, config?: object)
 
-![image](https://user-images.githubusercontent.com/16340911/60385059-d5d3bb00-9a8d-11e9-89f5-258d2364ab52.png)  
+  // YourStructDeclaration can be:
 
+  YourStructDeclaration = {
+    foo: field('foo')
+  }
+  class YourStructDeclaration {
+    foo = field('foo')
+  }
+
+  // config contains properties:
+  const config = {
+    warnings: boolean // - disable/enable most warnings based on this declaration
+  }
+
+```
+
+
+Examples:  
+```js
+  const Struct = model({ // it is required wrapper for structure declarations
+    // your property declarations
+    firstName: field('FirstName')
+    lastName: field('LastName')
+  })
+```
 
    
    
@@ -166,10 +373,10 @@ All examples are located [here](./example/index.ts)
 ![example of usage 2](./assets/serializy_example2.png)
 
 
-## 📢 Plans 
+## 📢 Integrations  
 
-Currently is needed to create integration with [`axios`](https://github.com/axios/axios) and [`kinka`](https://github.com/acacode/kinka)  
-And that I think will been a great idea, because you will just needed to say http web-clients what you want to see in the response of http request  
+  [**kinka-serializy**](https://github.com/acacode/kinka-serializy) - integration serializy with http web-client [**kinka**](https://github.com/acacode/kinka)  
+  [**axios-serializy**](https://github.com/acacode/axios-serializy) - integration serializy with http web-client [**axios**](https://github.com/axios/axios)
 
 
 ## 📝 License

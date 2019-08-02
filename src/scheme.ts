@@ -1,104 +1,140 @@
-import { NAME_OF_CLASS_PROP, SchemeType, TYPE_OF_CLASS_PROP_VALUE } from './constants'
-import { AllKeysAre } from './global_types'
-import { error } from './helpers'
-import { createModel, ModelWrapper } from './model_wrapper'
-import { PropDeclaration, PropDeclarationConfig } from './prop_declaration'
+import { EMPTY_NAME, SchemeType } from './constants'
+import {
+  BasePropertyOptions,
+  CommonPropertyOptions,
+  ModelDeclaration
+} from './field_declaration'
+import { criticalError } from './helpers'
+import { createModel } from './model_wrapper'
+import { PropDeclarationConfig } from './prop_declaration'
 
-export interface SchemeConfig<T = any> {
-  serializer: null | Function,
-  name: typeof NAME_OF_CLASS_PROP | string,
-  type: typeof TYPE_OF_CLASS_PROP_VALUE | null | string | Function | ModelWrapper<T> | AllKeysAre<PropDeclaration>,
+export interface FieldScheme<T = any> {
+  serializer: null | Function
+  name: typeof EMPTY_NAME | string
+  type: null | string | Function | ModelDeclaration
 }
 
-export declare interface Scheme<T = any> {
-  from: SchemeConfig<T>
-  to: SchemeConfig<T>
+export declare interface Scheme<T = any>
+  extends BasePropertyOptions,
+    CommonPropertyOptions {
+  from: FieldScheme<T>
+  to: FieldScheme<T>
   schemeType: SchemeType
-  arrayType: boolean
 }
 
-export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M>): Scheme => {
+const SERIALIZER_NOOP = () => ({})
 
-  const { options } = config
-
+export const createSchemeFromOptions = <M = any>({
+  options,
+  arrayType,
+  optional
+}: PropDeclarationConfig): Scheme => {
   const scheme: Scheme = {
-    arrayType: !!config.arrayType,
+    arrayType: !!arrayType,
     from: {
       name: '',
       serializer: null,
-      type: null,
+      type: null
     },
+    optional: !!optional,
     schemeType: null as any,
     to: {
-      name: '',
+      name: EMPTY_NAME,
       serializer: null,
-      type: null,
-    },
+      type: null
+    }
   }
 
-  const [option1,option2,option3] = options
+  const makeScheme = (
+    type: SchemeType,
+    from?: Partial<FieldScheme>,
+    to?: Partial<FieldScheme>
+  ) => {
+    scheme.schemeType = type
+    Object.assign(scheme.from, from || {})
+    Object.assign(scheme.to, to || {})
+  }
+
+  const [option1, option2, option3] = options
+
+  const DEFAULT_TYPE = 'any'
 
   // Count of arguments is 1
   if (options.length === 1) {
-
     if (typeof option1 === 'string') {
       /*
         field('PropertyName')
       */
-      scheme.schemeType = SchemeType.ONE_STRING
-      scheme.from.name = option1
-      scheme.from.type = TYPE_OF_CLASS_PROP_VALUE
-      scheme.to.name = NAME_OF_CLASS_PROP
-      scheme.to.type = TYPE_OF_CLASS_PROP_VALUE
+      makeScheme(
+        SchemeType.STRINGS,
+        { name: option1, type: DEFAULT_TYPE },
+        { type: DEFAULT_TYPE }
+      )
+    }
+
+    if (typeof option1 === 'object') {
+      /*
+        field({ name: 'PropertyName' })
+      */
+
+      if (!option1.name) {
+        criticalError('field configuration should contains "name" property')
+      }
+
+      const type = option1.type || DEFAULT_TYPE
+
+      makeScheme(
+        SchemeType.STRINGS,
+        { name: option1.name, type },
+        { type: option1.usageType || type }
+      )
+
+      scheme.optional = !!option1.optional
     }
 
     if (typeof option1 === 'function') {
       /*
         field(function CustomSerializer(){})
       */
-      scheme.schemeType = SchemeType.SERIALIZERS
-      scheme.to.name = NAME_OF_CLASS_PROP
-      scheme.from.serializer = option1
-      scheme.to.serializer = () => ({})
+
+      makeScheme(
+        SchemeType.SERIALIZERS,
+        { serializer: option1 },
+        { serializer: SERIALIZER_NOOP }
+      )
     }
   }
 
   // Count of arguments is 2
   if (options.length === 2) {
-
     if (typeof option1 === 'string') {
-
       if (typeof option2 === 'string') {
         /*
           field('PropertyName','propertyType')
         */
-        scheme.schemeType = SchemeType.TWO_STRINGS
-        scheme.from.name = option1
-        scheme.from.type = option2
-        scheme.to.name = NAME_OF_CLASS_PROP
-        scheme.to.type = option2
+        makeScheme(
+          SchemeType.STRINGS,
+          { name: option1, type: option2 },
+          { type: option2 }
+        )
       }
 
-      if (typeof option2 === 'function') {
+      if (typeof option2 === 'function' || typeof option2 === 'object') {
         /*
           field('PropertyName', Model)
         */
-        scheme.schemeType = SchemeType.STRING_AND_CLASS
-        scheme.from.name = option1
-        scheme.from.type = option2
-        scheme.to.name = NAME_OF_CLASS_PROP
-        scheme.to.type = option2
-      }
-
-      if (typeof option2 === 'object') {
         /*
           field('PropertyName', SimpleObjectModel)
         */
-        scheme.schemeType = SchemeType.STRING_AND_CLASS
-        scheme.from.name = option1
-        scheme.from.type = createModel(option2)
-        scheme.to.name = NAME_OF_CLASS_PROP
-        scheme.to.type = createModel(option2)
+
+        const model =
+          typeof option2 === 'object' ? createModel(option2) : option2
+
+        makeScheme(
+          SchemeType.STRING_AND_CLASS,
+          { name: option1, type: model },
+          { type: model }
+        )
       }
     }
 
@@ -107,36 +143,45 @@ export const createSchemeFromOptions = <M = any>(config: PropDeclarationConfig<M
         field(function CustomSerializer(){},function CustomDeserializer(){})
       */
 
-      if (typeof option2 !== 'function') {
-        error('Second argument should be function which needed to deserialize usage model to original')
-      }
-
-      scheme.schemeType = SchemeType.SERIALIZERS
-      scheme.to.name = NAME_OF_CLASS_PROP
-      scheme.from.serializer = option1
-      scheme.to.serializer = option2 as Function
+      makeScheme(
+        SchemeType.SERIALIZERS,
+        { serializer: option1 },
+        {
+          serializer: typeof option2 === 'function' ? option2 : SERIALIZER_NOOP
+        }
+      )
     }
   }
 
   // Count of arguments is 3
   if (options.length === 3) {
-
-    if (typeof option1 === 'string' && typeof option2 === 'string' && typeof option3 === 'string') {
+    if (
+      typeof option1 === 'string' &&
+      typeof option2 === 'string' &&
+      typeof option3 === 'string'
+    ) {
       /*
         field('PropertyName','propertyType','usagePropertyType')
       */
-      scheme.schemeType = SchemeType.THREE_STRINGS
-      scheme.from.name = option1
-      scheme.from.type = option2
-      scheme.to.name = NAME_OF_CLASS_PROP
-      scheme.to.type = option3
+      makeScheme(
+        SchemeType.STRINGS,
+        { name: option1, type: option2 },
+        { type: option3 }
+      )
     }
   }
 
+  if (scheme.schemeType !== SchemeType.SERIALIZERS && !scheme.from.name) {
+    criticalError(
+      'Invalid scheme\r\n' +
+        `First argument of field()/fieldArray() should be not empty string`
+    )
+  }
+
   if (!scheme.schemeType) {
-    error(
+    criticalError(
       `Unknown scheme type\r\n` +
-      `Probably it happened because you send to field()/fieldArray() invalid arguments`
+        `Probably it happened because you send to field()/fieldArray() invalid arguments`
     )
   }
 
