@@ -44,7 +44,7 @@ class DeveloperDeclaration {
   languages = fieldArray('LaNgUagEs', 'string')
 }
 ```
-Creating declaration using class is not important, you can create just a simple object:  
+Creating declaration using class is not necessarily, you can create just a simple object:  
 ```js
 
 const DeveloperDeclaration = {
@@ -68,12 +68,18 @@ const ServerStructure = {
 }
 
 const developer = new DeveloperModel(ServerStructure)
+/*
+  developer object will be
+  {
+    likeCoffee: true,
+    languages: ['GoLang', 'Python']
+  }
+*/
 
-console.log(developer.likeCoffee) // will be true :-)
 ```
 
 But what if you need to change your client model and send it to the server ?  
-You can use `.deserialize()` of each created instance of declared model:  
+You can use `.deserialize()` of the each created instance of declared model:  
 
 ```js
 
@@ -89,10 +95,15 @@ developer.deserialize()
 */
 ```
 Also your created structure declaration (like `DeveloperModel`) have methods:  
-- `.serialize(serverModel)` - to convert server-side structure to client-side  
-- `.deserialize(clientModel)` - to convert client-side structure to server-side  
-  
-## 📚 Documentation
+- **`.serialize(serverModel)`** - to convert server-side structure to client-side  
+- **`.deserialize(clientModel)`** - to convert client-side structure to server-side  
+In addition, structure declarations have methods:  
+- **`.getUsagePropertyNames()`** - returns array of usage property names declared in model  
+- **`.getOriginalPropertyNames()`** - returns array of original property names declared in model  
+- **`.getPropertiesMap(reverseNames?: boolean)`** - returns map where key is usage property name and value is original property name. `reverseNames` - just changing sides key/value  
+
+## 📚 Documentation  
+
 Serializy have exports: `field()`, `fieldArray()`, `model()`  
 
 <hr>
@@ -100,6 +111,16 @@ Serializy have exports: `field()`, `fieldArray()`, `model()`
 ### 🔹 **`field(...options: FieldOptions)`**[[Source]](./src/field_declaration.ts#L102)  
 
 This function needed for transforming property of the original structure to usage property.  
+Syntax: `field(...options: FieldOptions)` or `field(...options: FieldOptions)(propertyOptions: Partial<CommonPropertyOptions>)`  
+
+Property options it is configuration object which can allows to change various behaviour of this property. Currently object have:  
+```js
+{
+  optional: boolean // true - will say to serializy that this property
+                    // can be not contains in original/usage structure
+                    // By default: false
+}
+```
 
 For example, you've got object `{ FirsT_naMe: 'John' }` and you need to convert property `"FirsT_naMe"` to the `"firstName"`, you can just write:  
 ```js
@@ -125,7 +146,7 @@ Options:
 
 - **`field(originalPropertyName: string, originalType?: string, usageType?: string)`**
   
-  This type of the field declaration allows you to declare simple properties which are mostly primitive values.  
+  This type of the field declaration allows you to describe simple properties which are mostly primitive values.  
   Arguments:  
       - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
       - **`originalType?: string`** - type of the original property.    
@@ -161,7 +182,7 @@ Options:
   
 - **`field(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
 
-  This type of the field declaration allows you to declare complex structures to usage structures    
+  This type of the field declaration allows you to describe complex structures to usage structures    
   Arguments:  
       - **`originalPropertyName: string`** - name of the property in original structure.  Original property with this name will be assigned to usage property.  
       - **`modelDeclaration: ModelDeclaration`** - model declaration needed for convert original object into usage object.  
@@ -239,7 +260,7 @@ Options:
   
 - **`field({ name: 'property_name', type: 'original_type', usageType: 'usage_type' }: object)`**  
 
-  This is just another way to declare property.   
+  This is just another way to describe property.   
   Properties:  
       - **`name: string`** - key name in the original structure  
       - **`type?: PropertyType`** - type of the original property  
