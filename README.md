@@ -116,9 +116,10 @@ Syntax: `field(...options: FieldOptions)` or `field(...options: FieldOptions)(pr
 Property options it is configuration object which can allows to change various behaviour of this property. Currently object have:  
 ```js
 {
-  optional: boolean // true - will say to serializy that this property
-                    // can be not contains in original/usage structure
-                    // By default: false
+  optional: boolean
+  // true - will say to serializy that this property
+  // can be not contains in original/usage structure
+  // By default: false
 }
 ```
 
@@ -158,20 +159,18 @@ Options:
   ```js
 
   const Model = model({
-    someProp: field({
-      name: 'SomeProp',
-      optional: true,
-      type: 'number',
-      usageType: 'string'
-    })
+    someProp: field('SomeProp','number','string')
+    hidden: field('Hidden','boolean')({ optional: true })
+    any: field('Any', 'any')
   })
 
   const structure = new Model({
-    SomeProp: 12345
+    SomeProp: 12345,
+    Any: { foo: 'bar' }
   })
 
-  console.log(structure.someProp) // '12345' because usageType - 'string'
-  console.log(structure.deserialize()) // { SomeProp: 12345 }
+  console.log(structure.someProp) // '12345'
+  console.log(structure.deserialize()) // { SomeProp: 12345, Any: { foo: 'bar' } }
   ```  
 ![image](./assets/empty_block.png)  
 
@@ -202,6 +201,7 @@ Options:
   ```  
   ```js
   class Model = model({class Model {
+    // or you can not create additional wrapped model() class
     fooStruct = field('FooStruct', {
       foo = field('Foo', 'number', 'string')
     })
@@ -332,10 +332,33 @@ Argument variations:
 ### 🔹 `model()`[[Source]](./src/model_wrapper.ts#L48)  
 
 This function allows to make model from structure declaration.  
+Syntax: 
+```js
+  model(YourStructDeclaration: object | class, config?: object)
 
+  // YourStructDeclaration can be:
+
+  YourStructDeclaration = {
+    foo: field('foo')
+  }
+  class YourStructDeclaration {
+    foo = field('foo')
+  }
+
+  // config contains properties:
+  const config = {
+    warnings: boolean // - disable/enable most warnings based on this declaration
+  }
+
+```
+
+
+Examples:  
 ```js
   const Struct = model({ // it is required wrapper for structure declarations
     // your property declarations
+    firstName: field('FirstName')
+    lastName: field('LastName')
   })
 ```
 
