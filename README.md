@@ -32,7 +32,7 @@ Scroll down and take a look at the examples ;-)
 
 ## 💡 How to use
 
-Nothing to hard, just create a class or simple object which will contain all your structure declarations (using `field()`, `fieldArray()`).  
+Not so hard, just create a class or simple object which will contain all your structure declarations (using `field()`, `fieldArray()`).  
 And send this class/object to the `model()` function as argument  
 Like in example:  
 
@@ -302,7 +302,7 @@ class  -->
 
 ### 🔹 **`fieldArray()`**[[Source]](./src/field_declaration.ts#L105)  
 
-This is the same thing like [`field()`](#-fieldoptions-fieldoptionssource) but it needs to describe array of data  
+This is the same thing like [`field()`](#-fieldoptions-fieldoptionssource) but it needs for describing array of data.  
 
 ```js
   const Struct = model({ // it is required wrapper for structure declarations
@@ -318,11 +318,12 @@ Argument variations:
 - **`fieldArray(originalPropertyName: string, originalType?: string, usageType?: string)`**  
       - **`originalPropertyName`** - name of property which should be exist in original structure  
       - **`originalType?: string`** - type of the original property.  
-      - **`usageType?: string`** - needed type of the usage property.  
+      - **`usageType?: string`** - wanted type of the usage property.  
 
 
 - **`fieldArray(originalPropertyName: string, modelDeclaration: ModelDeclaration)`**  
       - **`originalPropertyName`** - name of property which should be exist in original structure  
+      - **`modelDeclaration`** - model declaration needed for convert original object into usage object.  
       [`modelDeclaration`](./src/field_declaration.ts#L8) should be `object`/`model(DeclarationsClass)`  
       And keys/properties should have values created via `field()`, `fieldArray()` function  
 
