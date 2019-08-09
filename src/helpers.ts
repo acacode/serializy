@@ -38,7 +38,7 @@ export const checkType = (
   propertyName: string,
   actionName: string = 'have'
 ): void | boolean | never => {
-  const sentence = ` should ${actionName} interface {type}`
+  const sentence = ` should ${actionName} interface ${type}`
 
   if (type === 'array' && value instanceof Array) return true
   if (type === 'function' && typeof value === 'function') return true
